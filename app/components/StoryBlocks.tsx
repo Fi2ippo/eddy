@@ -20,7 +20,7 @@ export function SourceLink({ name, url, translated }: { name: string; url: strin
   return (
     <span className="text-label text-muted-strong">
       {url ? (
-        <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-6 items-center gap-0.5 text-accent underline-offset-2 hover:underline">
+        <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 min-w-11 items-center gap-0.5 text-accent underline-offset-2 hover:underline">
           {name}
           <ArrowUpRight aria-hidden="true" className="size-3.5" />
           <span className="sr-only"> (si apre in un’altra scheda)</span>
