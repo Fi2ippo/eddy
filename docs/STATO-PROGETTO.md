@@ -33,7 +33,9 @@ Se il lavoro si interrompe, si riparte dalla prima fase non spuntata.
     - Al massimo 1.200 frasi nuove per giro: sul Mac il giro con 1.104 traduzioni nuove dura 81 secondi.
     - Nell'app, per le storie tradotte: "Tradotto dall'inglese · Titolo originale: …" (pagina Storia, Feed, Ultime notizie).
   - **Feed:** punteggio con testate (3 punti ciascuna, fino a 10), freschezza (fino a 10 punti in 36 ore) e interessi (+8); le storie già lette vanno in fondo.
-- [ ] **E** · Nuova identità visiva: anteprima e scelta (STOP)
+- [x] **E** · Nuova identità visiva: anteprima pronta, **in attesa della scelta di Filippo**
+  - Pagina `/anteprima-identita` (solo in sviluppo: `npm run dev`, poi http://localhost:3002/anteprima-identita) con 3 direzioni affiancate: 1 Edicola (carta, rosso #D7392B, titoli Fraunces), 2 Inchiostro blu (blu #2B3FD6, arancio #FF7A3D, Manrope 800 compatto), 3 Notte (scuro, giallo #E8FF5A, titoli Space Grotesk).
+  - Colori degli 8 temi con icone lucide; tonalità calcolate per avere contrasto ≥ 4.5:1 (etichette piene sulle foto con testo bianco, chip tenui con testo colorato, versioni chiare per Notte). Rosso e arancio come testo su fondo chiaro scuriti (#C63528, #B9582C).
 - [ ] **F** · Applicare l'identità, i colori dei temi e l'onboarding
 - [ ] **G** · Pubblicazione online gratis
 - [ ] **H** · Controllo finale sul sito pubblicato
