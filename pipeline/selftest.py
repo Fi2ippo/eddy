@@ -112,6 +112,15 @@ check("nomi: 'Banca d'Inghilterra' resta intero", "Banca d'Inghilterra" in nm)
 check("nomi: 'L'attivista' non è un nome", not any(n.lower().startswith("l'attivista") for n in nm))
 check("nomi: 'Arriva' a inizio frase non si attacca", not any(n.startswith("Arriva") for n in nm))
 
+# confronto: il nome di una testata non è un "dettaglio solo in alcune testate"
+cmp_arts = [dict(art(20 + i, src, t), title_it=t) for i, (src, t) in enumerate([
+    ("ansa", "Hong Kong, condannato Joshua Wong"), ("post", "Hong Kong, Joshua Wong condannato a dieci anni"),
+    ("efe", "Hong Kong condanna Joshua Wong - EFE"), ("stampa", "Joshua Wong condannato, proteste a Londra")])]
+for a, nm in zip(cmp_arts, ["ANSA", "Il Post", "EFE", "La Stampa"]):
+    a["source"] = nm
+cmpb = enrich.compare(cmp_arts) or {"unique": []}
+check("confronto: il nome della testata non compare tra i dettagli", all(u["text"] != "EFE" for u in cmpb["unique"]))
+
 # eventi: sviluppi dello stesso fatto insieme, notizie diverse separate
 def st(i, title):
     return {"id": f"s{i}", "title": title, "sources": [{"title": title, "via": "feed"}], "summary": []}

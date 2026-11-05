@@ -201,12 +201,13 @@ def compare(members: list[dict]) -> dict | None:
     common_st = {stem(fold(c["word"])) for c in common}
     titles_by = {sid: _key(" . ".join(_it_title(a) for a in arts)) for sid, arts in by.items()}
     limit = 2 if n >= 8 else 1
+    outlets = {_key(a["source"]) for a in members}  # il nome di una testata nel titolo ("… - EFE") non è un dettaglio
     found: dict = {}
     for sid, arts in by.items():
         for a in arts:
             for kind, text in details_in(_it_title(a)):
                 key = _key(text).strip("«»“”\" ")
-                if len(key) < 2 or (kind == "p" and stem(fold(text.split()[0])) in common_st):
+                if len(key) < 2 or key in outlets or (kind == "p" and stem(fold(text.split()[0])) in common_st):
                     continue
                 e = found.setdefault(key, {"kind": kind, "text": text, "sources": {}})
                 e["sources"].setdefault(a["source"], a["url"])

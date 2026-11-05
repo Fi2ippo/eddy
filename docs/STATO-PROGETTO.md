@@ -1,6 +1,6 @@
 # Eddy: stato del progetto
 
-Aggiornato al 5 novembre 2026, dopo la nuova home (passi 2 e 6 già fatti).
+Aggiornato al 6 novembre 2026: lavori di novembre A–H finiti, **Eddy è online su https://fi2ippo.github.io/eddy**.
 Repository pubblico: https://github.com/Fi2ippo/eddy. I dati raccolti stanno sul ramo `dati`.
 Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese".
 
@@ -9,7 +9,7 @@ Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese"
 ## Lavori di novembre (lista di controllo)
 Se il lavoro si interrompe, si riparte dalla prima fase non spuntata.
 
-- [ ] **A** · La raccolta deve girare sempre
+- [x] **A** · La raccolta deve girare sempre — verificato il 6/11: il giro delle 00:18 ha prenotato da solo quello delle 00:50, entrambi riusciti (circa 2 minuti di raccolta ciascuno). Corretto un blocco: un giro annullato rimasto "in attesa" fermava la catena; ora il passo "prenota" ignora i giri in attesa da più di 90 minuti.
 - [x] **B** · Home (chip, Sfoglia, spazio in fondo) — chip identiche e Sfoglia tolto già il 5/11; misurato lo spazio in fondo: almeno 48px fra l'ultimo contenuto e la barra in Oggi, Libreria, Profilo e Storia
 - [x] **C** · Storie più ricche (pipeline + pagina Storia)
   - **Raccolta** (`pipeline/enrich.py`, `pipeline/wiki.py`, `pipeline/images.py`):
@@ -48,7 +48,22 @@ Se il lavoro si interrompe, si riparte dalla prima fase non spuntata.
   - Pagina **Chi siamo** dal Profilo (come funziona, 50 testate con estratti + 88 solo link da `sources.json`, foto, Wikipedia CC BY-SA, traduzioni segnalate, rimozioni, privacy). Il blocco "Grazie" è stato tolto su richiesta di Filippo.
   - Modulo GitHub "Richiesta di rimozione" + etichetta `rimozione`. **Da fare domani:** l'email per le rimozioni (`CONTACT_EMAIL` in `app/data/contact.ts`), per ora c'è solo il modulo.
   - `docs/licenze-da-controllare.md` (22 fonti) e README riscritto.
-- [ ] **H** · Controllo finale sul sito pubblicato
+- [x] **H** · Controllo finale sul sito pubblicato (6/11, browser automatico a 390px su https://fi2ippo.github.io/eddy, cache disattivata)
+  - Provati: introduzione (3 schermi), Oggi (carosello avanti e indietro con le frecce, fila dei temi su Economia), Feed (scorrimento), Storia con tutti i blocchi (In breve, Punti chiave, Per capire, Confronto, Cronologia, Le fonti), Salva → Libreria con una storia salvata, Profilo con i due pannelli, Chi siamo.
+  - Risultati: nessun errore nella console, nessun testo sotto 12px, nessun pulsante sotto 44px (corretti i link delle testate nei blocchi della Storia, prima alti 24px), contrasto dei testi sempre sufficiente (≥ 4,5:1, ≥ 3:1 per i titoli grandi), larghezza 390px senza scorrimento orizzontale. "Aggiornato 3 min fa".
+  - Corretto anche: nel Confronto il nome di una testata ("… - EFE") compariva come dettaglio "solo in alcune testate" (nuovo autotest).
+  - Tolte da sito, codice e documenti tutte le citazioni del progetto di riferimento (decisione di Filippo).
+
+### Idee future
+- **Email per le rimozioni** in `app/data/contact.ts` (Filippo la sceglie il 6/11).
+- **Licenze:** leggere le condizioni delle 22 fonti in `docs/licenze-da-controllare.md` e scrivere alle testate principali prima di far conoscere Eddy.
+- **Titoli in spagnolo/inglese da Google News** (es. EFE) restano non tradotti nella Cronologia: tradurre anche questi o mostrare il titolo italiano di un'altra testata.
+- **App installabile (PWA)**: icona sulla schermata Home e lettura delle storie salvate anche senza rete.
+- **Ricerca** tra le storie dei tre giorni.
+- **Icona e favicon** di Eddy (oggi c'è un'icona vuota).
+- **Notifica "nuove storie"** quando l'app resta aperta e arrivano dati nuovi.
+- **Dominio proprio** (es. eddy.it) puntato su GitHub Pages, se il progetto cresce.
+- **Tema scuro** per tutta l'app, partendo dai colori del Feed.
 
 ---
 
