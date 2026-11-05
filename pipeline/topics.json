@@ -81,7 +81,6 @@
    "borse",
    "stock",
    "stocks",
-   "azioni",
    "shares",
    "inflazione",
    "inflation",
@@ -162,7 +161,9 @@
    "crescita economica",
    "economic growth",
    "lavoro",
-   "jobs"
+   "jobs",
+   "azioni in borsa",
+   "titoli in borsa"
   ],
   "politica": [
    "politica",
@@ -185,7 +186,6 @@
    "voters",
    "voto",
    "vote",
-   "partito",
    "ministro",
    "minister",
    "premier",
@@ -248,7 +248,32 @@
    "casa bianca",
    "white house",
    "cremlino",
-   "kremlin"
+   "kremlin",
+   "democrazia",
+   "democracy",
+   "democratico",
+   "pro-democrazia",
+   "pro-democracy",
+   "sicurezza nazionale",
+   "national security",
+   "dissidente",
+   "dissident",
+   "regime",
+   "autoritario",
+   "authoritarian",
+   "colpo di stato",
+   "coup",
+   "dittatura",
+   "dictatorship",
+   "libertà di stampa",
+   "press freedom",
+   "prigioniero politico",
+   "political prisoner",
+   "attivista politico",
+   "partito democratico",
+   "partito politico",
+   "partiti politici",
+   "campagna elettorale"
   ],
   "scienza": [
    "scienza",
@@ -286,11 +311,9 @@
    "genoma",
    "genome",
    "dna",
-   "cellule",
    "cells",
    "medicina",
    "medicine",
-   "salute",
    "health",
    "malattia",
    "disease",
@@ -332,7 +355,12 @@
    "archeologia",
    "archaeology",
    "archeologi",
-   "archaeologists"
+   "archaeologists",
+   "cellule staminali",
+   "cellule tumorali",
+   "salute pubblica",
+   "salute mentale",
+   "sanità pubblica"
   ],
   "cultura": [
    "cultura",
@@ -373,7 +401,6 @@
    "concerto",
    "concert",
    "festival",
-   "mostra",
    "exhibition",
    "museo",
    "museum",
@@ -405,7 +432,11 @@
    "editoria",
    "publishing",
    "televisione",
-   "television"
+   "television",
+   "una mostra",
+   "la mostra",
+   "in mostra",
+   "mostra d'arte"
   ],
   "societa": [
    "societa",
@@ -507,7 +538,6 @@
    "environment",
    "ambientale",
    "environmental",
-   "clima",
    "climate",
    "climatico",
    "cambiamento climatico",
@@ -580,7 +610,9 @@
    "raccolta dei rifiuti",
    "gestione dei rifiuti",
    "rifiuti urbani",
-   "rifiuti di plastica"
+   "rifiuti di plastica",
+   "crisi climatica",
+   "emergenza climatica"
   ],
   "design": [
    "design",

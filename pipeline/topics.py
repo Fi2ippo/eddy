@@ -84,19 +84,31 @@ def article_area(a: dict) -> str:
 
 
 def story_topics(members: list[dict]) -> list[str]:
-    """Argomenti di una storia: somma pesata degli argomenti dei suoi articoli; il primo è la categoria."""
+    """Argomenti di una storia; il primo è la categoria.
+
+    Votano tutti gli articoli, anche i titoli arrivati da Google News: una sola sezione di un feed
+    (es. "business" del Guardian per una notizia sui voli) non deve decidere da sola la categoria.
+    - sezione del feed o testata di settore: 2 punti
+    - lessico: 1,5 punti al primo argomento trovato, 0,75 agli altri (la metà per i titoli di Google News)
+    """
     score = Counter()
     for a in members:
-        for rank, t in enumerate(a.get("topics") or []):
-            w = 3 if (t == a.get("topic_hint") or t in (a.get("default_topics") or [])) else 2 if rank == 0 else 1
-            score[t] += w
+        gn = a.get("via") == "google_news"
+        hints = {a.get("topic_hint"), *(a.get("default_topics") or [])} - {None}
+        lexical = 0
+        for t in a.get("topics") or []:
+            if t in hints and not gn:
+                score[t] += 2
+                continue
+            score[t] += (1.5 if lexical == 0 else 0.75) * (0.5 if gn else 1)
+            lexical += 1
     if not score:
         text = " ".join((a.get("title_it") or a["title"]) + " " + (a.get("extract_it") or a.get("extract") or "") for a in members)
         for t, lex in TOPICS.items():
             h = _hits(text, lex)
             if h:
                 score[t] += h
-    ordered = [t for t, _ in score.most_common()]
+    ordered = [t for t, _ in sorted(score.items(), key=lambda kv: (-kv[1], INTERESTS.index(kv[0])))]
     return ordered[:3] or [FALLBACK]
 
 

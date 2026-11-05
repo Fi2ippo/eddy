@@ -1,7 +1,12 @@
 name: Raccogli notizie
 
-# Ogni ora (al minuto 17) legge i feed, raggruppa le notizie e salva i dati sul ramo "dati".
+# Circa ogni ora legge i feed, raggruppa le notizie e salva i dati sul ramo "dati".
 # Il ramo "dati" contiene un solo commit, sostituito a ogni giro: così il repository non cresce all'infinito.
+#
+# Gli orari programmati di GitHub ("schedule") partono spesso in ritardo o vengono saltati. Per questo ogni giro,
+# alla fine, prenota il successivo (lavoro "prenota"): aspetta 55 minuti nell'ambiente "attesa" (Settings →
+# Environments, timer di 55 minuti, durante l'attesa non usa macchine) e poi avvia il giro dopo. Se il timer
+# manca, il lavoro aspetta da sé. L'orario programmato resta solo come riserva per far ripartire la catena.
 on:
   schedule:
     - cron: "17 * * * *"
@@ -10,14 +15,14 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: collect
-  cancel-in-progress: false
-
 jobs:
   collect:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # una raccolta alla volta (il lavoro "prenota" di un giro precedente può restare in attesa intanto)
+    concurrency:
+      group: collect
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
 
@@ -81,3 +86,28 @@ jobs:
           git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" nuovo:dati
           echo "### Raccolta" >> "$GITHUB_STEP_SUMMARY"
           python -c "import json; r=json.load(open('report.json')); print('\n'.join(f'- {k}: {r[k]}' for k in ('stories','stories_2plus','stories_with_image','stories_translated','articles','google_news_titles','seconds')))" >> "$GITHUB_STEP_SUMMARY"
+
+  prenota:
+    needs: collect
+    if: ${{ always() }} # anche se la raccolta fallisce, la catena continua
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: attesa
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Prenota il prossimo giro
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # se l'ambiente "attesa" non ha il timer, aspetto qui il tempo che manca (almeno 50 minuti dall'inizio del giro)
+          started=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" --jq .run_started_at)
+          elapsed=$(( $(date -u +%s) - $(date -u -d "$started" +%s) ))
+          if [ "$elapsed" -lt 3000 ]; then echo "attendo $(( (3000 - elapsed) / 60 )) minuti"; sleep $(( 3000 - elapsed )); fi
+          # se c'è già un altro giro in coda o in corso, non ne prenoto un secondo
+          others=$(gh run list -R "$GITHUB_REPOSITORY" --workflow collect.yml --limit 20 --json databaseId,status \
+            --jq "[.[] | select(.databaseId != ${GITHUB_RUN_ID}) | select(.status != \"completed\")] | length")
+          if [ "$others" -gt 0 ]; then echo "c'è già un giro in arrivo: non ne prenoto un altro"; exit 0; fi
+          gh workflow run collect.yml -R "$GITHUB_REPOSITORY" --ref main
+          echo "prossimo giro prenotato"

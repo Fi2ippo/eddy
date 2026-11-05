@@ -37,6 +37,7 @@ Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese"
   - **"Prima pagina":** carosello orizzontale di 9 card grandi (foto, categoria, pillola testate, prime 2 testate, titolo, "Aggiornata 20 min fa"). Si scorre a scatti con dito, rotella e frecce della tastiera; sotto ci sono i puntini; con il mouse compaiono le frecce.
     - Solo storie delle ultime 24 ore, ordinate per punteggio = 3 punti per testata (fino a 15) + fino a 10 punti di freschezza (scendono a 0 in 24 ore) + 1,5 se c'è la foto. Pesi in `app/lib/stories.ts` (`W_OUTLET`, `MAX_OUTLETS`, `W_FRESH`, `W_PHOTO`).
     - Nessun filtro per interessi (gli interessi decidono solo l'ordine del Feed); il filtro Italia / Mondo / Tutto invece vale.
+    - Una sola card per evento: la raccolta dà lo stesso `event` alle storie sullo stesso fatto (es. 8 storie sugli allarmi bomba), e la prima pagina ne mostra solo la più importante.
   - **"Sfoglia · una notizia per schermata":** apre il Feed (`/feed?da=prima-pagina`) partendo dalle 9 storie della prima pagina.
   - **Fila di temi:** Tutti + gli 8 interessi. Con un tema si vedono le storie che hanno quel tema come categoria principale (i temi secondari sono meno affidabili), ordinate per rilevanza.
   - **"Ultime notizie":** tutte le altre storie, dalla più recente, 20 alla volta con "Mostra altre". Ogni riga ha testate, orario, titolo, estratto breve, categoria, pillola testate e Salva.
@@ -169,14 +170,29 @@ Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese"
 
 **Altro:** `data/blocklist.json` è stato creato (lista vuota): vi si mettono domini o URL da non mostrare mai.
 
+### Correzioni del 5/11 sera
+- **Eventi** (`pipeline/stories.py`, `assign_events`):
+  - storie diverse sullo stesso fatto ricevono lo stesso campo `event`;
+  - regola: somiglianza TF-IDF almeno 0,17 con una storia dell'evento e almeno 0,10 in media con tutte; massimo 8 storie per evento; si uniscono prima le coppie più simili, così l'ordine non conta;
+  - risultato sui dati del 5/11: 34 eventi con più storie (allarmi bomba 8, elezioni USA 8, tassi della Banca d'Inghilterra 6, data center 5, Russell Brand 4…), senza più catene che uniscono temi diversi.
+- **Categorie:**
+  - votano tutti gli articoli della storia, anche i titoli di Google News, quindi una sola sezione "business" non decide da sola (allarmi bomba: da Economia a Società);
+  - via dal lessico le parole che si confondevano con altre: "cellule" (con "cellulari"), "salute" (con "saluta"), "mostra" (con "il video mostra"), "partito" (con "partite"), "clima" (con "clima politico"), "azioni"; al loro posto espressioni intere;
+  - aggiunte parole di politica ("democrazia", "sicurezza nazionale"…): Joshua Wong passa da Società a Politica.
+- **Giri automatici:**
+  - ogni giro, finita la raccolta, prenota il successivo (lavoro "prenota");
+  - aspetta 55 minuti nell'ambiente "attesa" di GitHub, che ha il timer e durante l'attesa non usa macchine, poi avvia il giro dopo; se c'è già un giro in arrivo non ne prenota un secondo;
+  - il cron orario resta come riserva per far ripartire la catena.
+- **Autotest:** passa da 28 a 34 controlli (eventi, trappole del lessico, voto delle categorie).
+
 ### Formato di `stories.json`
 `generated`, `count` e `stories[]`. Ogni storia ha:
 - `id`, `title`, `title_original` (se tradotto), `translated`;
 - `category` (= `topics[0]`), `topics[]` (solo gli 8 interessi), `area`;
 - `image`, `image_credit`;
-- `first_seen`, `updated`, `n_sources`;
+- `first_seen`, `updated`, `n_sources`, `event` (uguale per le storie sullo stesso evento);
 - `summary[{source, text, translated}]` (massimo 3 estratti, da testate diverse);
-- `sources[{name, title, url, via}]`.
+- `sources[{name, title, url, via, published}]`.
 
 ### Automazione (`.github/workflows/collect.yml`)
 - **Quando:** ogni ora al minuto 17, più l'avvio manuale (Actions → Raccogli notizie → Run workflow).
@@ -262,8 +278,7 @@ Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese"
 - **Google News:** circa 30 richieste all'ora. Se Google dovesse limitarle, si alza `GN_REFRESH_HOURS` in `pipeline/feeds.py`.
 - **Workflow fermo:** GitHub sospende i workflow programmati dopo 60 giorni senza attività sul repository. Se succede, basta riattivarlo da Actions.
 - **Feed:** l'ordine "interessi, poi recenza" porta in alto anche storie con una sola testata. Si potrebbe usare il punteggio della prima pagina.
-- **Prima pagina ripetitiva:** lo stesso evento diviso in più storie (es. gli allarmi bomba sui voli) può occupare più card. Si potrebbe tenere una sola card per evento.
-- **Giri automatici:** GitHub rimanda o salta spesso i giri programmati ogni ora (oggi pomeriggio non sono partiti). Si può far prenotare a ogni giro il successivo.
+
 - **Categorie da migliorare:** alcune sono discutibili, per esempio Joshua Wong finisce in "Società".
 - **Uso senza rete:** se GitHub non risponde, Oggi e il Feed mostrano "Riprova". Libreria e Profilo funzionano comunque, grazie alle schede salvate.
 - `README.md` descrive ancora la versione vecchia dell'interfaccia.

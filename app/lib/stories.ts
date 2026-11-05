@@ -25,6 +25,8 @@ export type Story = {
   firstSeen: string;
   updated: string;
   nSources: number;
+  /** storie diverse sullo stesso evento hanno lo stesso valore (id della più importante) */
+  event: string;
   summary: StorySummary[];
   sources: StorySource[];
 };
@@ -76,6 +78,7 @@ function parseStory(raw: unknown): Story | null {
     imageCredit: str(r.image_credit, 160),
     firstSeen: str(r.first_seen, 40) ?? updated,
     updated,
+    event: str(r.event, 128) ?? id,
     nSources: typeof r.n_sources === "number" && r.n_sources > 0 ? Math.floor(r.n_sources) : Math.max(1, sources.length),
     summary: summary.slice(0, 3),
     sources,
@@ -209,12 +212,15 @@ export function frontPageScore(story: Story, now: number) {
   return W_OUTLET * Math.min(outletCount(story), MAX_OUTLETS) + W_FRESH * fresh + (story.image ? W_PHOTO : 0);
 }
 
-/** Prima pagina: solo le ultime 24 ore, ordinate per punteggio; rispetta il filtro Italia / Mondo. */
+/** Prima pagina: solo le ultime 24 ore, ordinate per punteggio, una sola storia per evento;
+ *  rispetta il filtro Italia / Mondo. */
 export function frontPage(stories: Story[], area: AreaFilter, now: number) {
+  const seen = new Set<string>();
   return byArea(stories, area)
     .filter((s) => hoursAgo(s.updated, now) <= FRONT_PAGE_HOURS)
     .map((s) => ({ story: s, score: frontPageScore(s, now) }))
     .sort((a, b) => b.score - a.score || b.story.updated.localeCompare(a.story.updated))
+    .filter(({ story }) => (seen.has(story.event) ? false : (seen.add(story.event), true)))
     .slice(0, FRONT_PAGE_SIZE);
 }
 

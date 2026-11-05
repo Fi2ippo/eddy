@@ -13,6 +13,9 @@ from common import NOW, iso, parse_iso, short_hash
 from topics import story_area, story_topics
 
 MAX_STORIES = 300
+EVENT_SIM = 0.17   # somiglianza con almeno una storia dell'evento
+EVENT_AVG = 0.10   # e somiglianza media con tutte le sue storie (evita le catene che uniscono temi diversi)
+EVENT_MAX = 8      # storie al massimo in un evento
 GN_WEIGHT = 0.5  # una testata vista solo tramite Google News conta mezza
 
 
@@ -88,7 +91,7 @@ def build(groups: list[list[dict]], ids: list[str], state_stories: dict) -> list
             seen.add(a["source_id"])
             if len(summary) == 3:
                 break
-        topics = story_topics(feed)
+        topics = story_topics(g)  # votano anche i titoli arrivati da Google News
         story = {
             "id": sid,
             "title": lead.get("title_it") or lead["title"],
@@ -108,4 +111,42 @@ def build(groups: list[list[dict]], ids: list[str], state_stories: dict) -> list
         }
         out.append((_score(g, updated, bool(img_art)), story))
     out.sort(key=lambda x: (-x[0], x[1]["id"]))
-    return [s for _, s in out[:MAX_STORIES]]
+    result = [s for _, s in out[:MAX_STORIES]]
+    assign_events(result)
+    return result
+
+
+def assign_events(result: list[dict]) -> None:
+    """Campo "event": storie diverse sullo stesso evento (es. più sviluppi degli allarmi bomba sui voli) hanno lo
+    stesso valore, cioè l'id della più importante. L'app lo usa per non ripetere lo stesso evento in prima pagina.
+    Somiglianza TF-IDF fra titoli, titoli delle fonti ed estratti; storie collegate anche a catena."""
+    if not result:
+        return
+    import numpy as np
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from textproc import proper_nouns, stems
+
+    docs = []
+    for st in result:
+        text = " ".join([st["title"]] + [x["title"] for x in st["sources"] if x["via"] == "feed"] + [x["text"] for x in st["summary"]])
+        docs.append(stems(text) + proper_nouns(st["title"]))
+    X = TfidfVectorizer(analyzer=lambda d: d, sublinear_tf=True).fit_transform(docs)
+    S = (X @ X.T).toarray()
+    # si uniscono prima le coppie più simili (l'ordine delle storie non conta); due gruppi si uniscono solo se,
+    # in media, tutte le loro storie si somigliano abbastanza e se insieme non superano EVENT_MAX storie
+    n = len(result)
+    members = {i: [i] for i in range(n)}
+    root = list(range(n))
+    pairs = sorted(((S[i, j], i, j) for i in range(n) for j in range(i + 1, n) if S[i, j] >= EVENT_SIM), reverse=True)
+    for _, i, j in pairs:
+        a, b = root[i], root[j]
+        if a == b or len(members[a]) + len(members[b]) > EVENT_MAX:
+            continue
+        if S[np.ix_(members[a], members[b])].mean() < EVENT_AVG:
+            continue
+        keep, gone = min(a, b), max(a, b)  # resta la radice più importante (le storie sono già in ordine)
+        members[keep] += members.pop(gone)
+        for k in members[keep]:
+            root[k] = keep
+    for i, st in enumerate(result):
+        st["event"] = result[root[i]]["id"]

@@ -57,6 +57,12 @@ check("nomi propri", "#" + stem("joshua") + "_wong" in proper_nouns("Hong Kong c
 check("argomento: clima -> ambiente", "ambiente" in topics.lexicon_topics("Il cambiamento climatico accelera", ""))
 check("argomento: borse -> economia", "economia" in topics.lexicon_topics("Borse europee in rialzo dopo la Bce", ""))
 check("argomento: sezione vince", topics.article_topics({"title": "Qualcosa", "topic_hint": "cultura"})[0] == "cultura")
+check("lessico: 'saluta' non è scienza", "scienza" not in topics.lexicon_topics("Ronaldo saluta la Nazionale", ""))
+check("lessico: 'il video mostra' non è cultura", "cultura" not in topics.lexicon_topics("Il video mostra la folla in piazza", ""))
+check("lessico: 'partite' non è politica", "politica" not in topics.lexicon_topics("Le partite di stasera in Champions", ""))
+check("categoria: una sezione business non vince su tanti titoli sui voli",
+      topics.story_topics([{"title": "a", "topics": ["economia", "societa"], "topic_hint": "economia", "via": "feed"}]
+                          + [{"title": "b", "topics": ["societa"], "via": "google_news"}] * 4)[0] == "societa")
 check("area: esteri -> mondo", topics.article_area({"title": "x", "area_hint": "mondo"}) == "mondo")
 check("area: Roma -> italia", topics.article_area({"title": "Sciopero dei treni a Roma e Milano", "src_area": "italia"}) == "italia")
 
@@ -97,6 +103,18 @@ ids1 = stories.assign_ids(g1, {})
 mem = {"a1": {"story": ids1[0]}, "a2": {"story": ids1[0]}}
 ids2 = stories.assign_ids([[arts[0], arts[1], arts[2]]], mem)
 check("id stabile quando la storia si arricchisce", ids1 == ids2)
+
+# eventi: sviluppi dello stesso fatto insieme, notizie diverse separate
+def st(i, title):
+    return {"id": f"s{i}", "title": title, "sources": [{"title": title, "via": "feed"}], "summary": []}
+
+
+evs = [st(1, "Allarmi bomba su tre voli in Europa, aerei dirottati in Francia"),
+       st(2, "Nuovi allarmi bomba sui voli europei: atterraggi di emergenza in Francia"),
+       st(3, "Il Papa incontra Bob Dylan in Vaticano")]
+stories.assign_events(evs)
+check("eventi: due storie sugli allarmi bomba nello stesso evento", evs[0]["event"] == evs[1]["event"] == "s1")
+check("eventi: notizia diversa in un altro evento", evs[2]["event"] == "s3")
 
 print()
 if FAILS:
