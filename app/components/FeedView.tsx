@@ -2,21 +2,30 @@
 
 import { ArrowRight, X } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { areaFilters } from "../lib/personal-data";
 import { setArea, usePersonalData } from "../lib/personal-store";
-import { categoryLabel, feedOrder, snapshotOf, storyHref, toneOf, useStories, type Story } from "../lib/stories";
+import { categoryLabel, feedOrder, frontPage, outletCount, snapshotOf, storyHref, toneOf, useNow, useStories, type Story } from "../lib/stories";
 import DataNotice from "./DataNotice";
+import OutletsTag from "./OutletsTag";
 import { SaveLaterButtons } from "./StoryActions";
 import StoryImage from "./StoryImage";
+import TimeAgo from "./TimeAgo";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
 // Feed a tutto schermo e scuro: una storia per schermata, scorrimento a scatti (dito, rotella, frecce).
 export default function FeedView() {
-  const { status, stories } = useStories();
+  const { status, stories, generated } = useStories();
   const { data } = usePersonalData();
-  const list = feedOrder(stories, data.interests, data.area);
+  const now = useNow();
+  // Dal pulsante "Sfoglia" della home: prima le storie della prima pagina, poi tutte le altre.
+  const fromFront = useSearchParams().get("da") === "prima-pagina";
+  const ref = now ?? (generated ? Date.parse(generated) : 0);
+  const front = fromFront && ref ? frontPage(stories, data.area, ref).map((t) => t.story) : [];
+  const frontIds = new Set(front.map((s) => s.id));
+  const list = [...front, ...feedOrder(stories.filter((s) => !frontIds.has(s.id)), data.interests, data.area, 30 - front.length)];
   const viewportRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const total = list.length;
@@ -123,8 +132,11 @@ function FeedCard({ story, index, total }: { story: Story; index: number; total:
       <div className="mt-6 min-h-0 flex-1">
         <h2 id={titleId} className="feed-title">{story.title}</h2>
         {story.summary[0] && <p className="mt-2.5 line-clamp-3 text-body text-feed-muted">{story.summary[0].text}</p>}
-        <p className="mt-3 text-label font-semibold text-feed-subtle">
-          {story.nSources > 1 ? `${story.nSources} fonti` : story.sources[0]?.name} ·{" "}
+        <div className="mt-3 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-label font-semibold text-feed-subtle">
+          <OutletsTag count={outletCount(story)} look="dark" />
+          <TimeAgo iso={story.updated} />
+        </div>
+        <p className="mt-2 text-label font-semibold text-feed-subtle">
           {index === total - 1 ? "Fine della selezione" : "Scorri per la storia successiva"}
         </p>
       </div>

@@ -1,6 +1,6 @@
 # Eddy: stato del progetto
 
-Aggiornato al 5 novembre 2026, alla fine dei passi 6 (dati veri nell'app) e 2 (design completo).
+Aggiornato al 5 novembre 2026, dopo la nuova home (passi 2 e 6 già fatti).
 Repository pubblico: https://github.com/Fi2ippo/eddy. I dati raccolti stanno sul ramo `dati`.
 Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese".
 
@@ -32,17 +32,27 @@ Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese"
 - **Dati di prova:** non esistono più (`app/data/demo-stories.ts` è stato tolto).
 
 **Schermate**
-- **Oggi:** la storia più importante (i dati arrivano già in ordine di importanza) più altre due, rispettando il filtro Italia / Mondo.
+- **Oggi** (`HomeView`), dall'alto in basso:
+  - **Intestazione:** data piccola ("Giovedì 5 novembre"), saluto in base all'ora ("Buongiorno", "Buon pomeriggio", "Buonasera"), chip "Aggiornato 5 min fa" con pallino verde e chip "300 storie · 67 testate". Le testate sono quelle presenti nelle storie.
+  - **"Prima pagina":** carosello orizzontale di 9 card grandi (foto, categoria, pillola testate, prime 2 testate, titolo, "Aggiornata 20 min fa"). Si scorre a scatti con dito, rotella e frecce della tastiera; sotto ci sono i puntini; con il mouse compaiono le frecce.
+    - Solo storie delle ultime 24 ore, ordinate per punteggio = 3 punti per testata (fino a 15) + fino a 10 punti di freschezza (scendono a 0 in 24 ore) + 1,5 se c'è la foto. Pesi in `app/lib/stories.ts` (`W_OUTLET`, `MAX_OUTLETS`, `W_FRESH`, `W_PHOTO`).
+    - Nessun filtro per interessi (gli interessi decidono solo l'ordine del Feed); il filtro Italia / Mondo / Tutto invece vale.
+  - **"Sfoglia · una notizia per schermata":** apre il Feed (`/feed?da=prima-pagina`) partendo dalle 9 storie della prima pagina.
+  - **Fila di temi:** Tutti + gli 8 interessi. Con un tema si vedono le storie che hanno quel tema come categoria principale (i temi secondari sono meno affidabili), ordinate per rilevanza.
+  - **"Ultime notizie":** tutte le altre storie, dalla più recente, 20 alla volta con "Mostra altre". Ogni riga ha testate, orario, titolo, estratto breve, categoria, pillola testate e Salva.
+- **Pillola "N testate"** (`OutletsTag`) su Oggi, Feed, Libreria e Storia: conta le testate diverse, comprese quelle arrivate da Google News.
+- **Orario relativo** (`TimeAgo`): "ora", "5 min fa", "2 h fa", "ieri 18:30", "4 nov". Usa l'articolo più recente della storia e si aggiorna da solo ogni minuto.
 - **Feed** (`FeedView`):
   - scuro e a tutto schermo, senza barra di navigazione;
   - in alto il contatore "01 / 30", "Eddy" e la X che torna a Oggi, con sotto un piccolo filtro Tutto / Italia / Mondo;
   - una storia per schermata, a scatti, con dito, rotella e tastiera (frecce, Pagina su/giù, Inizio/Fine);
-  - ordine: prima le storie dei tuoi interessi, poi le altre, dalla più recente; 30 storie;
+  - ordine: prima le storie dei tuoi interessi, poi le altre, dalla più recente; 30 storie (da "Sfoglia" della home: prima le 9 della prima pagina);
   - per ogni storia: foto (o segnaposto) con credito, categoria, titolo, testo di massimo 3 righe, "Leggi la storia", Salva e Da leggere con etichetta e stato.
 - **Storia** (`/storia?id=…`, `StoryDetail`):
   - aprirla la registra nei Recenti;
   - "In breve" mostra gli estratti con il nome della testata e "tradotto automaticamente" quando serve; se il titolo è tradotto, compare anche quello originale;
-  - fonti con "Leggi su <testata>"; quelle arrivate da Google News sono sotto "Ne parlano anche";
+  - sotto il titolo: "Raccontata da Il Post, ANSA e altre 11 testate", la pillola delle testate e l'orario;
+  - fonti con "Leggi su <testata>" e l'orario di ogni articolo (`sources[].published`, aggiunto alla raccolta); quelle arrivate da Google News sono sotto "Ne parlano anche";
   - se la storia non c'è più, mostra la scheda salvata e un messaggio.
 - **Libreria** (`LibraryView`):
   - titolo centrato con sottotitolo;
@@ -60,7 +70,14 @@ Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese"
 - Campi nuovi: `area` (`tutto` | `italia` | `mondo`) e, per ogni storia salvata o letta, una piccola scheda (titolo, categoria, foto, credito, testata, data). Serve perché le storie escono dai dati dopo 72 ore, ma la Libreria e il Profilo devono poterle ancora mostrare.
 - Gli archivi vecchi si leggono ancora: i campi mancanti prendono il valore predefinito.
 
-**Controlli fatti** (5/11/2026)
+**Controlli della nuova home** (5/11/2026)
+- `tsc`, `lint` e `build` passano.
+- **Browser automatico a 390px:**
+  - verificati: carosello avanti e indietro con le frecce e con lo scorrimento, puntini, "Mostra altre" (da 20 a 40), tema Economia (73 storie per rilevanza, la prima pagina resta), filtro Italia anche nella home, Salva da una riga, "Sfoglia" che parte dalla prima pagina, orari, "Raccontata da…", pillola delle testate in Libreria;
+  - nessun testo sotto 12px, nessun pulsante sotto 44px, nessun errore.
+- **Pesi regolati:** con il tetto a 10 testate Joshua Wong (20 testate) finiva terzo dietro storie con 13 testate; con il tetto a 15 è primo.
+
+**Controlli fatti in precedenza** (5/11/2026)
 - `tsc`, `lint` e `build` passano.
 - **Browser automatico a 390px:**
   - verificati: contatore, frecce, rotella, filtro, Salva / Da leggere, Recenti dopo l'apertura, contatori della Libreria, numeri del Profilo, pannelli (Esc e tocco fuori);
@@ -244,7 +261,9 @@ Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese"
 - **Argomenti poco presenti:** ambiente e design hanno poche storie, perché le fonti di settore pubblicano meno. Si possono aggiungere fonti o parole al lessico.
 - **Google News:** circa 30 richieste all'ora. Se Google dovesse limitarle, si alza `GN_REFRESH_HOURS` in `pipeline/feeds.py`.
 - **Workflow fermo:** GitHub sospende i workflow programmati dopo 60 giorni senza attività sul repository. Se succede, basta riattivarlo da Actions.
-- **Feed:** l'ordine "interessi, poi recenza" porta in alto anche storie con una sola testata. Si potrebbe pesare anche l'importanza (numero di testate).
+- **Feed:** l'ordine "interessi, poi recenza" porta in alto anche storie con una sola testata. Si potrebbe usare il punteggio della prima pagina.
+- **Prima pagina ripetitiva:** lo stesso evento diviso in più storie (es. gli allarmi bomba sui voli) può occupare più card. Si potrebbe tenere una sola card per evento.
+- **Giri automatici:** GitHub rimanda o salta spesso i giri programmati ogni ora (oggi pomeriggio non sono partiti). Si può far prenotare a ogni giro il successivo.
 - **Categorie da migliorare:** alcune sono discutibili, per esempio Joshua Wong finisce in "Società".
 - **Uso senza rete:** se GitHub non risponde, Oggi e il Feed mostrano "Riprova". Libreria e Profilo funzionano comunque, grazie alle schede salvate.
 - `README.md` descrive ancora la versione vecchia dell'interfaccia.

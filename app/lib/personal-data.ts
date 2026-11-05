@@ -16,6 +16,8 @@ export type StorySnapshot = {
   credit: string | null;
   source: string;
   updated: string;
+  /** quante testate raccontavano la storia */
+  outlets?: number;
 };
 export type StoryActivity = Partial<Record<StoryField, number>> & { snapshot?: StorySnapshot };
 
@@ -83,7 +85,8 @@ function decodeSnapshot(value: unknown): StorySnapshot | undefined {
   const credit = shortText(value.credit, 160);
   if (!title || !category || !source || !updated) return undefined;
   const safeImage = image && /^https?:\/\//.test(image) ? image : null;
-  return { title, category, source, updated, image: safeImage, credit: safeImage ? credit : null };
+  const outlets = typeof value.outlets === "number" && Number.isInteger(value.outlets) && value.outlets > 0 && value.outlets < 1000 ? value.outlets : undefined;
+  return { title, category, source, updated, image: safeImage, credit: safeImage ? credit : null, ...(outlets ? { outlets } : {}) };
 }
 
 export function hasActivity(activity: StoryActivity | undefined) {

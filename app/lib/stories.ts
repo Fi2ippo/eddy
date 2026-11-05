@@ -10,7 +10,7 @@ export const STORIES_URL =
   process.env.NEXT_PUBLIC_EDDY_STORIES_URL ??
   "https://raw.githubusercontent.com/Fi2ippo/eddy/dati/stories.json";
 
-export type StorySource = { name: string; title: string; url: string; via: "feed" | "google_news" };
+export type StorySource = { name: string; title: string; url: string; via: "feed" | "google_news"; published: string | null };
 export type StorySummary = { source: string; text: string; translated: boolean };
 export type Story = {
   id: string;
@@ -57,7 +57,7 @@ function parseStory(raw: unknown): Story | null {
     const name = str(o.name, 120);
     const url = httpUrl(o.url);
     if (!name || !url) return [];
-    return [{ name, url, title: str(o.title, 400) ?? name, via: o.via === "google_news" ? "google_news" as const : "feed" as const }];
+    return [{ name, url, title: str(o.title, 400) ?? name, via: o.via === "google_news" ? "google_news" as const : "feed" as const, published: str(o.published, 40) }];
   });
   const summary: StorySummary[] = (Array.isArray(r.summary) ? r.summary : []).flatMap((s) => {
     const o = (s ?? {}) as Record<string, unknown>;
@@ -119,6 +119,8 @@ export function useStories() {
   return useSyncExternalStore(subscribe, () => state, () => serverState);
 }
 
+const dayFormat = new Intl.DateTimeFormat("it-IT", { day: "numeric", month: "short" });
+
 // ------------------------------------------------------------ scelte e ordinamenti
 export function byArea(stories: Story[], area: AreaFilter) {
   return area === "tutto" ? stories : stories.filter((s) => s.area === area);
@@ -154,6 +156,121 @@ export function leadSource(story: Story) {
   return story.sources[0]?.name ?? "";
 }
 
+/** Nomi delle testate della storia, senza doppioni, nell'ordine dei dati (prima le italiane). */
+export function outletNames(story: Story) {
+  return [...new Set(story.sources.map((s) => s.name))];
+}
+
+/** Numero di testate diverse che raccontano la storia (comprese quelle arrivate da Google News). */
+export function outletCount(story: Story) {
+  return Math.max(story.nSources, outletNames(story).length, 1);
+}
+
+export function outletsLabel(n: number) {
+  return n === 1 ? "1 testata" : `${n} testate`;
+}
+
+/** "Il Post, ANSA +3": le prime testate e quante altre. */
+export function outletsShort(story: Story, max = 2) {
+  const names = outletNames(story);
+  const more = outletCount(story) - Math.min(max, names.length);
+  return names.slice(0, max).join(", ") + (more > 0 ? ` +${more}` : "");
+}
+
+/** "Raccontata da Il Post, ANSA e altre 2 testate". */
+export function coverageLine(story: Story) {
+  const names = outletNames(story);
+  const n = outletCount(story);
+  if (names.length === 0) return "";
+  if (n === 1) return `Raccontata da ${names[0]}`;
+  if (n === 2 && names.length >= 2) return `Raccontata da ${names[0]} e ${names[1]}`;
+  if (n === 3 && names.length >= 3) return `Raccontata da ${names[0]}, ${names[1]} e ${names[2]}`;
+  const rest = n - 2;
+  return `Raccontata da ${names.slice(0, 2).join(", ")} e ${rest === 1 ? "un’altra testata" : `altre ${rest} testate`}`;
+}
+
+// ------------------------------------------------------------ prima pagina (rilevanti e recenti)
+export const FRONT_PAGE_SIZE = 9;
+export const FRONT_PAGE_HOURS = 24;
+// Pesi del punteggio: le testate contano di più, poi la freschezza, poi un piccolo bonus per la foto.
+const W_OUTLET = 3; // punti per ogni testata (fino a MAX_OUTLETS)
+const MAX_OUTLETS = 15;
+const W_FRESH = 10; // punti per una storia appena aggiornata, che scendono a 0 dopo 24 ore
+const W_PHOTO = 1.5;
+
+export function hoursAgo(iso: string, now: number) {
+  const t = Date.parse(iso);
+  return Number.isNaN(t) ? 999 : Math.max(0, (now - t) / 3_600_000);
+}
+
+export function frontPageScore(story: Story, now: number) {
+  const h = hoursAgo(story.updated, now);
+  const fresh = Math.max(0, 1 - h / FRONT_PAGE_HOURS);
+  return W_OUTLET * Math.min(outletCount(story), MAX_OUTLETS) + W_FRESH * fresh + (story.image ? W_PHOTO : 0);
+}
+
+/** Prima pagina: solo le ultime 24 ore, ordinate per punteggio; rispetta il filtro Italia / Mondo. */
+export function frontPage(stories: Story[], area: AreaFilter, now: number) {
+  return byArea(stories, area)
+    .filter((s) => hoursAgo(s.updated, now) <= FRONT_PAGE_HOURS)
+    .map((s) => ({ story: s, score: frontPageScore(s, now) }))
+    .sort((a, b) => b.score - a.score || b.story.updated.localeCompare(a.story.updated))
+    .slice(0, FRONT_PAGE_SIZE);
+}
+
+/** Relevanza per l'elenco filtrato per tema (stesso punteggio della prima pagina, senza limite di 24 ore). */
+export function byRelevance(stories: Story[], now: number) {
+  return [...stories].sort((a, b) => frontPageScore(b, now) - frontPageScore(a, now) || b.updated.localeCompare(a.updated));
+}
+
+export function byRecency(stories: Story[]) {
+  return [...stories].sort((a, b) => b.updated.localeCompare(a.updated));
+}
+
+// ------------------------------------------------------------ orario relativo ("5 min fa"), aggiornato ogni minuto
+const hourMinute = new Intl.DateTimeFormat("it-IT", { hour: "2-digit", minute: "2-digit" });
+
+export function timeAgo(iso: string | null | undefined, now: number) {
+  const t = iso ? Date.parse(iso) : NaN;
+  if (Number.isNaN(t)) return "";
+  const m = Math.round((now - t) / 60_000);
+  if (m < 1) return "ora";
+  if (m < 60) return `${m} min fa`;
+  const h = Math.round(m / 60);
+  if (h < 24) return `${h} h fa`;
+  const d = new Date(t);
+  if (d.toDateString() === new Date(now - 86_400_000).toDateString()) return `ieri ${hourMinute.format(d)}`;
+  return dayFormat.format(d);
+}
+
+let nowValue = 0;
+let nowTimer: ReturnType<typeof setInterval> | undefined;
+const nowListeners = new Set<() => void>();
+
+function subscribeNow(listener: () => void) {
+  nowListeners.add(listener);
+  if (!nowTimer) {
+    nowValue = Date.now();
+    nowTimer = setInterval(() => {
+      nowValue = Date.now();
+      nowListeners.forEach((l) => l());
+    }, 60_000);
+  }
+  queueMicrotask(listener);
+  return () => {
+    nowListeners.delete(listener);
+    if (nowListeners.size === 0 && nowTimer) {
+      clearInterval(nowTimer);
+      nowTimer = undefined;
+    }
+  };
+}
+
+/** L'ora attuale, aggiornata ogni minuto (null durante il primo disegno, per non sbagliare sul server). */
+export function useNow(): number | null {
+  return useSyncExternalStore(subscribeNow, () => nowValue || null, () => null);
+}
+
 export function snapshotOf(story: Story): StorySnapshot {
   return {
     title: story.title,
@@ -162,22 +279,14 @@ export function snapshotOf(story: Story): StorySnapshot {
     credit: story.image ? story.imageCredit : null,
     source: leadSource(story),
     updated: story.updated,
+    outlets: outletCount(story),
   };
 }
 
-const dayFormat = new Intl.DateTimeFormat("it-IT", { day: "numeric", month: "short" });
-const timeFormat = new Intl.DateTimeFormat("it-IT", { hour: "2-digit", minute: "2-digit" });
 
 export function shortDate(iso: string) {
   const d = new Date(iso);
   return Number.isNaN(d.getTime()) ? "" : dayFormat.format(d);
-}
-
-export function updatedLabel(iso: string) {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  const today = new Date().toDateString() === d.toDateString();
-  return today ? `aggiornata alle ${timeFormat.format(d)}` : `aggiornata il ${dayFormat.format(d)}`;
 }
 
 /** Colori dell'illustrazione segnaposto: sempre gli stessi per la stessa storia. */

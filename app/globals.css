@@ -290,6 +290,137 @@
     cursor: default;
   }
 
+  /* ---------------- Home "Oggi" ---------------- */
+  .home-chip {
+    display: inline-flex;
+    min-height: 2rem;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: 0.25rem 0.875rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    background: rgb(255 255 255 / 0.8);
+    color: var(--color-muted-strong);
+    font-size: var(--text-label);
+    font-weight: 700;
+  }
+
+  /* carosello: si allarga fino ai bordi dello schermo, la card dopo si intravede */
+  .front-track {
+    display: flex;
+    gap: 0.75rem;
+    margin-inline: calc(-1 * var(--page-gutter));
+    padding: 0.25rem var(--page-gutter) 0.75rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--page-gutter);
+    scrollbar-width: none;
+  }
+
+  .front-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .front-track:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .front-card {
+    flex: none;
+    width: min(calc(100% - 2.5rem), 24rem);
+    padding: 0.5rem;
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card-sm);
+    scroll-snap-align: start;
+  }
+
+  /* frecce del carosello: solo con il mouse (su telefono si scorre col dito) */
+  .front-arrow {
+    position: absolute;
+    top: 6rem;
+    z-index: 2;
+    display: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: rgb(255 255 255 / 0.94);
+    color: var(--color-foreground);
+    box-shadow: var(--shadow-float);
+    cursor: pointer;
+  }
+
+  .front-arrow:disabled {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .front-arrow {
+      display: flex;
+    }
+  }
+
+  .browse-button {
+    display: flex;
+    min-height: 4rem;
+    align-items: center;
+    gap: var(--spacing-3);
+    padding: 0.625rem 1rem 0.625rem 0.625rem;
+    border-radius: var(--radius-card-sm);
+    background: var(--color-surface);
+    color: var(--color-foreground);
+    box-shadow: var(--shadow-card-sm);
+  }
+
+  .theme-rail {
+    display: flex;
+    gap: var(--spacing-2);
+    margin-inline: calc(-1 * var(--page-gutter));
+    padding: 0.125rem var(--page-gutter) 0.375rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .theme-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .theme-rail button {
+    flex: none;
+    min-height: 2.75rem;
+    padding-inline: 1.125rem;
+    border: 1.5px solid #d5dad0;
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+    color: var(--color-foreground);
+    font-size: var(--text-secondary);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .theme-rail button[aria-pressed="true"] {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-surface);
+  }
+
+  .more-button {
+    width: 100%;
+    min-height: 3.25rem;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+    color: var(--color-accent);
+    font-size: var(--text-body);
+    font-weight: 800;
+    cursor: pointer;
+  }
+
   /* ---------------- Feed scuro a tutto schermo (design/Feed.dc.html) ---------------- */
   .feed-screen {
     position: fixed;

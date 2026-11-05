@@ -7,6 +7,7 @@ import type { StoryField, StorySnapshot } from "../lib/personal-data";
 import { removeStoryFromList, usePersonalData } from "../lib/personal-store";
 import { categoryLabel, shortDate, snapshotOf, storyHref, toneOf, useStories } from "../lib/stories";
 import LibraryEmptyState from "./LibraryEmptyState";
+import OutletsTag from "./OutletsTag";
 import StoryImage from "./StoryImage";
 
 const sections = [
@@ -73,6 +74,11 @@ export default function LibraryView() {
                             {card.title}
                           </Link>
                         </h2>
+                        {card.outlets && (
+                          <span className="relative z-10 mt-1.5 inline-flex">
+                            <OutletsTag count={card.outlets} />
+                          </span>
+                        )}
                         <p className="mt-1 text-caption text-muted">
                           {card.source} · {shortDate(card.updated)}
                           {card.image && card.credit && ` · ${card.credit}`}

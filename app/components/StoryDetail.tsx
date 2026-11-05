@@ -5,12 +5,14 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { markStoryRead, usePersonalData } from "../lib/personal-store";
-import { categoryLabel, findStory, snapshotOf, toneOf, updatedLabel, useStories } from "../lib/stories";
+import { categoryLabel, coverageLine, findStory, outletCount, snapshotOf, toneOf, useStories } from "../lib/stories";
 import BackButton from "./BackButton";
 import DataNotice from "./DataNotice";
+import OutletsTag from "./OutletsTag";
 import StoryActionBar from "./StoryActionBar";
 import StoryImage from "./StoryImage";
 import StorySummary from "./StorySummary";
+import TimeAgo from "./TimeAgo";
 
 // Pagina Storia unica: legge l'id dall'indirizzo (/storia?id=…) e la storia dai dati caricati nel browser.
 export default function StoryDetail() {
@@ -84,9 +86,11 @@ export default function StoryDetail() {
             Titolo originale: <span lang="en">{story.titleOriginal}</span> · tradotto automaticamente
           </p>
         )}
-        <p className="text-center text-secondary font-semibold text-muted-strong">
-          {story.nSources === 1 ? "1 fonte" : `${story.nSources} fonti`} · {updatedLabel(story.updated)}
-        </p>
+        <p className="text-center text-secondary font-semibold text-muted-strong">{coverageLine(story)}</p>
+        <div className="mt-2.5 flex items-center justify-center gap-2.5 text-label font-semibold text-muted">
+          <OutletsTag count={outletCount(story)} />
+          <TimeAgo iso={story.updated} prefix="Aggiornata " />
+        </div>
 
         {story.summary.length > 0 && (
           <>
@@ -112,7 +116,10 @@ export default function StoryDetail() {
                   {source.name.replace(/^(the|il|la|lo|l’|l')\s*/i, "").charAt(0).toUpperCase()}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-label text-accent">Leggi su {source.name}</span>
+                  <span className="flex flex-wrap items-baseline gap-x-2 text-label">
+                    <span className="text-accent">Leggi su {source.name}</span>
+                    <TimeAgo iso={source.published} className="font-semibold text-muted" />
+                  </span>
                   <span className="mt-0.5 line-clamp-3 block text-[0.9375rem] font-bold leading-snug">{source.title}</span>
                   <span className="sr-only"> (si apre in un’altra scheda)</span>
                 </span>
