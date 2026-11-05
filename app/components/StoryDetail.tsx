@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { markStoryRead, usePersonalData } from "../lib/personal-store";
-import { categoryLabel, coverageLine, translatedFrom, findStory, outletCount, snapshotOf, toneOf, useStories } from "../lib/stories";
+import { ThemeTag } from "../lib/themes";
+import { coverageLine, translatedFrom, findStory, outletCount, snapshotOf, toneOf, useStories } from "../lib/stories";
 import BackButton from "./BackButton";
 import DataNotice from "./DataNotice";
 import OutletsTag from "./OutletsTag";
@@ -72,11 +73,9 @@ export default function StoryDetail() {
     <main className="navigation-page reading-container">
       {header}
       <article aria-labelledby="story-title" className="mt-5">
-        <div className="relative h-67.5 overflow-hidden rounded-card bg-media shadow-[0_14px_34px_rgb(23_25_28/0.14)]">
+        <div className="relative h-67.5 overflow-hidden rounded-card bg-media shadow-photo">
           <StoryImage src={story.image} credit={story.imageCredit} tone={toneOf(story.id)} creditPosition="bottom-left" />
-          <span className="absolute left-3.5 top-3.5 rounded-full bg-[rgb(30_34_32/0.62)] px-3.5 py-1.5 text-label text-surface">
-            {categoryLabel(story.category)}
-          </span>
+          <ThemeTag id={story.category} look="solid" className="absolute left-3.5 top-3.5" />
         </div>
 
         <h1 id="story-title" className="mb-2 mt-5.5 text-center">

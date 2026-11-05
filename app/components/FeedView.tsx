@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { areaFilters } from "../lib/personal-data";
 import { setArea, usePersonalData } from "../lib/personal-store";
-import { categoryLabel, feedOrder, leadText, translatedFrom, useNow, outletCount, snapshotOf, storyHref, toneOf, useStories, type Story } from "../lib/stories";
+import { ThemeTag } from "../lib/themes";
+import { feedOrder, leadText, translatedFrom, useNow, outletCount, snapshotOf, storyHref, toneOf, useStories, type Story } from "../lib/stories";
 import DataNotice from "./DataNotice";
 import OutletsTag from "./OutletsTag";
 import { SaveLaterButtons } from "./StoryActions";
@@ -120,9 +121,7 @@ function FeedCard({ story, index, total }: { story: Story; index: number; total:
     <section aria-labelledby={titleId} aria-roledescription="storia" aria-label={`Storia ${index + 1} di ${total}`} className="feed-card">
       <div className="feed-media">
         <StoryImage src={story.image} credit={story.imageCredit} tone={toneOf(story.id)} />
-        <span className="absolute bottom-3.5 left-3.5 rounded-full bg-[rgb(40_44_42/0.72)] px-4 py-2 text-[0.875rem] font-bold text-surface">
-          {categoryLabel(story.category)}
-        </span>
+        <ThemeTag id={story.category} look="solid" className="absolute bottom-3.5 left-3.5" />
       </div>
 
       <div className="mt-6 min-h-0 flex-1">
@@ -145,7 +144,7 @@ function FeedCard({ story, index, total }: { story: Story; index: number; total:
       <div className="mt-4 flex items-stretch gap-2.5">
         <Link href={storyHref(story.id)} className="feed-read">
           Leggi la storia
-          <span aria-hidden="true" className="flex size-9 items-center justify-center rounded-full bg-accent text-surface">
+          <span aria-hidden="true" className="flex size-9 items-center justify-center rounded-full bg-accent text-on-accent">
             <ArrowRight className="size-4.5" strokeWidth={2.4} />
           </span>
         </Link>

@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useState } from "react";
 import type { StoryField, StorySnapshot } from "../lib/personal-data";
 import { removeStoryFromList, usePersonalData } from "../lib/personal-store";
-import { categoryLabel, shortDate, snapshotOf, storyHref, toneOf, useStories } from "../lib/stories";
+import { ThemeTag } from "../lib/themes";
+import { shortDate, snapshotOf, storyHref, toneOf, useStories } from "../lib/stories";
 import LibraryEmptyState from "./LibraryEmptyState";
 import OutletsTag from "./OutletsTag";
 import StoryImage from "./StoryImage";
@@ -61,14 +62,14 @@ export default function LibraryView() {
               const live = stories.find((s) => s.id === id);
               const card: StorySnapshot | undefined = live ? snapshotOf(live) : activity.snapshot;
               return (
-                <li key={id} className="border-b border-[#edf0ea] py-3 last:border-0">
+                <li key={id} className="border-b border-divider py-3 last:border-0">
                   {card ? (
                     <article className="relative flex items-center gap-3.5">
                       <div className="relative size-21 flex-none overflow-hidden rounded-[1.25rem] bg-media">
                         <StoryImage src={card.image} credit={null} tone={toneOf(id)} size="thumb" creditPosition="none" />
                       </div>
                       <div className="min-w-0">
-                        <p className="mb-1 text-label text-accent">{categoryLabel(card.category)}</p>
+                        <ThemeTag id={card.category} className="mb-1.5" />
                         <h2 className="line-clamp-3 text-[1.0625rem] font-extrabold leading-tight">
                           <Link href={storyHref(id)} className="after:absolute after:inset-0">
                             {card.title}

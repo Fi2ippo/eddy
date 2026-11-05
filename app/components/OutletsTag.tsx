@@ -9,8 +9,8 @@ type OutletsTagProps = {
 
 const LOOKS = {
   light: "bg-accent-soft text-accent-soft-foreground",
-  dark: "bg-[rgb(255_255_255/0.1)] text-feed-accent",
-  photo: "bg-[rgb(30_34_32/0.62)] text-surface",
+  dark: "bg-feed-fill-strong text-feed-accent",
+  photo: "bg-overlay text-on-photo",
 };
 
 // Pillola "4 testate": quante testate diverse raccontano la storia.

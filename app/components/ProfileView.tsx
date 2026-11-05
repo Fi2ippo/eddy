@@ -1,11 +1,12 @@
 "use client";
 
-import { BarChart3, Check, ChevronRight, Compass, SlidersHorizontal, Type, X } from "lucide-react";
+import { BarChart3, Check, ChevronRight, Compass, SlidersHorizontal, Sparkles, Type, X } from "lucide-react";
 import { useRef, useState, type ReactNode, type RefObject } from "react";
 import { editorialInterests } from "../data/editorial-interests";
 import { areaFilters, textSizes } from "../lib/personal-data";
-import { clearPersonalData, setArea, setTextSize, toggleInterest, usePersonalData } from "../lib/personal-store";
+import { clearPersonalData, setArea, setOnboardingDone, setTextSize, toggleInterest, usePersonalData } from "../lib/personal-store";
 import { categoryLabel } from "../lib/stories";
+import { ThemeIcon, themeStyle } from "../lib/themes";
 
 // Profilo (design/Profilo.dc.html): numeri veri dalla memoria del browser e due pannelli dal basso.
 export default function ProfileView() {
@@ -41,7 +42,7 @@ export default function ProfileView() {
         <div className="relative flex h-11 items-center justify-center">
           <span className="wordmark">Eddy</span>
           <button type="button" aria-label="Impostazioni" onClick={() => open(settingsRef)}
-            className="absolute right-0 top-0 flex size-11 cursor-pointer items-center justify-center rounded-full border-0 bg-surface text-foreground shadow-[0_1px_3px_rgb(23_25_28/0.12)]">
+            className="absolute right-0 top-0 flex size-11 cursor-pointer items-center justify-center rounded-full border-0 bg-surface text-foreground shadow-button">
             <SlidersHorizontal aria-hidden="true" className="size-5" />
           </button>
         </div>
@@ -56,7 +57,7 @@ export default function ProfileView() {
             { label: "Storie lette", value: read.length },
             { label: "Argomenti esplorati", value: perTopic.size },
           ].map(({ label, value }) => (
-            <div key={label} className="flex flex-col-reverse justify-end rounded-[1.375rem] bg-[#eef3ee] p-4">
+            <div key={label} className="flex flex-col-reverse justify-end rounded-[1.375rem] bg-stat p-4">
               <dt className="mt-2 text-secondary font-semibold text-muted-strong">{label}</dt>
               <dd className="m-0 text-[2.375rem] font-extrabold leading-none tracking-tight text-accent-soft-foreground">
                 {ready ? value : "–"}
@@ -69,9 +70,12 @@ export default function ProfileView() {
           <ul className="flex flex-col gap-3">
             {top.map(([topic, count]) => (
               <li key={topic} className="grid grid-cols-[6.25rem_minmax(0,1fr)_1.5rem] items-center gap-2.5 text-secondary font-semibold">
-                <span>{categoryLabel(topic)}</span>
-                <span aria-hidden="true" className="block h-2.5 rounded-full bg-accent-soft">
-                  <span className="block h-2.5 rounded-full bg-accent" style={{ width: `${(count / max) * 100}%` }} />
+                <span className="flex items-center gap-1.5" style={themeStyle(topic)}>
+                  <span className="text-(--t-ink)"><ThemeIcon id={topic} /></span>
+                  {categoryLabel(topic)}
+                </span>
+                <span aria-hidden="true" className="block h-2.5 rounded-full bg-(--t-soft)" style={themeStyle(topic)}>
+                  <span className="block h-2.5 rounded-full bg-(--t)" style={{ width: `${(count / max) * 100}%` }} />
                 </span>
                 <span className="text-right text-muted-strong">{count}</span>
               </li>
@@ -91,6 +95,7 @@ export default function ProfileView() {
       <div className="flex flex-col gap-2.5">
         <ProfileRow icon={<Compass className="size-6" />} title="I tuoi interessi" detail={ready ? summary : "…"} onClick={() => open(interestsRef)} />
         <ProfileRow icon={<Type className="size-6" />} title="Impostazioni" detail="Testo di lettura, notizie, privacy e dati" onClick={() => open(settingsRef)} />
+        <ProfileRow icon={<Sparkles className="size-6" />} title="Rivedi l’introduzione" detail="I tre schermi del primo avvio" popup={false} onClick={() => setOnboardingDone(false)} />
       </div>
       {notice && <p role="status" className="mt-4 text-center text-secondary text-muted">{notice}</p>}
 
@@ -100,8 +105,8 @@ export default function ProfileView() {
           {editorialInterests.map(({ id, label }) => {
             const on = data.interests.includes(id);
             return (
-              <button key={id} type="button" disabled={!ready} aria-pressed={on} className="interest-chip" onClick={() => toggleInterest(id)}>
-                {on && <Check aria-hidden="true" className="size-4.5" strokeWidth={2.6} />}
+              <button key={id} type="button" disabled={!ready} aria-pressed={on} className="interest-chip" style={themeStyle(id)} onClick={() => toggleInterest(id)}>
+                {on ? <Check aria-hidden="true" className="size-4.5" strokeWidth={2.6} /> : <ThemeIcon id={id} className="size-4.5" />}
                 {label}
               </button>
             );
@@ -145,7 +150,7 @@ export default function ProfileView() {
             Cancella i dati di Eddy
           </button>
         ) : (
-          <div role="alertdialog" aria-labelledby="del-q" aria-describedby="del-d" className="mt-4 rounded-[1.25rem] bg-[#fbf3f3] p-4">
+          <div role="alertdialog" aria-labelledby="del-q" aria-describedby="del-d" className="mt-4 rounded-[1.25rem] bg-danger-soft p-4">
             <p id="del-q" className="font-extrabold">Cancellare tutti i dati di Eddy?</p>
             <p id="del-d" className="mt-1 text-secondary text-muted">
               Spariranno interessi, storie salvate, lista Da leggere, letture e impostazioni. Non si può annullare.
@@ -164,9 +169,9 @@ export default function ProfileView() {
   );
 }
 
-function ProfileRow({ icon, title, detail, onClick }: { icon: ReactNode; title: string; detail: string; onClick: () => void }) {
+function ProfileRow({ icon, title, detail, onClick, popup = true }: { icon: ReactNode; title: string; detail: string; onClick: () => void; popup?: boolean }) {
   return (
-    <button type="button" onClick={onClick} aria-haspopup="dialog"
+    <button type="button" onClick={onClick} aria-haspopup={popup ? "dialog" : undefined}
       className="flex w-full cursor-pointer items-center gap-3.5 rounded-card-sm border-0 bg-surface p-3.5 text-left text-foreground shadow-card-sm">
       <span aria-hidden="true" className="flex size-13 flex-none items-center justify-center rounded-[1.125rem] bg-accent-soft text-accent">{icon}</span>
       <span className="min-w-0 flex-1">

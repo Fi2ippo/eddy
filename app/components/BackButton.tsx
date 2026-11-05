@@ -12,7 +12,7 @@ export default function BackButton() {
     <button
       type="button"
       aria-label="Torna indietro"
-      className="flex size-11 cursor-pointer items-center justify-center rounded-full bg-surface text-foreground shadow-[0_1px_3px_rgb(23_25_28/0.12)]"
+      className="flex size-11 cursor-pointer items-center justify-center rounded-full bg-surface text-foreground shadow-button"
       onClick={() => {
         if (window.history.length > 1) router.back();
         else router.push("/");

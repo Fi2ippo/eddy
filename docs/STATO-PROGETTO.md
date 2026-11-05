@@ -33,10 +33,15 @@ Se il lavoro si interrompe, si riparte dalla prima fase non spuntata.
     - Al massimo 1.200 frasi nuove per giro: sul Mac il giro con 1.104 traduzioni nuove dura 81 secondi.
     - Nell'app, per le storie tradotte: "Tradotto dall'inglese · Titolo originale: …" (pagina Storia, Feed, Ultime notizie).
   - **Feed:** punteggio con testate (3 punti ciascuna, fino a 10), freschezza (fino a 10 punti in 36 ore) e interessi (+8); le storie già lette vanno in fondo.
-- [x] **E** · Nuova identità visiva: anteprima pronta, **in attesa della scelta di Filippo**
+- [x] **E** · Nuova identità visiva: anteprima delle 3 direzioni; **scelta di Filippo: 2 · Inchiostro blu**
   - Pagina `/anteprima-identita` (solo in sviluppo: `npm run dev`, poi http://localhost:3002/anteprima-identita) con 3 direzioni affiancate: 1 Edicola (carta, rosso #D7392B, titoli Fraunces), 2 Inchiostro blu (blu #2B3FD6, arancio #FF7A3D, Manrope 800 compatto), 3 Notte (scuro, giallo #E8FF5A, titoli Space Grotesk).
   - Colori degli 8 temi con icone lucide; tonalità calcolate per avere contrasto ≥ 4.5:1 (etichette piene sulle foto con testo bianco, chip tenui con testo colorato, versioni chiare per Notte). Rosso e arancio come testo su fondo chiaro scuriti (#C63528, #B9582C).
-- [ ] **F** · Applicare l'identità, i colori dei temi e l'onboarding
+- [x] **F** · Applicare l'identità, i colori dei temi e l'onboarding — scelta "2 · Inchiostro blu"
+  - Tutti i colori sono token in `app/globals.css` (nessun colore scritto a mano nei componenti; le illustrazioni segnaposto usano `--color-art-*` / `--color-thumb-*`). Fondo pieno senza alone verde; Feed scuro blu notte con accento arancio.
+  - Temi con colore e icona (`app/lib/themes.tsx`): etichetta piena sulle foto (carosello, Feed, Storia), chip tenue in Libreria, riga sottile del colore nelle card di "Ultime notizie", fila dei temi con icone (il tema scelto si colora), interessi del Profilo e "temi più letti" con i loro colori.
+  - Introduzione al primo avvio: 3 schermi a tutto schermo con "Salta", puntini, Indietro; almeno un tema per andare avanti; Italia / Mondo / Tutto; "Inizia a leggere". Salvata in `onboardingDone`, si rivede dal Profilo. Provata a 390px: tastiera (Tab ed Esc), nessun testo sotto 12px, nessun pulsante sotto 44px, nessun errore.
+  - Pulizia: tolta la pagina di anteprima `/anteprima-identita` (non serve più) e il colore arancio-testo inutilizzato.
+  - Raccolta (fase A): la catena si era fermata perché un vecchio giro annullato restava "in attesa"; ora il passo "prenota" ignora i giri in attesa da più di 90 minuti.
 - [ ] **G** · Pubblicazione online gratis
 - [ ] **H** · Controllo finale sul sito pubblicato
 

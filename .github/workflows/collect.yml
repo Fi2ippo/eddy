@@ -106,9 +106,12 @@ jobs:
           started=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" --jq .run_started_at)
           elapsed=$(( $(date -u +%s) - $(date -u -d "$started" +%s) ))
           if [ "$elapsed" -lt 1800 ]; then echo "attendo $(( (1800 - elapsed) / 60 )) minuti"; sleep $(( 1800 - elapsed )); fi
-          # se c'è già un altro giro in coda o in corso, non ne prenoto un secondo
-          others=$(gh run list -R "$GITHUB_REPOSITORY" --workflow collect.yml --limit 20 --json databaseId,status \
-            --jq "[.[] | select(.databaseId != ${GITHUB_RUN_ID}) | select(.status != \"completed\")] | length")
+          # se c'è già un altro giro in coda o in corso, non ne prenoto un secondo. Un giro "in attesa" da più di
+          # 90 minuti è rimasto bloccato (il timer è di 30): non conta, altrimenti fermerebbe la catena.
+          limit=$(date -u -d "90 minutes ago" +%Y-%m-%dT%H:%M:%SZ)
+          others=$(gh run list -R "$GITHUB_REPOSITORY" --workflow collect.yml --limit 20 --json databaseId,status,createdAt \
+            --jq "[.[] | select(.databaseId != ${GITHUB_RUN_ID}) | select(.status != \"completed\")
+                  | select(.status != \"waiting\" or .createdAt > \"${limit}\")] | length")
           if [ "$others" -gt 0 ]; then echo "c'è già un giro in arrivo: non ne prenoto un altro"; exit 0; fi
           gh workflow run collect.yml -R "$GITHUB_REPOSITORY" --ref main
           echo "prossimo giro prenotato"

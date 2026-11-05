@@ -27,12 +27,12 @@ export default function DataNotice({ kind, message, tone = "light" }: DataNotice
     <div role={kind === "error" ? "alert" : "status"} className="flex flex-col items-center px-6 py-12 text-center">
       <span
         aria-hidden="true"
-        className={`flex size-16 items-center justify-center rounded-full ${dark ? "bg-[rgb(255_255_255/0.08)] text-[#CFE7D6]" : "bg-accent-soft text-accent"}`}
+        className={`flex size-16 items-center justify-center rounded-full ${dark ? "bg-feed-fill text-feed-accent" : "bg-accent-soft text-accent"}`}
       >
         <Icon className={`size-7 ${kind === "loading" ? "animate-spin" : ""}`} />
       </span>
-      <h2 className={`mt-5 text-heading-3 ${dark ? "text-[#F6F4EC]" : ""}`}>{title}</h2>
-      <p className={`mt-2 max-w-xs text-body ${dark ? "text-[#C9D0CB]" : "text-muted"}`}>{text}</p>
+      <h2 className={`mt-5 text-heading-3 ${dark ? "text-feed-fg" : ""}`}>{title}</h2>
+      <p className={`mt-2 max-w-xs text-body ${dark ? "text-feed-muted" : "text-muted"}`}>{text}</p>
       {kind === "error" && (
         <button type="button" onClick={() => void loadStories()} className="pill-button mt-6 cursor-pointer border-0">
           Riprova

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRef, useState, type KeyboardEvent } from "react";
 import { editorialInterests } from "../data/editorial-interests";
 import { toggleStoryList, usePersonalData } from "../lib/personal-store";
+import { ThemeIcon, ThemeTag, themeStyle } from "../lib/themes";
 import {
   byArea,
   byRecency,
@@ -109,7 +110,8 @@ export default function HomeView() {
 
           <div role="toolbar" aria-label="Filtra per tema" className="theme-rail mt-7">
             {[{ id: "tutti", label: "Tutti" }, ...editorialInterests].map(({ id, label }) => (
-              <button key={id} type="button" aria-pressed={theme === id} onClick={() => pickTheme(id)}>
+              <button key={id} type="button" aria-pressed={theme === id} onClick={() => pickTheme(id)} style={id === "tutti" ? undefined : themeStyle(id)}>
+                {id !== "tutti" && <ThemeIcon id={id} />}
                 {label}
               </button>
             ))}
@@ -188,9 +190,7 @@ function FrontPage({ items, now }: { items: Story[]; now: number | null }) {
             <Link href={storyHref(story.id)} className="block">
               <div className="relative h-52 overflow-hidden rounded-media bg-media">
                 <StoryImage src={story.image} credit={story.imageCredit} tone={toneOf(story.id)} creditPosition="bottom-left" />
-                <span className="absolute left-3 top-3 rounded-full bg-[rgb(30_34_32/0.62)] px-3 py-1.5 text-label text-surface">
-                  {categoryLabel(story.category)}
-                </span>
+                <ThemeTag id={story.category} look="solid" className="absolute left-3 top-3" />
                 <span className="absolute right-3 top-3">
                   <OutletsTag count={outletCount(story)} look="photo" />
                 </span>
@@ -214,7 +214,7 @@ function FrontPage({ items, now }: { items: Story[]; now: number | null }) {
       </button>
       <div aria-hidden="true" className="mt-3 flex justify-center gap-1.5">
         {items.map((s, i) => (
-          <i key={s.id} className={`block h-2 rounded-full transition-all ${i === index ? "w-5 bg-accent" : "w-2 bg-[#cfd8cf]"}`} />
+          <i key={s.id} className={`block h-2 rounded-full transition-all ${i === index ? "w-5 bg-accent" : "w-2 bg-track"}`} />
         ))}
       </div>
     </div>
@@ -245,7 +245,7 @@ function NewsRow({ story }: { story: Story }) {
       )}
       {story.summary[0] && <p className="mt-1.5 line-clamp-2 text-secondary text-muted">{story.summary[0].text}</p>}
       <div className="mt-3 flex items-center gap-2">
-        <span className="text-label text-muted-strong">{categoryLabel(story.category)}</span>
+        <ThemeTag id={story.category} look="mark" />
         <OutletsTag count={outletCount(story)} />
         <button
           type="button"

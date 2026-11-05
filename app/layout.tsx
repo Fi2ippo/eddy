@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Manrope } from "next/font/google";
 import BottomNavigation from "./components/BottomNavigation";
+import Onboarding from "./components/Onboarding";
 import "./globals.css";
 
 // Manrope viene scaricato da Next al momento della build e servito dal sito stesso.
@@ -35,6 +36,7 @@ export default function RootLayout({
       <body>
         <div className="app-content">{children}</div>
         <BottomNavigation />
+        <Onboarding />
       </body>
     </html>
   );

@@ -129,6 +129,11 @@ export function setArea(area: AreaFilter) {
   return commit((data) => ({ ...data, area }));
 }
 
+// Introduzione: true quando la si finisce o la si salta; false per rivederla (dal Profilo).
+export function setOnboardingDone(done: boolean) {
+  return commit((data) => ({ ...data, onboardingDone: done }));
+}
+
 function updateStory(
   id: string,
   field: StoryField,

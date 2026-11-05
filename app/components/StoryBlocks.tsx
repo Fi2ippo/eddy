@@ -95,7 +95,7 @@ export function CompareBlock({ compare }: { compare: StoryCompare }) {
           </h3>
           <ul className="mt-2 flex list-none flex-col gap-2.5 p-0">
             {compare.unique.map((u) => (
-              <li key={u.text} className="border-b border-[#edf0ea] pb-2.5 last:border-0 last:pb-0">
+              <li key={u.text} className="border-b border-divider pb-2.5 last:border-0 last:pb-0">
                 <p className="text-body font-bold">{u.text}</p>
                 <p className="flex flex-wrap gap-x-2">
                   {u.sources.map((s) => (
@@ -125,7 +125,7 @@ export function TimelineBlock({ timeline }: { timeline: StoryTimeline }) {
             <span aria-hidden="true" className={`absolute -left-[0.4375rem] top-1 size-3 rounded-full ${item.kind === "new" ? "bg-accent" : "border-2 border-accent bg-surface"}`} />
             <p className="flex flex-wrap items-center gap-x-2 text-label">
               <time dateTime={item.time} className="font-bold text-muted-strong">{dateTime.format(new Date(item.time))}</time>
-              <span className={item.kind === "new" ? "rounded-full bg-accent px-2 py-0.5 font-bold text-surface" : "font-semibold text-muted"}>
+              <span className={item.kind === "new" ? "rounded-full bg-accent px-2 py-0.5 font-bold text-on-accent" : "font-semibold text-muted"}>
                 {KIND_LABEL[item.kind]}
               </span>
             </p>

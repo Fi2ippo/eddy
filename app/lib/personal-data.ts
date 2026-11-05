@@ -53,6 +53,8 @@ export type PersonalData = {
   stories: Record<string, StoryActivity>;
   textSize: TextSize;
   area: AreaFilter;
+  /** l'introduzione dei primi tre schermi è stata vista (o saltata) */
+  onboardingDone: boolean;
 };
 
 export const emptyPersonalData: PersonalData = {
@@ -61,6 +63,7 @@ export const emptyPersonalData: PersonalData = {
   stories: {},
   textSize: defaultTextSize,
   area: defaultArea,
+  onboardingDone: false,
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -141,6 +144,7 @@ export function decodePersonalData(raw: string | null): {
         // Gli archivi salvati prima di queste impostazioni non hanno i campi: si usano i valori predefiniti.
         textSize: isTextSize(value.textSize) ? value.textSize : defaultTextSize,
         area: isAreaFilter(value.area) ? value.area : defaultArea,
+        onboardingDone: value.onboardingDone === true,
       },
       notice: null,
     };

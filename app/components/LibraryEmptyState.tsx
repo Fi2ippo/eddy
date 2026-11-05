@@ -12,7 +12,7 @@ type LibraryEmptyStateProps = {
 export default function LibraryEmptyState({ title, description, icon }: LibraryEmptyStateProps) {
   return (
     <div className="flex min-h-100 flex-col items-center justify-center px-7 py-8 text-center">
-      <span aria-hidden="true" className="flex size-19 items-center justify-center rounded-full bg-[#e6efe8] text-accent">
+      <span aria-hidden="true" className="flex size-19 items-center justify-center rounded-full bg-accent-soft text-accent">
         {icon}
       </span>
       <h2 className="mt-5.5 text-[1.375rem] font-extrabold leading-tight">{title}</h2>

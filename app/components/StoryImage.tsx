@@ -34,7 +34,7 @@ export default function StoryImage({ src, credit, tone, size = "large", creditPo
         className="block size-full object-cover"
       />
       {credit && creditPosition !== "none" && (
-        <span className={`absolute ${where} max-w-[60%] truncate rounded-full bg-[rgb(0_0_0/0.55)] px-2.5 py-1 text-caption text-surface`}>
+        <span className={`absolute ${where} max-w-[60%] truncate rounded-full bg-overlay-strong px-2.5 py-1 text-caption text-on-photo`}>
           {credit}
         </span>
       )}
