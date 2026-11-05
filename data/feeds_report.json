@@ -1,0 +1,2528 @@
+[
+ {
+  "id": "reuters",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 401: HTTP Forbidden"
+ },
+ {
+  "id": "associated-press",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "afp",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+ },
+ {
+  "id": "efe",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://efe.com/feed",
+   "https://efe.com/feed/",
+   "https://efe.com/rss",
+   "https://efe.com/rss.xml",
+   "https://efe.com/feed.xml",
+   "https://efe.com/atom.xml",
+   "https://efe.com/index.xml",
+   "https://efe.com/rss/all.xml",
+   "https://efe.com/feeds/all.rss.xml",
+   "https://efe.com/news/rss.xml",
+   "https://efe.com/?feed=rss2"
+  ]
+ },
+ {
+  "id": "ansa",
+  "feed_url": "https://www.ansa.it/rss.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.ansa.it/feed",
+   "https://www.ansa.it/feed/",
+   "https://www.ansa.it/rss",
+   "https://www.ansa.it/rss.xml"
+  ]
+ },
+ {
+  "id": "dpa",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 308: Permanent Redirect"
+ },
+ {
+  "id": "kyodo-news",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://english.kyodonews.net/feed",
+   "https://english.kyodonews.net/feed/",
+   "https://english.kyodonews.net/rss",
+   "https://english.kyodonews.net/rss.xml",
+   "https://english.kyodonews.net/feed.xml",
+   "https://english.kyodonews.net/atom.xml",
+   "https://english.kyodonews.net/index.xml",
+   "https://english.kyodonews.net/rss/all.xml",
+   "https://english.kyodonews.net/feeds/all.rss.xml",
+   "https://english.kyodonews.net/news/rss.xml",
+   "https://english.kyodonews.net/?feed=rss2"
+  ]
+ },
+ {
+  "id": "xinhua",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://english.news.cn/feed",
+   "https://english.news.cn/feed/",
+   "https://english.news.cn/rss",
+   "https://english.news.cn/rss.xml",
+   "https://english.news.cn/feed.xml",
+   "https://english.news.cn/atom.xml",
+   "https://english.news.cn/index.xml",
+   "https://english.news.cn/rss/all.xml",
+   "https://english.news.cn/feeds/all.rss.xml",
+   "https://english.news.cn/news/rss.xml",
+   "https://english.news.cn/?feed=rss2"
+  ]
+ },
+ {
+  "id": "tass",
+  "feed_url": "https://tass.com/rss/all.xml",
+  "status": "ok",
+  "tried": [
+   "https://tass.com/feed",
+   "https://tass.com/feed/",
+   "https://tass.com/rss",
+   "https://tass.com/rss.xml",
+   "https://tass.com/feed.xml",
+   "https://tass.com/atom.xml",
+   "https://tass.com/index.xml",
+   "https://tass.com/rss/all.xml"
+  ]
+ },
+ {
+  "id": "bloomberg-news",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.bloomberg.com/feed",
+   "https://www.bloomberg.com/feed/",
+   "https://www.bloomberg.com/rss",
+   "https://www.bloomberg.com/rss.xml",
+   "https://www.bloomberg.com/feed.xml",
+   "https://www.bloomberg.com/atom.xml",
+   "https://www.bloomberg.com/index.xml",
+   "https://www.bloomberg.com/rss/all.xml",
+   "https://www.bloomberg.com/feeds/all.rss.xml",
+   "https://www.bloomberg.com/news/rss.xml",
+   "https://www.bloomberg.com/?feed=rss2"
+  ]
+ },
+ {
+  "id": "bbc-news",
+  "feed_url": "https://feeds.bbci.co.uk/news/rss.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.bbc.com/feed",
+   "https://www.bbc.com/feed/",
+   "https://www.bbc.com/rss",
+   "https://www.bbc.com/rss.xml",
+   "https://www.bbc.com/feed.xml",
+   "https://www.bbc.com/atom.xml",
+   "https://www.bbc.com/index.xml",
+   "https://www.bbc.com/rss/all.xml",
+   "https://www.bbc.com/feeds/all.rss.xml",
+   "https://www.bbc.com/news/rss.xml"
+  ]
+ },
+ {
+  "id": "the-guardian",
+  "feed_url": "https://www.theguardian.com/uk/rss",
+  "status": "ok",
+  "tried": [
+   "https://www.theguardian.com/feed",
+   "https://www.theguardian.com/feed/",
+   "https://www.theguardian.com/rss"
+  ]
+ },
+ {
+  "id": "the-new-york-times",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "the-washington-post",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "The read operation timed out"
+ },
+ {
+  "id": "the-wall-street-journal",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 401: HTTP Forbidden"
+ },
+ {
+  "id": "financial-times",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "the-economist",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "cnn",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.cnn.com/feed",
+   "https://www.cnn.com/feed/",
+   "https://www.cnn.com/rss",
+   "https://www.cnn.com/rss.xml",
+   "https://www.cnn.com/feed.xml",
+   "https://www.cnn.com/atom.xml",
+   "https://www.cnn.com/index.xml",
+   "https://www.cnn.com/rss/all.xml",
+   "https://www.cnn.com/feeds/all.rss.xml",
+   "https://www.cnn.com/news/rss.xml",
+   "https://www.cnn.com/?feed=rss2"
+  ]
+ },
+ {
+  "id": "npr",
+  "feed_url": "https://feeds.npr.org/1002/rss.xml",
+  "status": "ok",
+  "tried": [
+   "https://feeds.npr.org/1002/rss.xml"
+  ]
+ },
+ {
+  "id": "al-jazeera-english",
+  "feed_url": "https://www.aljazeera.com/xml/rss/all.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.aljazeera.com/xml/rss/all.xml"
+  ]
+ },
+ {
+  "id": "deutsche-welle",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.dw.com/feed",
+   "https://www.dw.com/feed/",
+   "https://www.dw.com/rss",
+   "https://www.dw.com/rss.xml",
+   "https://www.dw.com/feed.xml",
+   "https://www.dw.com/atom.xml",
+   "https://www.dw.com/index.xml",
+   "https://www.dw.com/rss/all.xml",
+   "https://www.dw.com/feeds/all.rss.xml",
+   "https://www.dw.com/news/rss.xml",
+   "https://www.dw.com/?feed=rss2"
+  ]
+ },
+ {
+  "id": "france-24",
+  "feed_url": "https://www.france24.com/en/rss",
+  "status": "ok",
+  "tried": [
+   "https://www.france24.com/en/rss"
+  ]
+ },
+ {
+  "id": "euronews",
+  "feed_url": "https://www.euronews.com:443/rss",
+  "status": "ok",
+  "tried": [
+   "https://www.euronews.com:443/feed",
+   "https://www.euronews.com:443/feed/",
+   "https://www.euronews.com:443/rss"
+  ]
+ },
+ {
+  "id": "politico",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "the-independent",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.independent.co.uk/rss",
+   "https://www.independent.co.uk/feed",
+   "https://www.independent.co.uk/feed/",
+   "https://www.independent.co.uk/rss.xml",
+   "https://www.independent.co.uk/feed.xml",
+   "https://www.independent.co.uk/atom.xml",
+   "https://www.independent.co.uk/index.xml",
+   "https://www.independent.co.uk/rss/all.xml",
+   "https://www.independent.co.uk/feeds/all.rss.xml",
+   "https://www.independent.co.uk/news/rss.xml",
+   "https://www.independent.co.uk/?feed=rss2"
+  ]
+ },
+ {
+  "id": "the-telegraph",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 402: Payment Required"
+ },
+ {
+  "id": "the-times",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.thetimes.com/feed",
+   "https://www.thetimes.com/feed/",
+   "https://www.thetimes.com/rss",
+   "https://www.thetimes.com/rss.xml",
+   "https://www.thetimes.com/feed.xml",
+   "https://www.thetimes.com/atom.xml",
+   "https://www.thetimes.com/index.xml",
+   "https://www.thetimes.com/rss/all.xml",
+   "https://www.thetimes.com/feeds/all.rss.xml",
+   "https://www.thetimes.com/news/rss.xml",
+   "https://www.thetimes.com/?feed=rss2"
+  ]
+ },
+ {
+  "id": "time",
+  "feed_url": "https://time.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://time.com/feed"
+  ]
+ },
+ {
+  "id": "newsweek",
+  "feed_url": "https://www.newsweek.com/rss",
+  "status": "ok",
+  "tried": [
+   "https://www.newsweek.com/rss"
+  ]
+ },
+ {
+  "id": "the-atlantic",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "the-new-yorker",
+  "feed_url": "https://www.newyorker.com/feed/rss",
+  "status": "ok",
+  "tried": [
+   "https://www.newyorker.com/feed/rss"
+  ]
+ },
+ {
+  "id": "foreign-policy",
+  "feed_url": "https://foreignpolicy.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://foreignpolicy.com/feed"
+  ]
+ },
+ {
+  "id": "foreign-affairs",
+  "feed_url": "https://www.foreignaffairs.com/rss.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.foreignaffairs.com/rss.xml"
+  ]
+ },
+ {
+  "id": "the-conversation",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://theconversation.com/feed",
+   "https://theconversation.com/feed/",
+   "https://theconversation.com/rss",
+   "https://theconversation.com/rss.xml",
+   "https://theconversation.com/feed.xml",
+   "https://theconversation.com/atom.xml",
+   "https://theconversation.com/index.xml",
+   "https://theconversation.com/rss/all.xml",
+   "https://theconversation.com/feeds/all.rss.xml",
+   "https://theconversation.com/news/rss.xml",
+   "https://theconversation.com/?feed=rss2"
+  ]
+ },
+ {
+  "id": "the-intercept",
+  "feed_url": "https://theintercept.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://theintercept.com/feed"
+  ]
+ },
+ {
+  "id": "nikkei-asia",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://asia.nikkei.com/feed",
+   "https://asia.nikkei.com/feed/",
+   "https://asia.nikkei.com/rss",
+   "https://asia.nikkei.com/rss.xml",
+   "https://asia.nikkei.com/feed.xml",
+   "https://asia.nikkei.com/atom.xml",
+   "https://asia.nikkei.com/index.xml",
+   "https://asia.nikkei.com/rss/all.xml",
+   "https://asia.nikkei.com/feeds/all.rss.xml",
+   "https://asia.nikkei.com/news/rss.xml",
+   "https://asia.nikkei.com/?feed=rss2"
+  ]
+ },
+ {
+  "id": "the-japan-times",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "nhk-world-japan",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www3.nhk.or.jp/feed",
+   "https://www3.nhk.or.jp/feed/",
+   "https://www3.nhk.or.jp/rss",
+   "https://www3.nhk.or.jp/rss.xml",
+   "https://www3.nhk.or.jp/feed.xml",
+   "https://www3.nhk.or.jp/atom.xml",
+   "https://www3.nhk.or.jp/index.xml",
+   "https://www3.nhk.or.jp/rss/all.xml",
+   "https://www3.nhk.or.jp/feeds/all.rss.xml",
+   "https://www3.nhk.or.jp/news/rss.xml",
+   "https://www3.nhk.or.jp/?feed=rss2"
+  ]
+ },
+ {
+  "id": "the-straits-times",
+  "feed_url": "https://www.straitstimes.com/rss.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.straitstimes.com/feed",
+   "https://www.straitstimes.com/feed/",
+   "https://www.straitstimes.com/rss",
+   "https://www.straitstimes.com/rss.xml"
+  ]
+ },
+ {
+  "id": "south-china-morning-post",
+  "feed_url": "https://www.scmp.com/rss/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.scmp.com/rss/feed"
+  ]
+ },
+ {
+  "id": "the-hindu",
+  "feed_url": "https://www.thehindu.com/feeder/default.rss",
+  "status": "ok",
+  "tried": [
+   "https://www.thehindu.com/feeder/default.rss"
+  ]
+ },
+ {
+  "id": "the-indian-express",
+  "feed_url": "https://indianexpress.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://indianexpress.com/feed"
+  ]
+ },
+ {
+  "id": "hindustan-times",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.hindustantimes.com/feed",
+   "https://www.hindustantimes.com/feed/",
+   "https://www.hindustantimes.com/rss",
+   "https://www.hindustantimes.com/rss.xml",
+   "https://www.hindustantimes.com/feed.xml",
+   "https://www.hindustantimes.com/atom.xml",
+   "https://www.hindustantimes.com/index.xml",
+   "https://www.hindustantimes.com/rss/all.xml",
+   "https://www.hindustantimes.com/feeds/all.rss.xml",
+   "https://www.hindustantimes.com/news/rss.xml",
+   "https://www.hindustantimes.com/?feed=rss2"
+  ]
+ },
+ {
+  "id": "the-korea-herald",
+  "feed_url": "https://www.koreaherald.com/rss/newsAll",
+  "status": "ok",
+  "tried": [
+   "https://www.koreaherald.com/rss/newsAll"
+  ]
+ },
+ {
+  "id": "the-korea-times",
+  "feed_url": "https://feed.koreatimes.co.kr/k/allnews.xml",
+  "status": "ok",
+  "tried": [
+   "https://feed.koreatimes.co.kr/k/allnews.xml"
+  ]
+ },
+ {
+  "id": "the-jakarta-post",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.thejakartapost.com/feed",
+   "https://www.thejakartapost.com/feed/",
+   "https://www.thejakartapost.com/rss",
+   "https://www.thejakartapost.com/rss.xml",
+   "https://www.thejakartapost.com/feed.xml",
+   "https://www.thejakartapost.com/atom.xml",
+   "https://www.thejakartapost.com/index.xml",
+   "https://www.thejakartapost.com/rss/all.xml",
+   "https://www.thejakartapost.com/feeds/all.rss.xml",
+   "https://www.thejakartapost.com/news/rss.xml",
+   "https://www.thejakartapost.com/?feed=rss2"
+  ]
+ },
+ {
+  "id": "bangkok-post",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.bangkokpost.com/feed",
+   "https://www.bangkokpost.com/feed/",
+   "https://www.bangkokpost.com/rss",
+   "https://www.bangkokpost.com/rss.xml",
+   "https://www.bangkokpost.com/feed.xml",
+   "https://www.bangkokpost.com/atom.xml",
+   "https://www.bangkokpost.com/index.xml",
+   "https://www.bangkokpost.com/rss/all.xml",
+   "https://www.bangkokpost.com/feeds/all.rss.xml",
+   "https://www.bangkokpost.com/news/rss.xml",
+   "https://www.bangkokpost.com/?feed=rss2"
+  ]
+ },
+ {
+  "id": "the-sydney-morning-herald",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 308: Permanent redirect"
+ },
+ {
+  "id": "the-australian",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "abc-australia",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.abc.net.au/feed",
+   "https://www.abc.net.au/feed/",
+   "https://www.abc.net.au/rss",
+   "https://www.abc.net.au/rss.xml",
+   "https://www.abc.net.au/feed.xml",
+   "https://www.abc.net.au/atom.xml",
+   "https://www.abc.net.au/index.xml",
+   "https://www.abc.net.au/rss/all.xml",
+   "https://www.abc.net.au/feeds/all.rss.xml",
+   "https://www.abc.net.au/news/rss.xml",
+   "https://www.abc.net.au/?feed=rss2"
+  ]
+ },
+ {
+  "id": "rnz",
+  "feed_url": "https://www.rnz.co.nz/rss/all.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.rnz.co.nz/feed",
+   "https://www.rnz.co.nz/feed/",
+   "https://www.rnz.co.nz/rss",
+   "https://www.rnz.co.nz/rss.xml",
+   "https://www.rnz.co.nz/feed.xml",
+   "https://www.rnz.co.nz/atom.xml",
+   "https://www.rnz.co.nz/index.xml",
+   "https://www.rnz.co.nz/rss/all.xml"
+  ]
+ },
+ {
+  "id": "daily-maverick",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.dailymaverick.co.za/feed",
+   "https://www.dailymaverick.co.za/feed/",
+   "https://www.dailymaverick.co.za/rss",
+   "https://www.dailymaverick.co.za/rss.xml",
+   "https://www.dailymaverick.co.za/feed.xml",
+   "https://www.dailymaverick.co.za/atom.xml",
+   "https://www.dailymaverick.co.za/index.xml",
+   "https://www.dailymaverick.co.za/rss/all.xml",
+   "https://www.dailymaverick.co.za/feeds/all.rss.xml",
+   "https://www.dailymaverick.co.za/news/rss.xml",
+   "https://www.dailymaverick.co.za/?feed=rss2"
+  ]
+ },
+ {
+  "id": "mail-guardian",
+  "feed_url": "https://mg.co.za/atom/",
+  "status": "ok",
+  "tried": [
+   "https://mg.co.za/atom/"
+  ]
+ },
+ {
+  "id": "news24",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "the-africa-report",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "african-arguments",
+  "feed_url": "https://africanarguments.org/feed/",
+  "status": "ok",
+  "tried": [
+   "https://africanarguments.org/feed/"
+  ]
+ },
+ {
+  "id": "jeune-afrique",
+  "feed_url": "https://www.jeuneafrique.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.jeuneafrique.com/feed"
+  ]
+ },
+ {
+  "id": "the-eastafrican",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "the-nation-kenya",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "premium-times-nigeria",
+  "feed_url": "https://www.premiumtimesng.com/feed",
+  "status": "ok",
+  "tried": [
+   "https://www.premiumtimesng.com/feed"
+  ]
+ },
+ {
+  "id": "middle-east-eye",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.middleeasteye.net/feed",
+   "https://www.middleeasteye.net/feed/",
+   "https://www.middleeasteye.net/rss",
+   "https://www.middleeasteye.net/rss.xml",
+   "https://www.middleeasteye.net/feed.xml",
+   "https://www.middleeasteye.net/atom.xml",
+   "https://www.middleeasteye.net/index.xml",
+   "https://www.middleeasteye.net/rss/all.xml",
+   "https://www.middleeasteye.net/feeds/all.rss.xml",
+   "https://www.middleeasteye.net/news/rss.xml",
+   "https://www.middleeasteye.net/?feed=rss2"
+  ]
+ },
+ {
+  "id": "the-national-uae",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.thenationalnews.com:443/feed",
+   "https://www.thenationalnews.com:443/feed/",
+   "https://www.thenationalnews.com:443/rss",
+   "https://www.thenationalnews.com:443/rss.xml",
+   "https://www.thenationalnews.com:443/feed.xml",
+   "https://www.thenationalnews.com:443/atom.xml",
+   "https://www.thenationalnews.com:443/index.xml",
+   "https://www.thenationalnews.com:443/rss/all.xml",
+   "https://www.thenationalnews.com:443/feeds/all.rss.xml",
+   "https://www.thenationalnews.com:443/news/rss.xml",
+   "https://www.thenationalnews.com:443/?feed=rss2"
+  ]
+ },
+ {
+  "id": "haaretz",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "the-jerusalem-post",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.jpost.com:443/feed",
+   "https://www.jpost.com:443/feed/",
+   "https://www.jpost.com:443/rss",
+   "https://www.jpost.com:443/rss.xml",
+   "https://www.jpost.com:443/feed.xml",
+   "https://www.jpost.com:443/atom.xml",
+   "https://www.jpost.com:443/index.xml",
+   "https://www.jpost.com:443/rss/all.xml",
+   "https://www.jpost.com:443/feeds/all.rss.xml",
+   "https://www.jpost.com:443/news/rss.xml",
+   "https://www.jpost.com:443/?feed=rss2"
+  ]
+ },
+ {
+  "id": "arab-news",
+  "feed_url": "https://www.arabnews.com/rss.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.arabnews.com/feed",
+   "https://www.arabnews.com/feed/",
+   "https://www.arabnews.com/rss"
+  ]
+ },
+ {
+  "id": "al-monitor",
+  "feed_url": "https://www.al-monitor.com/rss",
+  "status": "ok",
+  "tried": [
+   "https://www.al-monitor.com/feed"
+  ]
+ },
+ {
+  "id": "corriere-della-sera",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.corriere.it/feed",
+   "https://www.corriere.it/feed/",
+   "https://www.corriere.it/rss",
+   "https://www.corriere.it/rss.xml",
+   "https://www.corriere.it/feed.xml",
+   "https://www.corriere.it/atom.xml",
+   "https://www.corriere.it/index.xml",
+   "https://www.corriere.it/rss/all.xml",
+   "https://www.corriere.it/feeds/all.rss.xml",
+   "https://www.corriere.it/news/rss.xml",
+   "https://www.corriere.it/?feed=rss2"
+  ]
+ },
+ {
+  "id": "la-repubblica",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.repubblica.it/feed",
+   "https://www.repubblica.it/feed/",
+   "https://www.repubblica.it/rss",
+   "https://www.repubblica.it/rss.xml",
+   "https://www.repubblica.it/feed.xml",
+   "https://www.repubblica.it/atom.xml",
+   "https://www.repubblica.it/index.xml",
+   "https://www.repubblica.it/rss/all.xml",
+   "https://www.repubblica.it/feeds/all.rss.xml",
+   "https://www.repubblica.it/news/rss.xml",
+   "https://www.repubblica.it/?feed=rss2"
+  ]
+ },
+ {
+  "id": "la-stampa",
+  "feed_url": "https://www.lastampa.it/rss/copertina.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.lastampa.it/rss/copertina.xml"
+  ]
+ },
+ {
+  "id": "il-sole-24-ore",
+  "feed_url": "https://www.ilsole24ore.com/rss/homepage.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.ilsole24ore.com/rss/homepage.xml"
+  ]
+ },
+ {
+  "id": "il-messaggero",
+  "feed_url": "https://www.ilmessaggero.it/rss/home.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.ilmessaggero.it/rss/home.xml"
+  ]
+ },
+ {
+  "id": "il-giornale",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.ilgiornale.it:443/feed",
+   "https://www.ilgiornale.it:443/feed/",
+   "https://www.ilgiornale.it:443/rss",
+   "https://www.ilgiornale.it:443/rss.xml",
+   "https://www.ilgiornale.it:443/feed.xml",
+   "https://www.ilgiornale.it:443/atom.xml",
+   "https://www.ilgiornale.it:443/index.xml",
+   "https://www.ilgiornale.it:443/rss/all.xml",
+   "https://www.ilgiornale.it:443/feeds/all.rss.xml",
+   "https://www.ilgiornale.it:443/news/rss.xml",
+   "https://www.ilgiornale.it:443/?feed=rss2"
+  ]
+ },
+ {
+  "id": "il-fatto-quotidiano",
+  "feed_url": "https://www.ilfattoquotidiano.it/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.ilfattoquotidiano.it/feed/"
+  ]
+ },
+ {
+  "id": "libero",
+  "feed_url": "https://www.liberoquotidiano.it:443/rss.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.liberoquotidiano.it:443/feed",
+   "https://www.liberoquotidiano.it:443/feed/",
+   "https://www.liberoquotidiano.it:443/rss",
+   "https://www.liberoquotidiano.it:443/rss.xml"
+  ]
+ },
+ {
+  "id": "il-foglio",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.ilfoglio.it/feed",
+   "https://www.ilfoglio.it/feed/",
+   "https://www.ilfoglio.it/rss",
+   "https://www.ilfoglio.it/rss.xml",
+   "https://www.ilfoglio.it/feed.xml",
+   "https://www.ilfoglio.it/atom.xml",
+   "https://www.ilfoglio.it/index.xml",
+   "https://www.ilfoglio.it/rss/all.xml",
+   "https://www.ilfoglio.it/feeds/all.rss.xml",
+   "https://www.ilfoglio.it/news/rss.xml",
+   "https://www.ilfoglio.it/?feed=rss2"
+  ]
+ },
+ {
+  "id": "domani",
+  "feed_url": "https://www.editorialedomani.it/rss",
+  "status": "ok",
+  "tried": [
+   "https://www.editorialedomani.it/rss"
+  ]
+ },
+ {
+  "id": "avvenire",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.avvenire.it/feed",
+   "https://www.avvenire.it/feed/",
+   "https://www.avvenire.it/rss",
+   "https://www.avvenire.it/rss.xml",
+   "https://www.avvenire.it/feed.xml",
+   "https://www.avvenire.it/atom.xml",
+   "https://www.avvenire.it/index.xml",
+   "https://www.avvenire.it/rss/all.xml",
+   "https://www.avvenire.it/feeds/all.rss.xml",
+   "https://www.avvenire.it/news/rss.xml",
+   "https://www.avvenire.it/?feed=rss2"
+  ]
+ },
+ {
+  "id": "il-manifesto",
+  "feed_url": "https://cms.ilmanifesto.it/feed",
+  "status": "ok",
+  "tried": [
+   "https://ilmanifesto.it/feed"
+  ]
+ },
+ {
+  "id": "italiaoggi",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.italiaoggi.it/feed",
+   "https://www.italiaoggi.it/feed/",
+   "https://www.italiaoggi.it/rss",
+   "https://www.italiaoggi.it/rss.xml",
+   "https://www.italiaoggi.it/feed.xml",
+   "https://www.italiaoggi.it/atom.xml",
+   "https://www.italiaoggi.it/index.xml",
+   "https://www.italiaoggi.it/rss/all.xml",
+   "https://www.italiaoggi.it/feeds/all.rss.xml",
+   "https://www.italiaoggi.it/news/rss.xml",
+   "https://www.italiaoggi.it/?feed=rss2"
+  ]
+ },
+ {
+  "id": "milano-finanza",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.milanofinanza.it/feed",
+   "https://www.milanofinanza.it/feed/",
+   "https://www.milanofinanza.it/rss",
+   "https://www.milanofinanza.it/rss.xml",
+   "https://www.milanofinanza.it/feed.xml",
+   "https://www.milanofinanza.it/atom.xml",
+   "https://www.milanofinanza.it/index.xml",
+   "https://www.milanofinanza.it/rss/all.xml",
+   "https://www.milanofinanza.it/feeds/all.rss.xml",
+   "https://www.milanofinanza.it/news/rss.xml",
+   "https://www.milanofinanza.it/?feed=rss2"
+  ]
+ },
+ {
+  "id": "l-unit",
+  "feed_url": "https://www.unita.it/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.unita.it/feed/"
+  ]
+ },
+ {
+  "id": "il-tempo",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.iltempo.it:443/feed",
+   "https://www.iltempo.it:443/feed/",
+   "https://www.iltempo.it:443/rss",
+   "https://www.iltempo.it:443/rss.xml",
+   "https://www.iltempo.it:443/feed.xml",
+   "https://www.iltempo.it:443/atom.xml",
+   "https://www.iltempo.it:443/index.xml",
+   "https://www.iltempo.it:443/rss/all.xml",
+   "https://www.iltempo.it:443/feeds/all.rss.xml",
+   "https://www.iltempo.it:443/news/rss.xml",
+   "https://www.iltempo.it:443/?feed=rss2"
+  ]
+ },
+ {
+  "id": "il-riformista",
+  "feed_url": "https://www.ilriformista.it/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.ilriformista.it/feed/"
+  ]
+ },
+ {
+  "id": "la-verit",
+  "feed_url": "https://www.laverita.info/feed",
+  "status": "ok",
+  "tried": [
+   "https://www.laverita.info/feed"
+  ]
+ },
+ {
+  "id": "il-dubbio",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.ildubbio.news:443/feed",
+   "https://www.ildubbio.news:443/feed/",
+   "https://www.ildubbio.news:443/rss",
+   "https://www.ildubbio.news:443/rss.xml",
+   "https://www.ildubbio.news:443/feed.xml",
+   "https://www.ildubbio.news:443/atom.xml",
+   "https://www.ildubbio.news:443/index.xml",
+   "https://www.ildubbio.news:443/rss/all.xml",
+   "https://www.ildubbio.news:443/feeds/all.rss.xml",
+   "https://www.ildubbio.news:443/news/rss.xml",
+   "https://www.ildubbio.news:443/?feed=rss2"
+  ]
+ },
+ {
+  "id": "il-secolo-xix",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 429: Too Many Requests"
+ },
+ {
+  "id": "il-mattino",
+  "feed_url": "https://www.ilmattino.it/rss/home.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.ilmattino.it/rss/home.xml"
+  ]
+ },
+ {
+  "id": "il-gazzettino",
+  "feed_url": "https://www.ilgazzettino.it/rss/home.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.ilgazzettino.it/rss/home.xml"
+  ]
+ },
+ {
+  "id": "il-resto-del-carlino",
+  "feed_url": "https://www.ilrestodelcarlino.it/rss",
+  "status": "ok",
+  "tried": [
+   "https://www.ilrestodelcarlino.it/rss"
+  ]
+ },
+ {
+  "id": "la-nazione",
+  "feed_url": "https://www.lanazione.it/rss",
+  "status": "ok",
+  "tried": [
+   "https://www.lanazione.it/rss"
+  ]
+ },
+ {
+  "id": "il-giorno",
+  "feed_url": "https://www.ilgiorno.it/rss",
+  "status": "ok",
+  "tried": [
+   "https://www.ilgiorno.it/rss"
+  ]
+ },
+ {
+  "id": "il-giornale-di-sicilia",
+  "feed_url": "https://gds.it/upload/assets/rss/producer-sicilia-homepage.xml",
+  "status": "ok",
+  "tried": [
+   "https://gds.it/upload/assets/rss/producer-sicilia-homepage.xml"
+  ]
+ },
+ {
+  "id": "la-gazzetta-del-mezzogiorno",
+  "feed_url": "https://feeds.feedburner.com/lagazzettadelmezzogiorno/viyi6z8dkwu",
+  "status": "ok",
+  "tried": [
+   "https://feeds.feedburner.com/lagazzettadelmezzogiorno/viyi6z8dkwu"
+  ]
+ },
+ {
+  "id": "l-eco-di-bergamo",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.ecodibergamo.it/feed",
+   "https://www.ecodibergamo.it/feed/",
+   "https://www.ecodibergamo.it/rss",
+   "https://www.ecodibergamo.it/rss.xml",
+   "https://www.ecodibergamo.it/feed.xml",
+   "https://www.ecodibergamo.it/atom.xml",
+   "https://www.ecodibergamo.it/index.xml",
+   "https://www.ecodibergamo.it/rss/all.xml",
+   "https://www.ecodibergamo.it/feeds/all.rss.xml",
+   "https://www.ecodibergamo.it/news/rss.xml",
+   "https://www.ecodibergamo.it/?feed=rss2"
+  ]
+ },
+ {
+  "id": "l-arena",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.larena.it/feed",
+   "https://www.larena.it/feed/",
+   "https://www.larena.it/rss",
+   "https://www.larena.it/rss.xml",
+   "https://www.larena.it/feed.xml",
+   "https://www.larena.it/atom.xml",
+   "https://www.larena.it/index.xml",
+   "https://www.larena.it/rss/all.xml",
+   "https://www.larena.it/feeds/all.rss.xml",
+   "https://www.larena.it/news/rss.xml",
+   "https://www.larena.it/?feed=rss2"
+  ]
+ },
+ {
+  "id": "il-piccolo",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.ilpiccolo.it/feed",
+   "https://www.ilpiccolo.it/feed/",
+   "https://www.ilpiccolo.it/rss",
+   "https://www.ilpiccolo.it/rss.xml",
+   "https://www.ilpiccolo.it/feed.xml",
+   "https://www.ilpiccolo.it/atom.xml",
+   "https://www.ilpiccolo.it/index.xml",
+   "https://www.ilpiccolo.it/rss/all.xml",
+   "https://www.ilpiccolo.it/feeds/all.rss.xml",
+   "https://www.ilpiccolo.it/news/rss.xml",
+   "https://www.ilpiccolo.it/?feed=rss2"
+  ]
+ },
+ {
+  "id": "l-adige",
+  "feed_url": "https://www.ladige.it/sitemaps/ladige/rss",
+  "status": "ok",
+  "tried": [
+   "https://www.ladige.it/sitemaps/ladige/rss"
+  ]
+ },
+ {
+  "id": "dolomiten",
+  "feed_url": "https://www.stol.it/feed",
+  "status": "ok",
+  "tried": [
+   "https://www.stol.it/feed"
+  ]
+ },
+ {
+  "id": "l-unione-sarda",
+  "feed_url": "https://www.unionesarda.it/sitemaps/rss",
+  "status": "ok",
+  "tried": [
+   "https://www.unionesarda.it/sitemaps/rss"
+  ]
+ },
+ {
+  "id": "internazionale",
+  "feed_url": "https://www.internazionale.it/sitemaps/rss.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.internazionale.it/sitemaps/rss.xml"
+  ]
+ },
+ {
+  "id": "limes",
+  "feed_url": "https://www.limesonline.com/rss/",
+  "status": "ok",
+  "tried": [
+   "https://www.limesonline.com/rss"
+  ]
+ },
+ {
+  "id": "eastwest",
+  "feed_url": "https://eastwest.eu/feed/",
+  "status": "ok",
+  "tried": [
+   "https://eastwest.eu/feed/"
+  ]
+ },
+ {
+  "id": "formiche",
+  "feed_url": "https://formiche.net/feed/",
+  "status": "ok",
+  "tried": [
+   "https://formiche.net/feed/"
+  ]
+ },
+ {
+  "id": "linkiesta",
+  "feed_url": "https://www.linkiesta.it/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.linkiesta.it/feed/"
+  ]
+ },
+ {
+  "id": "valigia-blu",
+  "feed_url": "https://www.valigiablu.it/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.valigiablu.it/feed/"
+  ]
+ },
+ {
+  "id": "pagella-politica",
+  "feed_url": "https://pagellapolitica.it/articoli.xml",
+  "status": "ok",
+  "tried": [
+   "https://pagellapolitica.it/feed",
+   "https://pagellapolitica.it/feed/",
+   "https://pagellapolitica.it/rss",
+   "https://pagellapolitica.it/rss.xml",
+   "https://pagellapolitica.it/feed.xml"
+  ]
+ },
+ {
+  "id": "open",
+  "feed_url": "https://www.open.online/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.open.online/feed"
+  ]
+ },
+ {
+  "id": "fanpage",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "today",
+  "feed_url": "https://www.today.it/rss",
+  "status": "ok",
+  "tried": [
+   "https://www.today.it/rss"
+  ]
+ },
+ {
+  "id": "il-post",
+  "feed_url": "https://www.ilpost.it:443/feed",
+  "status": "ok",
+  "tried": [
+   "https://www.ilpost.it:443/feed"
+  ]
+ },
+ {
+  "id": "wired-italia",
+  "feed_url": "https://www.wired.it/feed/rss",
+  "status": "ok",
+  "tried": [
+   "https://www.wired.it/feed/rss"
+  ]
+ },
+ {
+  "id": "focus",
+  "feed_url": "https://www.focus.it/rss",
+  "status": "ok",
+  "tried": [
+   "https://www.focus.it/rss"
+  ]
+ },
+ {
+  "id": "le-scienze",
+  "feed_url": "https://www.lescienze.it/rss",
+  "status": "ok",
+  "tried": [
+   "https://www.lescienze.it/feed",
+   "https://www.lescienze.it/feed/",
+   "https://www.lescienze.it/rss"
+  ]
+ },
+ {
+  "id": "national-geographic-italia",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.nationalgeographic.it/feed",
+   "https://www.nationalgeographic.it/feed/",
+   "https://www.nationalgeographic.it/rss",
+   "https://www.nationalgeographic.it/rss.xml",
+   "https://www.nationalgeographic.it/feed.xml",
+   "https://www.nationalgeographic.it/atom.xml",
+   "https://www.nationalgeographic.it/index.xml",
+   "https://www.nationalgeographic.it/rss/all.xml",
+   "https://www.nationalgeographic.it/feeds/all.rss.xml",
+   "https://www.nationalgeographic.it/news/rss.xml",
+   "https://www.nationalgeographic.it/?feed=rss2"
+  ]
+ },
+ {
+  "id": "rivista-studio",
+  "feed_url": "https://www.rivistastudio.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.rivistastudio.com/feed/"
+  ]
+ },
+ {
+  "id": "lucy-sulla-cultura",
+  "feed_url": "https://lucysullacultura.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://lucysullacultura.com/feed"
+  ]
+ },
+ {
+  "id": "doppiozero",
+  "feed_url": "https://www.doppiozero.com/articoli-doppiozero/rss.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.doppiozero.com/feed"
+  ]
+ },
+ {
+  "id": "il-tascabile",
+  "feed_url": "https://www.iltascabile.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.iltascabile.com/feed/"
+  ]
+ },
+ {
+  "id": "esquire-italia",
+  "feed_url": "https://www.esquire.com/it/rss/default.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.esquire.com/it/rss/default.xml"
+  ]
+ },
+ {
+  "id": "rolling-stone-italia",
+  "feed_url": "https://www.rollingstone.it/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.rollingstone.it/feed"
+  ]
+ },
+ {
+  "id": "artribune",
+  "feed_url": "https://www.artribune.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.artribune.com/feed"
+  ]
+ },
+ {
+  "id": "exibart",
+  "feed_url": "https://www.exibart.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.exibart.com/feed/"
+  ]
+ },
+ {
+  "id": "domus",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.domusweb.it/feed",
+   "https://www.domusweb.it/feed/",
+   "https://www.domusweb.it/rss",
+   "https://www.domusweb.it/rss.xml",
+   "https://www.domusweb.it/feed.xml",
+   "https://www.domusweb.it/atom.xml",
+   "https://www.domusweb.it/index.xml",
+   "https://www.domusweb.it/rss/all.xml",
+   "https://www.domusweb.it/feeds/all.rss.xml",
+   "https://www.domusweb.it/news/rss.xml",
+   "https://www.domusweb.it/?feed=rss2"
+  ]
+ },
+ {
+  "id": "abitare",
+  "feed_url": "https://www.abitare.it/it/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.abitare.it/it/feed/"
+  ]
+ },
+ {
+  "id": "il-bo-live",
+  "feed_url": "https://ilbolive.unipd.it/it/rss.xml",
+  "status": "ok",
+  "tried": [
+   "https://ilbolive.unipd.it/feed",
+   "https://ilbolive.unipd.it/feed/",
+   "https://ilbolive.unipd.it/rss",
+   "https://ilbolive.unipd.it/rss.xml"
+  ]
+ },
+ {
+  "id": "scienza-in-rete",
+  "feed_url": "https://www.scienzainrete.it/index.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.scienzainrete.it/index.xml"
+  ]
+ },
+ {
+  "id": "agenda-digitale",
+  "feed_url": "https://www.agendadigitale.eu/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.agendadigitale.eu/feed/"
+  ]
+ },
+ {
+  "id": "economyup",
+  "feed_url": "https://www.economyup.it/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.economyup.it/feed/"
+  ]
+ },
+ {
+  "id": "startupitalia",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "greenme",
+  "feed_url": "https://www.greenme.it/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.greenme.it/feed"
+  ]
+ },
+ {
+  "id": "lifegate",
+  "feed_url": "https://www.lifegate.it/feed",
+  "status": "ok",
+  "tried": [
+   "https://www.lifegate.it/feed"
+  ]
+ },
+ {
+  "id": "altreconomia",
+  "feed_url": "https://altreconomia.it/feed/",
+  "status": "ok",
+  "tried": [
+   "https://altreconomia.it/feed/"
+  ]
+ },
+ {
+  "id": "slow-news",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://slow-news.com/feed",
+   "https://slow-news.com/feed/",
+   "https://slow-news.com/rss",
+   "https://slow-news.com/rss.xml",
+   "https://slow-news.com/feed.xml",
+   "https://slow-news.com/atom.xml",
+   "https://slow-news.com/index.xml",
+   "https://slow-news.com/rss/all.xml",
+   "https://slow-news.com/feeds/all.rss.xml",
+   "https://slow-news.com/news/rss.xml",
+   "https://slow-news.com/?feed=rss2"
+  ]
+ },
+ {
+  "id": "facta",
+  "feed_url": "https://www.facta.news/feed.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.facta.news/feed",
+   "https://www.facta.news/feed/",
+   "https://www.facta.news/rss",
+   "https://www.facta.news/rss.xml",
+   "https://www.facta.news/feed.xml"
+  ]
+ },
+ {
+  "id": "harvard-business-review",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://hbr.org/feed",
+   "https://hbr.org/feed/",
+   "https://hbr.org/rss",
+   "https://hbr.org/rss.xml",
+   "https://hbr.org/feed.xml",
+   "https://hbr.org/atom.xml",
+   "https://hbr.org/index.xml",
+   "https://hbr.org/rss/all.xml",
+   "https://hbr.org/feeds/all.rss.xml",
+   "https://hbr.org/news/rss.xml",
+   "https://hbr.org/?feed=rss2"
+  ]
+ },
+ {
+  "id": "mit-sloan-management-review",
+  "feed_url": "http://feeds.feedburner.com/mitsmr",
+  "status": "ok",
+  "tried": [
+   "http://feeds.feedburner.com/mitsmr"
+  ]
+ },
+ {
+  "id": "stanford-social-innovation-review",
+  "feed_url": "https://ssir.org/site/rss_2.0",
+  "status": "ok",
+  "tried": [
+   "https://ssir.org/site/rss_2.0"
+  ]
+ },
+ {
+  "id": "mckinsey-insights",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "The read operation timed out"
+ },
+ {
+  "id": "bcg-insights",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.bcg.com/feed",
+   "https://www.bcg.com/feed/",
+   "https://www.bcg.com/rss",
+   "https://www.bcg.com/rss.xml",
+   "https://www.bcg.com/feed.xml",
+   "https://www.bcg.com/atom.xml",
+   "https://www.bcg.com/index.xml",
+   "https://www.bcg.com/rss/all.xml",
+   "https://www.bcg.com/feeds/all.rss.xml",
+   "https://www.bcg.com/news/rss.xml",
+   "https://www.bcg.com/?feed=rss2"
+  ]
+ },
+ {
+  "id": "bain-insights",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.bain.com/feed",
+   "https://www.bain.com/feed/",
+   "https://www.bain.com/rss",
+   "https://www.bain.com/rss.xml",
+   "https://www.bain.com/feed.xml",
+   "https://www.bain.com/atom.xml",
+   "https://www.bain.com/index.xml",
+   "https://www.bain.com/rss/all.xml",
+   "https://www.bain.com/feeds/all.rss.xml",
+   "https://www.bain.com/news/rss.xml",
+   "https://www.bain.com/?feed=rss2"
+  ]
+ },
+ {
+  "id": "knowledge-at-wharton",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "<urlopen error timed out>"
+ },
+ {
+  "id": "insead-knowledge",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "strategy-business",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.strategy-business.com/feed",
+   "https://www.strategy-business.com/feed/",
+   "https://www.strategy-business.com/rss",
+   "https://www.strategy-business.com/rss.xml",
+   "https://www.strategy-business.com/feed.xml",
+   "https://www.strategy-business.com/atom.xml",
+   "https://www.strategy-business.com/index.xml",
+   "https://www.strategy-business.com/rss/all.xml",
+   "https://www.strategy-business.com/feeds/all.rss.xml",
+   "https://www.strategy-business.com/news/rss.xml",
+   "https://www.strategy-business.com/?feed=rss2"
+  ]
+ },
+ {
+  "id": "fast-company",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "fortune",
+  "feed_url": "https://fortune.com/feed/fortune-feeds/?id=3230629",
+  "status": "ok",
+  "tried": [
+   "https://fortune.com/feed"
+  ]
+ },
+ {
+  "id": "forbes",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "bloomberg",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.bloomberg.com/feed",
+   "https://www.bloomberg.com/feed/",
+   "https://www.bloomberg.com/rss",
+   "https://www.bloomberg.com/rss.xml",
+   "https://www.bloomberg.com/feed.xml",
+   "https://www.bloomberg.com/atom.xml",
+   "https://www.bloomberg.com/index.xml",
+   "https://www.bloomberg.com/rss/all.xml",
+   "https://www.bloomberg.com/feeds/all.rss.xml",
+   "https://www.bloomberg.com/news/rss.xml",
+   "https://www.bloomberg.com/?feed=rss2"
+  ]
+ },
+ {
+  "id": "quartz",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "inc",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "entrepreneur",
+  "feed_url": "https://www.entrepreneur.com/?feed=rss2",
+  "status": "ok",
+  "tried": [
+   "https://www.entrepreneur.com/feed",
+   "https://www.entrepreneur.com/feed/",
+   "https://www.entrepreneur.com/rss",
+   "https://www.entrepreneur.com/rss.xml",
+   "https://www.entrepreneur.com/feed.xml",
+   "https://www.entrepreneur.com/atom.xml",
+   "https://www.entrepreneur.com/index.xml",
+   "https://www.entrepreneur.com/rss/all.xml",
+   "https://www.entrepreneur.com/feeds/all.rss.xml",
+   "https://www.entrepreneur.com/news/rss.xml",
+   "https://www.entrepreneur.com/?feed=rss2"
+  ]
+ },
+ {
+  "id": "rest-of-world",
+  "feed_url": "https://restofworld.org/feed/latest",
+  "status": "ok",
+  "tried": [
+   "https://restofworld.org/feed/latest"
+  ]
+ },
+ {
+  "id": "mit-technology-review",
+  "feed_url": "https://www.technologyreview.com/feed",
+  "status": "ok",
+  "tried": [
+   "https://www.technologyreview.com/feed"
+  ]
+ },
+ {
+  "id": "wired",
+  "feed_url": "https://www.wired.com/feed/rss",
+  "status": "ok",
+  "tried": [
+   "https://www.wired.com/feed/rss"
+  ]
+ },
+ {
+  "id": "the-verge",
+  "feed_url": "https://www.theverge.com/rss/index.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.theverge.com/rss/index.xml"
+  ]
+ },
+ {
+  "id": "ars-technica",
+  "feed_url": "https://arstechnica.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://arstechnica.com/feed"
+  ]
+ },
+ {
+  "id": "techcrunch",
+  "feed_url": "https://techcrunch.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://techcrunch.com/feed/"
+  ]
+ },
+ {
+  "id": "404-media",
+  "feed_url": "https://www.404media.co/rss/",
+  "status": "ok",
+  "tried": [
+   "https://www.404media.co/rss/"
+  ]
+ },
+ {
+  "id": "the-information",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "ieee-spectrum",
+  "feed_url": "https://spectrum.ieee.org/feeds/feed.rss",
+  "status": "ok",
+  "tried": [
+   "https://spectrum.ieee.org/feeds/feed.rss"
+  ]
+ },
+ {
+  "id": "hacker-news",
+  "feed_url": "https://news.ycombinator.com/rss",
+  "status": "ok",
+  "tried": [
+   "https://news.ycombinator.com/rss"
+  ]
+ },
+ {
+  "id": "the-register",
+  "feed_url": "https://api.theregister.com/api/v1/article?orderBy=published&site_id=2&remapper=rss&content=node",
+  "status": "ok",
+  "tried": [
+   "https://www.theregister.com/feed"
+  ]
+ },
+ {
+  "id": "bleepingcomputer",
+  "feed_url": "https://www.bleepingcomputer.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.bleepingcomputer.com/feed/"
+  ]
+ },
+ {
+  "id": "engadget",
+  "feed_url": "https://www.engadget.com/category/news/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.engadget.com/category/news/feed/"
+  ]
+ },
+ {
+  "id": "platformer",
+  "feed_url": "https://www.platformer.news/rss/",
+  "status": "ok",
+  "tried": [
+   "https://www.platformer.news/rss/"
+  ]
+ },
+ {
+  "id": "semafor",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 308: "
+ },
+ {
+  "id": "techmeme",
+  "feed_url": "https://www.techmeme.com/feed.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.techmeme.com/feed.xml"
+  ]
+ },
+ {
+  "id": "aeon",
+  "feed_url": "https://aeon.co/feed.rss",
+  "status": "ok",
+  "tried": [
+   "https://aeon.co/feed.rss"
+  ]
+ },
+ {
+  "id": "psyche",
+  "feed_url": "https://psyche.co/feed.rss",
+  "status": "ok",
+  "tried": [
+   "https://psyche.co/feed.rss"
+  ]
+ },
+ {
+  "id": "the-marginalian",
+  "feed_url": "https://feeds.feedburner.com/brainpickings/rss",
+  "status": "ok",
+  "tried": [
+   "https://feeds.feedburner.com/brainpickings/rss"
+  ]
+ },
+ {
+  "id": "nautilus",
+  "feed_url": "https://nautil.us/feed",
+  "status": "ok",
+  "tried": [
+   "https://nautil.us/feed"
+  ]
+ },
+ {
+  "id": "noema",
+  "feed_url": "https://www.noemamag.com/?feed=noemarss",
+  "status": "ok",
+  "tried": [
+   "https://www.noemamag.com/feed/"
+  ]
+ },
+ {
+  "id": "jstor-daily",
+  "feed_url": "https://daily.jstor.org/feed/",
+  "status": "ok",
+  "tried": [
+   "https://daily.jstor.org/feed"
+  ]
+ },
+ {
+  "id": "the-paris-review",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "literary-hub",
+  "feed_url": "https://lithub.com/home-page-rigel-two-up-2/feed/",
+  "status": "ok",
+  "tried": [
+   "https://lithub.com/home-page-rigel-two-up-2/feed/"
+  ]
+ },
+ {
+  "id": "the-point",
+  "feed_url": "https://thepointmag.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://thepointmag.com/feed/"
+  ]
+ },
+ {
+  "id": "the-baffler",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "the-new-york-review-of-books",
+  "feed_url": "http://feeds.feedburner.com/nybooks",
+  "status": "ok",
+  "tried": [
+   "http://feeds.feedburner.com/nybooks"
+  ]
+ },
+ {
+  "id": "london-review-of-books",
+  "feed_url": "https://www.lrb.co.uk/feeds/rss",
+  "status": "ok",
+  "tried": [
+   "https://www.lrb.co.uk/feeds/rss"
+  ]
+ },
+ {
+  "id": "public-books",
+  "feed_url": "https://www.publicbooks.org/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.publicbooks.org/feed/"
+  ]
+ },
+ {
+  "id": "longreads",
+  "feed_url": "https://longreads.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://longreads.com/feed/"
+  ]
+ },
+ {
+  "id": "arts-letters-daily",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "smithsonian-magazine",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "atlas-obscura",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "undark",
+  "feed_url": "https://undark.org/feed/",
+  "status": "ok",
+  "tried": [
+   "https://undark.org/feed/"
+  ]
+ },
+ {
+  "id": "nielsen-norman-group",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.nngroup.com/feed",
+   "https://www.nngroup.com/feed/",
+   "https://www.nngroup.com/rss",
+   "https://www.nngroup.com/rss.xml",
+   "https://www.nngroup.com/feed.xml",
+   "https://www.nngroup.com/atom.xml",
+   "https://www.nngroup.com/index.xml",
+   "https://www.nngroup.com/rss/all.xml",
+   "https://www.nngroup.com/feeds/all.rss.xml",
+   "https://www.nngroup.com/news/rss.xml",
+   "https://www.nngroup.com/?feed=rss2"
+  ]
+ },
+ {
+  "id": "ux-collective",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "smashing-magazine",
+  "feed_url": "https://www.smashingmagazine.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.smashingmagazine.com/feed/"
+  ]
+ },
+ {
+  "id": "a-list-apart",
+  "feed_url": "https://alistapart.com/main/feed/",
+  "status": "ok",
+  "tried": [
+   "https://alistapart.com/main/feed/"
+  ]
+ },
+ {
+  "id": "interaction-design-foundation",
+  "feed_url": "https://ixdf.org/rss/site_news.xml",
+  "status": "ok",
+  "tried": [
+   "https://ixdf.org/rss/site_news.xml"
+  ]
+ },
+ {
+  "id": "design-observer",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "core77",
+  "feed_url": "http://feeds.feedburner.com/core77/blog",
+  "status": "ok",
+  "tried": [
+   "https://www.core77.com/feed"
+  ]
+ },
+ {
+  "id": "dezeen",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "designboom",
+  "feed_url": "https://www.designboom.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.designboom.com/feed"
+  ]
+ },
+ {
+  "id": "creative-review",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "it-s-nice-that",
+  "feed_url": "http://feeds2.feedburner.com/itsnicethat/SlXC",
+  "status": "ok",
+  "tried": [
+   "http://feeds2.feedburner.com/itsnicethat/SlXC"
+  ]
+ },
+ {
+  "id": "eye-on-design",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://eyeondesign.aiga.org/feed",
+   "https://eyeondesign.aiga.org/feed/",
+   "https://eyeondesign.aiga.org/rss",
+   "https://eyeondesign.aiga.org/rss.xml",
+   "https://eyeondesign.aiga.org/feed.xml",
+   "https://eyeondesign.aiga.org/atom.xml",
+   "https://eyeondesign.aiga.org/index.xml",
+   "https://eyeondesign.aiga.org/rss/all.xml",
+   "https://eyeondesign.aiga.org/feeds/all.rss.xml",
+   "https://eyeondesign.aiga.org/news/rss.xml",
+   "https://eyeondesign.aiga.org/?feed=rss2"
+  ]
+ },
+ {
+  "id": "aiga",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "figma-blog",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 308: Permanent Redirect"
+ },
+ {
+  "id": "uxmatters",
+  "feed_url": "https://feedpress.me/UXmatters",
+  "status": "ok",
+  "tried": [
+   "https://feedpress.me/UXmatters"
+  ]
+ },
+ {
+  "id": "acm-interactions",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "nature-news",
+  "feed_url": "https://www.nature.com/nature.rss",
+  "status": "ok",
+  "tried": [
+   "https://www.nature.com/nature.rss"
+  ]
+ },
+ {
+  "id": "science-news",
+  "feed_url": "https://www.sciencenews.org/feed",
+  "status": "ok",
+  "tried": [
+   "https://www.sciencenews.org/feed"
+  ]
+ },
+ {
+  "id": "scientific-american",
+  "feed_url": "https://www.scientificamerican.com/platform/syndication/rss/",
+  "status": "ok",
+  "tried": [
+   "https://www.scientificamerican.com/platform/syndication/rss/"
+  ]
+ },
+ {
+  "id": "new-scientist",
+  "feed_url": "https://www.newscientist.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.newscientist.com/feed"
+  ]
+ },
+ {
+  "id": "quanta-magazine",
+  "feed_url": "https://www.quantamagazine.org/quanta/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.quantamagazine.org/quanta/feed/"
+  ]
+ },
+ {
+  "id": "knowable-magazine",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "sciencedaily",
+  "feed_url": "https://www.sciencedaily.com/rss/all.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.sciencedaily.com/rss/all.xml"
+  ]
+ },
+ {
+  "id": "phys-org",
+  "feed_url": "https://phys.org/rss-feed/",
+  "status": "ok",
+  "tried": [
+   "https://phys.org/rss-feed/"
+  ]
+ },
+ {
+  "id": "eurekalert",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.eurekalert.org/feed",
+   "https://www.eurekalert.org/feed/",
+   "https://www.eurekalert.org/rss",
+   "https://www.eurekalert.org/rss.xml",
+   "https://www.eurekalert.org/feed.xml",
+   "https://www.eurekalert.org/atom.xml",
+   "https://www.eurekalert.org/index.xml",
+   "https://www.eurekalert.org/rss/all.xml",
+   "https://www.eurekalert.org/feeds/all.rss.xml",
+   "https://www.eurekalert.org/news/rss.xml",
+   "https://www.eurekalert.org/?feed=rss2"
+  ]
+ },
+ {
+  "id": "nasa",
+  "feed_url": "https://www.nasa.gov/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.nasa.gov/feed/"
+  ]
+ },
+ {
+  "id": "esa",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.esa.int/feed",
+   "https://www.esa.int/feed/",
+   "https://www.esa.int/rss",
+   "https://www.esa.int/rss.xml",
+   "https://www.esa.int/feed.xml",
+   "https://www.esa.int/atom.xml",
+   "https://www.esa.int/index.xml",
+   "https://www.esa.int/rss/all.xml",
+   "https://www.esa.int/feeds/all.rss.xml",
+   "https://www.esa.int/news/rss.xml",
+   "https://www.esa.int/?feed=rss2"
+  ]
+ },
+ {
+  "id": "our-world-in-data",
+  "feed_url": "https://ourworldindata.org/atom.xml",
+  "status": "ok",
+  "tried": [
+   "https://ourworldindata.org/atom.xml"
+  ]
+ },
+ {
+  "id": "the-bmj",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "stat",
+  "feed_url": "https://www.statnews.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.statnews.com/feed/"
+  ]
+ },
+ {
+  "id": "the-lancet",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "plos-blogs",
+  "feed_url": "https://plos.org/feed/",
+  "status": "ok",
+  "tried": [
+   "https://plos.org/feed"
+  ]
+ },
+ {
+  "id": "propublica",
+  "feed_url": "https://www.propublica.org/feeds/propublica/main",
+  "status": "ok",
+  "tried": [
+   "https://www.propublica.org/feeds/propublica/main"
+  ]
+ },
+ {
+  "id": "bellingcat",
+  "feed_url": "https://www.bellingcat.com/feed",
+  "status": "ok",
+  "tried": [
+   "https://www.bellingcat.com/feed"
+  ]
+ },
+ {
+  "id": "occrp",
+  "feed_url": "https://www.occrp.org/en/feed",
+  "status": "ok",
+  "tried": [
+   "https://www.occrp.org/en/feed"
+  ]
+ },
+ {
+  "id": "icij",
+  "feed_url": "https://www.icij.org/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.icij.org/feed"
+  ]
+ },
+ {
+  "id": "lighthouse-reports",
+  "feed_url": "https://www.lighthousereports.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.lighthousereports.com/feed/"
+  ]
+ },
+ {
+  "id": "forbidden-stories",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://forbiddenstories.org/feed/",
+   "https://forbiddenstories.org/comments/feed/",
+   "https://forbiddenstories.org/feed",
+   "https://forbiddenstories.org/rss",
+   "https://forbiddenstories.org/rss.xml",
+   "https://forbiddenstories.org/feed.xml",
+   "https://forbiddenstories.org/atom.xml",
+   "https://forbiddenstories.org/index.xml",
+   "https://forbiddenstories.org/rss/all.xml",
+   "https://forbiddenstories.org/feeds/all.rss.xml",
+   "https://forbiddenstories.org/news/rss.xml",
+   "https://forbiddenstories.org/?feed=rss2"
+  ]
+ },
+ {
+  "id": "the-bureau-of-investigative-journalism",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.thebureauinvestigates.com/feed",
+   "https://www.thebureauinvestigates.com/feed/",
+   "https://www.thebureauinvestigates.com/rss",
+   "https://www.thebureauinvestigates.com/rss.xml",
+   "https://www.thebureauinvestigates.com/feed.xml",
+   "https://www.thebureauinvestigates.com/atom.xml",
+   "https://www.thebureauinvestigates.com/index.xml",
+   "https://www.thebureauinvestigates.com/rss/all.xml",
+   "https://www.thebureauinvestigates.com/feeds/all.rss.xml",
+   "https://www.thebureauinvestigates.com/news/rss.xml",
+   "https://www.thebureauinvestigates.com/?feed=rss2"
+  ]
+ },
+ {
+  "id": "correctiv",
+  "feed_url": "https://correctiv.org/feed/",
+  "status": "ok",
+  "tried": [
+   "https://correctiv.org/feed"
+  ]
+ },
+ {
+  "id": "investigate-europe",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.investigate-europe.eu/feed",
+   "https://www.investigate-europe.eu/feed/",
+   "https://www.investigate-europe.eu/rss",
+   "https://www.investigate-europe.eu/rss.xml",
+   "https://www.investigate-europe.eu/feed.xml",
+   "https://www.investigate-europe.eu/atom.xml",
+   "https://www.investigate-europe.eu/index.xml",
+   "https://www.investigate-europe.eu/rss/all.xml",
+   "https://www.investigate-europe.eu/feeds/all.rss.xml",
+   "https://www.investigate-europe.eu/news/rss.xml",
+   "https://www.investigate-europe.eu/?feed=rss2"
+  ]
+ },
+ {
+  "id": "the-markup",
+  "feed_url": "https://themarkup.org/feeds/rss.xml",
+  "status": "ok",
+  "tried": [
+   "https://themarkup.org/feeds/rss.xml"
+  ]
+ },
+ {
+  "id": "opensecrets",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "nature",
+  "feed_url": "https://www.nature.com/nature.rss",
+  "status": "ok",
+  "tried": [
+   "https://www.nature.com/nature.rss"
+  ]
+ },
+ {
+  "id": "science",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "pnas",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "plos-one",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://journals.plos.org/feed",
+   "https://journals.plos.org/feed/",
+   "https://journals.plos.org/rss",
+   "https://journals.plos.org/rss.xml",
+   "https://journals.plos.org/feed.xml",
+   "https://journals.plos.org/atom.xml",
+   "https://journals.plos.org/index.xml",
+   "https://journals.plos.org/rss/all.xml",
+   "https://journals.plos.org/feeds/all.rss.xml",
+   "https://journals.plos.org/news/rss.xml",
+   "https://journals.plos.org/?feed=rss2"
+  ]
+ },
+ {
+  "id": "scientific-reports",
+  "feed_url": "https://www.nature.com/srep.rss",
+  "status": "ok",
+  "tried": [
+   "https://www.nature.com/srep.rss"
+  ]
+ },
+ {
+  "id": "frontiers",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.frontiersin.org/feed",
+   "https://www.frontiersin.org/feed/",
+   "https://www.frontiersin.org/rss",
+   "https://www.frontiersin.org/rss.xml",
+   "https://www.frontiersin.org/feed.xml",
+   "https://www.frontiersin.org/atom.xml",
+   "https://www.frontiersin.org/index.xml",
+   "https://www.frontiersin.org/rss/all.xml",
+   "https://www.frontiersin.org/feeds/all.rss.xml",
+   "https://www.frontiersin.org/news/rss.xml",
+   "https://www.frontiersin.org/?feed=rss2"
+  ]
+ },
+ {
+  "id": "elife",
+  "feed_url": "https://elifesciences.org/rss/recent.xml",
+  "status": "ok",
+  "tried": [
+   "https://elifesciences.org/rss/recent.xml"
+  ]
+ },
+ {
+  "id": "communications-of-the-acm",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "acm-digital-library",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "ieee-xplore",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://ieeexplore.ieee.org/feed",
+   "https://ieeexplore.ieee.org/feed/",
+   "https://ieeexplore.ieee.org/rss",
+   "https://ieeexplore.ieee.org/rss.xml",
+   "https://ieeexplore.ieee.org/feed.xml",
+   "https://ieeexplore.ieee.org/atom.xml",
+   "https://ieeexplore.ieee.org/index.xml",
+   "https://ieeexplore.ieee.org/rss/all.xml",
+   "https://ieeexplore.ieee.org/feeds/all.rss.xml",
+   "https://ieeexplore.ieee.org/news/rss.xml",
+   "https://ieeexplore.ieee.org/?feed=rss2"
+  ]
+ },
+ {
+  "id": "journal-of-consumer-research",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "journal-of-marketing",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "journal-of-experimental-psychology",
+  "feed_url": null,
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.apa.org/feed",
+   "https://www.apa.org/feed/",
+   "https://www.apa.org/rss",
+   "https://www.apa.org/rss.xml",
+   "https://www.apa.org/feed.xml",
+   "https://www.apa.org/atom.xml",
+   "https://www.apa.org/index.xml",
+   "https://www.apa.org/rss/all.xml",
+   "https://www.apa.org/feeds/all.rss.xml",
+   "https://www.apa.org/news/rss.xml",
+   "https://www.apa.org/?feed=rss2"
+  ]
+ },
+ {
+  "id": "human-computer-interaction",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "international-journal-of-human-computer-studies",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "computers-in-human-behavior",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "design-studies",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "information-design-journal",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "carbon-brief",
+  "feed_url": "https://www.carbonbrief.org/feed",
+  "status": "ok",
+  "tried": [
+   "https://www.carbonbrief.org/feed"
+  ]
+ },
+ {
+  "id": "inside-climate-news",
+  "feed_url": null,
+  "status": "sito_non_raggiungibile",
+  "tried": [],
+  "error": "HTTP Error 403: Forbidden"
+ },
+ {
+  "id": "mongabay",
+  "feed_url": "https://news.mongabay.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://news.mongabay.com/feed"
+  ]
+ },
+ {
+  "id": "grist",
+  "feed_url": "https://grist.org/feed/",
+  "status": "ok",
+  "tried": [
+   "https://grist.org/feed"
+  ]
+ },
+ {
+  "id": "yale-environment-360",
+  "feed_url": "https://e360.yale.edu/feed.xml",
+  "status": "ok",
+  "tried": [
+   "https://e360.yale.edu/feed.xml"
+  ]
+ },
+ {
+  "id": "climate-home-news",
+  "feed_url": "https://www.climatechangenews.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://www.climatechangenews.com/feed"
+  ]
+ },
+ {
+  "id": "cleantechnica",
+  "feed_url": "https://cleantechnica.com/feed/",
+  "status": "ok",
+  "tried": [
+   "https://cleantechnica.com/feed/"
+  ]
+ },
+ {
+  "id": "canary-media",
+  "feed_url": "https://www.canarymedia.com/rss.rss",
+  "status": "ok",
+  "tried": [
+   "https://www.canarymedia.com/rss.rss"
+  ]
+ }
+]
