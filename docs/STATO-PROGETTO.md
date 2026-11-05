@@ -10,7 +10,7 @@ Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese"
 Se il lavoro si interrompe, si riparte dalla prima fase non spuntata.
 
 - [ ] **A** · La raccolta deve girare sempre
-- [ ] **B** · Home (chip, Sfoglia, spazio in fondo)
+- [x] **B** · Home (chip, Sfoglia, spazio in fondo) — chip identiche e Sfoglia tolto già il 5/11; misurato lo spazio in fondo: almeno 48px fra l'ultimo contenuto e la barra in Oggi, Libreria, Profilo e Storia
 - [ ] **C** · Storie più ricche (pipeline + pagina Storia)
 - [ ] **D** · Qualità di categorie, traduzioni e ordine del Feed
 - [ ] **E** · Nuova identità visiva: anteprima e scelta (STOP)
