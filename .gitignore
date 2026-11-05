@@ -19,3 +19,13 @@ next-env.d.ts
 # Materiale locale da non pubblicare
 /eddy-handoff/
 /Claude outputs/
+
+# Dati della raccolta (stanno sul ramo "dati", non su main) e modelli di traduzione
+/data/stories.json
+/data/state.json
+/data/report.json
+/dati/
+/.cache/
+__pycache__/
+/data/debug_articles.json
+/data/debug_junk.json

@@ -52,9 +52,20 @@
  {
   "id": "dpa",
   "feed_url": null,
-  "status": "sito_non_raggiungibile",
-  "tried": [],
-  "error": "HTTP Error 308: Permanent Redirect"
+  "status": "nessun_feed",
+  "tried": [
+   "https://www.dpa.com/feed",
+   "https://www.dpa.com/feed/",
+   "https://www.dpa.com/rss",
+   "https://www.dpa.com/rss.xml",
+   "https://www.dpa.com/feed.xml",
+   "https://www.dpa.com/atom.xml",
+   "https://www.dpa.com/index.xml",
+   "https://www.dpa.com/rss/all.xml",
+   "https://www.dpa.com/feeds/all.rss.xml",
+   "https://www.dpa.com/news/rss.xml",
+   "https://www.dpa.com/?feed=rss2"
+  ]
  },
  {
   "id": "kyodo-news",
@@ -530,10 +541,11 @@
  },
  {
   "id": "the-sydney-morning-herald",
-  "feed_url": null,
-  "status": "sito_non_raggiungibile",
-  "tried": [],
-  "error": "HTTP Error 308: Permanent redirect"
+  "feed_url": "https://www.smh.com.au/rss/feed.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.smh.com.au/rss/feed.xml"
+  ]
  },
  {
   "id": "the-australian",
@@ -1733,10 +1745,14 @@
  },
  {
   "id": "semafor",
-  "feed_url": null,
-  "status": "sito_non_raggiungibile",
-  "tried": [],
-  "error": "HTTP Error 308: "
+  "feed_url": "https://www.semafor.com/rss.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.semafor.com/feed",
+   "https://www.semafor.com/feed/",
+   "https://www.semafor.com/rss",
+   "https://www.semafor.com/rss.xml"
+  ]
  },
  {
   "id": "techmeme",
@@ -2006,10 +2022,11 @@
  },
  {
   "id": "figma-blog",
-  "feed_url": null,
-  "status": "sito_non_raggiungibile",
-  "tried": [],
-  "error": "HTTP Error 308: Permanent Redirect"
+  "feed_url": "https://www.figma.com/blog/feed/atom.xml",
+  "status": "ok",
+  "tried": [
+   "https://www.figma.com/blog/feed/atom.xml"
+  ]
  },
  {
   "id": "uxmatters",

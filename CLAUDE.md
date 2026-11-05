@@ -15,8 +15,18 @@ Filippo, studente di UX design, non programmatore. Spiega in italiano semplice, 
 5. Rispetto delle fonti: mai copiare articoli interi; foto in hotlink con credito "Foto: <testata>" e `referrerpolicy="no-referrer"`; mai riscaricare/ospitare le foto; se una testata chiede la rimozione, aggiungere il suo dominio/URL a `data/blocklist.json`. Non è consulenza legale: se Eddy diventa pubblico, scrivere a ogni testata prioritaria o preferire fonti con licenza aperta.
 6. Repository **pubblico** su GitHub (minuti di GitHub Actions gratuiti). Mai committare chiavi o dati personali.
 
+## Decisioni prese (valgono per tutti i passi successivi)
+- **Interessi dell'app (8):** tecnologia, economia, politica, scienza, cultura, societa, ambiente, design. Ogni storia ha `topics[]` presi solo da questi 8; il primo è la categoria mostrata.
+- **"Mondo" NON è un interesse:** ogni storia ha `area` = `"italia"` | `"mondo"` e l'app avrà un filtro Italia / Mondo / Tutto.
+- **Aprire la pagina Storia la registra nei Recenti** (come dice il design della Libreria).
+- **Pagina Storia unica** che legge l'id dall'indirizzo (`/storia?id=...`), con i dati caricati nel browser: così il sito statico non va ricostruito per ogni storia.
+- **Nessuna citazione di progetti di riferimento** nel sito, nel codice, nei commenti o nella documentazione (decisione di Filippo del 6/11/2026: l'autore è stato ringraziato a voce).
+- **Dipendenze Python autorizzate per la pipeline** (solo GitHub Actions e Mac, mai nell'app): feedparser, numpy, scikit-learn e un traduttore offline gratuito (scelto: modelli Argos Translate eseguiti con `ctranslate2` + `sentencepiece`). Il codice deve girare con Python 3.9 sul Mac e 3.12 su Actions. Nessuna nuova dipendenza npm.
+
 ## Stato attuale del codice (questa cartella)
-Next.js 16 (App Router), React 19, TypeScript, Tailwind 4, lucide-react. Schermate: Oggi, Feed, Libreria (Salvati/Recenti/Da leggere), Profilo (interessi + impostazioni). Store personale in `app/lib/personal-store.ts` (chiave localStorage `alt:personal:v1` → rinominare in `eddy:personal:v1` con migrazione dei dati vecchi). Demo in `app/data/demo-stories.ts`.
+Next.js 16 (App Router), React 19, TypeScript, Tailwind 4, lucide-react. Schermate: Oggi (nuovo design), Storia (`/storia/[id]`, nuovo design, dati demo: va trasformata in `/storia?id=` al passo 6), Feed, Libreria, Profilo (ancora layout vecchio con i colori nuovi). Store personale in `app/lib/personal-store.ts` (chiave `eddy:personal:v1`, migrazione da `alt:personal:v1` fatta; campo `textSize`). Demo in `app/data/demo-stories.ts`. L'app usa ancora solo dati demo.
+
+Raccolta (passo 5, fatta): `pipeline/` (più file, vedi `pipeline/collect.py`), 50 fonti via feed (con feed per sezione per ANSA, Il Post, Sole 24 Ore, Repubblica, Corriere, BBC, Guardian) + 88 via Google News (solo "Leggi su"). Workflow `.github/workflows/collect.yml` ogni ora: scrive `stories.json`, `state.json`, `report.json` sul ramo `dati` (un solo commit sostituito ogni volta). Prova locale: `python3 pipeline/collect.py` (scrive in `data/`, file ignorati da git); autotest: `python3 pipeline/selftest.py`.
 
 ## Design da applicare
 Le proposte HTML sono in `design/*.dc.html` (Main=Oggi, Feed, Libreria, Profilo, Storia). Sono la fonte di verità per l'aspetto.
@@ -28,13 +38,13 @@ Le proposte HTML sono in `design/*.dc.html` (Main=Oggi, Feed, Libreria, Profilo,
 ## Dati e architettura (tutto gratis)
 ```
 data/sources.json  --(scripts/discover_feeds.py)-->  feed_url verificati
-GitHub Action ogni 2 ore: pipeline/collect.py  -->  data/stories.json
-Next.js (output statico)  legge  public/data/stories.json  -->  GitHub Pages / Cloudflare Pages
+GitHub Action ogni ora: pipeline/collect.py  -->  ramo "dati": stories.json (+ state.json, report.json)
+Next.js (output statico)  legge  stories.json (dal ramo dati)  -->  GitHub Pages / Cloudflare Pages
 ```
 - `data/sources.json`: 357 fonti dal catalogo "Fuori dal Feed". Campi: id, name, area, category, mode (`news` | `fase2_api` | `fase2_dati`), topics, in_initial_selection, site, feed_url, feed_status, license_status, enabled. Si abilita una fonte (`enabled: true`) solo dopo aver controllato a mano feed e condizioni d'uso.
 - `mode=fase2_*` (Google Scholar, OpenAlex, arXiv, Eurostat…) non sono giornali: restano fuori dal lancio.
-- Storia (`stories.json`): id, title, topics[], image, image_credit, updated, n_sources, summary[] (estratti), sources[{name,title,url}].
-- Argomenti (`topics`) da allineare agli 8 interessi in `app/data/editorial-interests.ts`; il lessico vive in `pipeline/collect.py` (TOPIC_WORDS).
+- Storia (`stories.json`): id (stabile nel tempo), title, title_original, translated, category, topics[] (solo gli 8 interessi), area (italia|mondo), image, image_credit ("Foto: <testata>"), first_seen, updated, n_sources, summary[{source, text, translated}], sources[{name, title, url, via: feed|google_news}].
+- Argomenti: lessico italiano+inglese in `pipeline/topics.json`; filtri delle non-notizie in `pipeline/filters.py`; soglia del raggruppamento `TAU` in `pipeline/cluster.py`.
 
 ## Fasi
 1 Rinomina + design nuovo · 2 Pagina Storia · 3 Fonti verificate · 4 Pipeline + Action · 5 Dati reali nell'app · 6 Pubblicazione · 7 Rifiniture (PWA, sezioni personali, ricerca).

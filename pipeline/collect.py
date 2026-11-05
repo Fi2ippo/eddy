@@ -1,121 +1,218 @@
 #!/usr/bin/env python3
-"""Raccoglie i feed abilitati, raggruppa le notizie sullo stesso fatto, scrive data/stories.json.
+"""Raccolta di Eddy: legge i feed delle fonti abilitate, pulisce, traduce, raggruppa e scrive stories.json.
 
-Dipendenze: pip install feedparser  (tutto il resto è libreria standard)
-Regole di rispetto delle fonti: solo titolo, estratto breve (max 3 frasi / 420 caratteri), link all'originale,
-foto in hotlink con credito. Nessun testo completo copiato. Un'eventuale richiesta di rimozione va in data/blocklist.json.
+Uso:
+  python pipeline/collect.py                    # scrive data/stories.json e data/state.json
+  python pipeline/collect.py --out dati         # su GitHub Actions: cartella del ramo "dati"
+  opzioni per le prove: --no-translate --no-og --no-gn
+
+Passi: feed -> pulizia e filtri -> doppioni -> traduzione -> argomenti e area -> raggruppamento ->
+Google News -> foto -> storie (id stabili) -> stories.json (solo se cambia) + state.json + report.json.
+
+Dipendenze: feedparser, numpy, scikit-learn, ctranslate2, sentencepiece (pipeline/requirements.txt).
 """
-import hashlib, html, json, re, sys, time
-from datetime import datetime, timezone, timedelta
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+import time
+from collections import Counter
+from datetime import timedelta
 from pathlib import Path
-import feedparser
 
-ROOT = Path(__file__).resolve().parent.parent
-D = ROOT / "data"
-MAX_AGE_H = 72          # quanto indietro guardare
-MAX_PER_SOURCE = 12
-SIM_THRESHOLD = 0.34    # somiglianza minima dei titoli per stare nella stessa storia
-UA = "EddyBot/0.1 (+https://github.com/Fi2ippo/eddy)"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-STOP = set("""il lo la i gli le un uno una di a da in con su per tra fra e ma o che non del dello della dei degli delle al allo alla
-ai agli alle dal dallo dalla nel nello nella sul sullo sulla è sono ha ho come più anche si se the of and to in for on at by with from is
-are was be as an a it its that this el los las de del en y por para un una le les des du et que qui der die das und""".split())
-TOPIC_WORDS = {  # lessico minimo: da ampliare in data/topics.json
- "tecnologia": "intelligenza artificiale ai software app smartphone chip algoritmo cyber robot digitale internet tech",
- "scienza": "ricerca studio scienziati scoperta astronomia fisica biologia medicina cervello spazio nasa",
- "ambiente": "clima climatico emissioni energia rinnovabile ambiente biodiversità inquinamento co2 siccità",
- "economia": "economia mercati inflazione borsa pil lavoro imprese banca tassi bilancio",
- "cultura": "libro libri film mostra arte musica filosofia teatro letteratura festival",
- "design": "design ux architettura interfaccia grafica tipografia progetto urbanistica",
- "mondo": "guerra governo presidente elezioni onu ue nato ucraina gaza cina usa",
-}
+import cluster  # noqa: E402
+import feeds  # noqa: E402
+import images  # noqa: E402
+import stories  # noqa: E402
+import topics  # noqa: E402
+import translate  # noqa: E402
+from common import NOW, ROOT, dump_json, host, iso, load_json, log, parse_iso  # noqa: E402
+from filters import is_junk  # noqa: E402
+from textproc import fold  # noqa: E402
 
-def clean(t):
-    t = re.sub(r"<[^>]+>", " ", t or ""); t = html.unescape(t)
-    return re.sub(r"\s+", " ", t).strip()
+STATE_VERSION = 1
+JUNK_SAMPLES: list = []  # titoli scartati come non notizie (solo per --debug)
+ARTICLE_MEMORY_DAYS = 7
 
-def extract(summary, limit=420, sentences=3):
-    s = clean(summary)
-    parts = re.split(r"(?<=[.!?])\s+(?=[A-ZÀ-Ý“\"])", s)
-    out = ""
-    for p in parts[:sentences]:
-        if len(out) + len(p) > limit: break
-        out += (" " if out else "") + p
-    return out or s[:limit].rsplit(" ", 1)[0]
 
-def tokens(t):
-    return {w for w in re.findall(r"[a-zà-ÿ0-9]{3,}", t.lower()) if w not in STOP}
+def load_sources(path: Path) -> list[dict]:
+    return [s for s in load_json(path, []) if s.get("enabled") and (s.get("feeds") or s.get("feed_url"))]
 
-def jaccard(a, b):
-    return len(a & b) / len(a | b) if a and b else 0
 
-def image_of(e):
-    for k in ("media_content", "media_thumbnail"):
-        for m in e.get(k, []) or []:
-            if m.get("url"): return m["url"]
-    for l in e.get("links", []):
-        if l.get("rel") == "enclosure" and str(l.get("type", "")).startswith("image"): return l.get("href")
-    m = re.search(r'<img[^>]+src="([^"]+)"', e.get("summary", "") + "".join(c.get("value", "") for c in e.get("content", [])))
-    return m.group(1) if m else None
+def blocked(url: str, block: set) -> bool:
+    h = host(url)
+    return url in block or any(h == b or h.endswith("." + b) for b in block if "/" not in b)
 
-def when(e):
-    t = e.get("published_parsed") or e.get("updated_parsed")
-    return datetime(*t[:6], tzinfo=timezone.utc) if t else None
 
-def topics_for(src, title, text):
-    found = list(src.get("topics", []))
-    words = tokens(title + " " + text)
-    for k, lex in TOPIC_WORDS.items():
-        if len(words & set(lex.split())) >= 2 and k not in found: found.append(k)
-    return found or ["attualita"]
+def prepare(raw: list[dict], block: set, state_articles: dict) -> tuple[list[dict], Counter]:
+    """Filtri, finestra di 72 ore, doppioni e data di prima vista."""
+    why = Counter()
+    cutoff = NOW - timedelta(hours=feeds.WINDOW_HOURS)
+    by_url: dict = {}
+    for a in raw:
+        if blocked(a["url"], block):
+            why["blocklist"] += 1
+            continue
+        reason = is_junk(a["title"], a["url"])
+        if reason:
+            why["non notizia"] += 1
+            JUNK_SAMPLES.append(f"{a['source']}: {a['title']}  [{reason}]")
+            continue
+        if len(a["title"]) < 12 or len(a["title"].split()) < 3:
+            why["titolo troppo corto"] += 1
+            continue
+        mem = state_articles.get(a["id"]) if a["via"] == "feed" else None
+        a["first_seen"] = parse_iso(mem["first_seen"]) if mem else NOW
+        if a["published"] is None or a["published"] > NOW + timedelta(minutes=30):
+            a["published"] = a["first_seen"] if a["published"] is None else NOW  # feed senza date (es. Le Scienze)
+        if a["published"] < cutoff:
+            why["più vecchio di 72 ore"] += 1
+            continue
+        old = by_url.get(a["url"])
+        if old:  # stesso articolo in più sezioni: si tengono gli indizi migliori
+            why["doppione (stesso link)"] += 1
+            old["topic_hint"] = old.get("topic_hint") or a.get("topic_hint")
+            old["area_hint"] = old.get("area_hint") or a.get("area_hint")
+            old["section"] = old.get("section") or a.get("section")
+            old["image"] = old.get("image") or a.get("image")
+            if len(a.get("extract") or "") > len(old.get("extract") or ""):
+                old["extract"] = a["extract"]
+            continue
+        by_url[a["url"]] = a
+    out, seen_titles = [], set()
+    for a in by_url.values():
+        k = (a["source_id"], fold(a["title"]))
+        if k in seen_titles:
+            why["doppione (stesso titolo)"] += 1
+            continue
+        seen_titles.add(k)
+        out.append(a)
+    return out, why
+
+
+def translate_all(arts: list[dict], tr: translate.Translator) -> int:
+    by_lang: dict = {}
+    for a in arts:
+        if a["lang"] != "it" and tr.can(a["lang"]):
+            by_lang.setdefault(a["lang"], []).append(a)
+    for lang, lst in by_lang.items():
+        titles = tr.to_italian([a["title"] for a in lst], lang)
+        extracts = tr.to_italian([a.get("extract") or "" for a in lst], lang)
+        for a, t, e in zip(lst, titles, extracts):
+            if t:
+                a["title_it"] = t
+            if e:
+                a["extract_it"] = e
+    return sum(1 for a in arts if a.get("title_it"))
+
+
+def same_stories(path: Path, new: list[dict]) -> bool:
+    old = load_json(path, None)
+    return bool(old) and old.get("stories") == new
+
 
 def main():
-    sources = [s for s in json.loads((D / "sources.json").read_text()) if s.get("enabled") and s.get("feed_url")]
-    block = set(json.loads((D / "blocklist.json").read_text())) if (D / "blocklist.json").exists() else set()
-    now = datetime.now(timezone.utc); cutoff = now - timedelta(hours=MAX_AGE_H)
-    items = []
-    for s in sources:
-        try:
-            feed = feedparser.parse(s["feed_url"], agent=UA)
-        except Exception as ex:
-            print("ERRORE", s["id"], ex, file=sys.stderr); continue
-        n = 0
-        for e in feed.entries:
-            link, title = e.get("link"), clean(e.get("title"))
-            if not link or not title or link in block: continue
-            dt = when(e) or now
-            if dt < cutoff: continue
-            raw = e.get("summary") or (e.get("content") or [{}])[0].get("value", "")
-            ext = extract(raw)
-            items.append(dict(id=hashlib.sha1(link.encode()).hexdigest()[:12], source_id=s["id"], source=s["name"],
-                title=title, extract=ext, url=link, image=image_of(e), image_credit=s["name"],
-                published=dt.isoformat(), topics=topics_for(s, title, ext), lang=s.get("language"), _tok=tokens(title)))
-            n += 1
-            if n >= MAX_PER_SOURCE: break
-    # raggruppamento greedy: ogni articolo va nel primo gruppo abbastanza simile
-    groups = []
-    for it in sorted(items, key=lambda x: x["published"], reverse=True):
-        for g in groups:
-            if jaccard(it["_tok"], g["_tok"]) >= SIM_THRESHOLD and it["source_id"] not in {a["source_id"] for a in g["articles"]}:
-                g["articles"].append(it); g["_tok"] |= it["_tok"]; break
-        else:
-            groups.append(dict(_tok=set(it["_tok"]), articles=[it]))
-    stories = []
-    for g in groups:
-        a = g["articles"]; lead = next((x for x in a if x["image"]), a[0])
-        tp = sorted({t for x in a for t in x["topics"]})
-        stories.append(dict(
-            id=hashlib.sha1("|".join(sorted(x["id"] for x in a)).encode()).hexdigest()[:12],
-            title=lead["title"], topics=tp, image=lead["image"], image_credit=lead["image_credit"] if lead["image"] else None,
-            updated=max(x["published"] for x in a), n_sources=len(a),
-            summary=[x["extract"] for x in a[:3] if x["extract"]],
-            sources=[dict(name=x["source"], title=x["title"], url=x["url"]) for x in a]))
-    # priorità: più fonti prima, poi più recente
-    stories.sort(key=lambda s: (-min(s["n_sources"], 4), s["updated"]), reverse=False)
-    stories.sort(key=lambda s: (min(s["n_sources"], 4), s["updated"]), reverse=True)
-    out = dict(generated=now.isoformat(), count=len(stories), stories=stories[:300])
-    (D / "stories.json").write_text(json.dumps(out, ensure_ascii=False, indent=1))
-    print(f"{len(items)} articoli → {len(stories)} storie da {len(sources)} fonti")
+    ap = argparse.ArgumentParser(description="Raccolta delle notizie di Eddy")
+    ap.add_argument("--sources", default=str(ROOT / "data" / "sources.json"))
+    ap.add_argument("--blocklist", default=str(ROOT / "data" / "blocklist.json"))
+    ap.add_argument("--out", default=str(ROOT / "data"), help="cartella di stories.json, state.json e report.json")
+    ap.add_argument("--models", default=str(ROOT / ".cache" / "eddy-models"), help="cartella dei modelli di traduzione")
+    ap.add_argument("--no-translate", action="store_true")
+    ap.add_argument("--no-og", action="store_true", help="non leggere le pagine per cercare og:image")
+    ap.add_argument("--no-gn", action="store_true", help="non usare Google News")
+    ap.add_argument("--debug", action="store_true", help="salva anche debug_articles.json (articoli preparati) per le prove")
+    args = ap.parse_args()
+    t0 = time.time()
+    out = Path(args.out)
+
+    sources = load_sources(Path(args.sources))
+    if args.no_gn:
+        sources = [s for s in sources if s.get("via") != "google_news"]
+    block = set(load_json(Path(args.blocklist), []))
+    state = load_json(out / "state.json", {})
+    if state.get("version") != STATE_VERSION:
+        state = {"version": STATE_VERSION}
+    st_articles = state.setdefault("articles", {})
+    st_stories = state.setdefault("stories", {})
+    st_tr = state.setdefault("translations", {})
+    st_og = state.setdefault("og_images", {})
+    st_gn = state.setdefault("google_news", {})
+
+    # 1. feed
+    raw, feed_report = feeds.read_all(sources, st_gn)
+    log(f"letti {feed_report['feeds_ok']} feed ({len(feed_report['feeds_err'])} con errori), {len(raw)} voci")
+    # 2. pulizia, filtri, doppioni
+    arts, dropped = prepare(raw, block, st_articles)
+    feed_arts = [a for a in arts if a["via"] == "feed"]
+    gn_arts = [a for a in arts if a["via"] == "google_news"]
+    log(f"tenuti {len(feed_arts)} articoli + {len(gn_arts)} titoli Google News; scartati: {dict(dropped)}")
+    # 3. traduzione (prima del raggruppamento, così italiano e inglese si confrontano)
+    tr = translate.Translator(Path(args.models), st_tr, enabled=not args.no_translate)
+    n_tr = translate_all(arts, tr)
+    log(f"traduzioni: {tr.new} nuove, {n_tr} titoli in italiano, {tr.failed} non riuscite")
+    # 4. argomenti e area per articolo
+    for a in arts:
+        a["topics"] = topics.article_topics(a)
+        a["area"] = topics.article_area(a)
+    if args.debug:
+        dump_json(out / "debug_articles.json", [{**a, "published": iso(a["published"]), "first_seen": iso(a["first_seen"])}
+                                                for a in arts])
+        dump_json(out / "debug_junk.json", JUNK_SAMPLES)
+    # 5. raggruppamento + Google News
+    idx_groups, vec = cluster.cluster(feed_arts)
+    attached = cluster.attach_google_news(idx_groups, feed_arts, gn_arts, vec)
+    groups = [[feed_arts[i] for i in g] + attached.get(gi, []) for gi, g in enumerate(idx_groups)]
+    log(f"{len(groups)} gruppi; {sum(1 for g in groups if len({a['source_id'] for a in g}) > 1)} con 2+ testate; "
+        f"{sum(len(v) for v in attached.values())} titoli Google News agganciati")
+    # 6. foto mancanti: og:image solo per l'articolo principale delle storie più importanti
+    leads = stories.lead_articles(groups)
+    if not args.no_og:
+        order = sorted(range(len(groups)), key=lambda i: -len({a["source_id"] for a in groups[i]}))
+        missing = [leads[i] for i in order if not any(a.get("image") for a in groups[i])]
+        images.fill_og_images(missing, st_og)
+    # 7. storie con id stabili
+    ids = stories.assign_ids(groups, st_articles)
+    for g, sid in zip(groups, ids):
+        for a in g:
+            if a["via"] == "feed":
+                st_articles[a["id"]] = {"first_seen": iso(a["first_seen"]), "story": sid}
+    result = stories.build(groups, ids, st_stories)
+    # 8. scrittura (stories.json solo se le storie cambiano davvero)
+    out.mkdir(parents=True, exist_ok=True)
+    changed = not same_stories(out / "stories.json", result)
+    if changed:
+        dump_json(out / "stories.json", {"generated": iso(NOW), "count": len(result), "stories": result})
+    # 9. stato: dimentica ciò che è vecchio
+    limit = NOW - timedelta(days=ARTICLE_MEMORY_DAYS)
+    for k in [k for k, v in st_articles.items() if (parse_iso(v.get("first_seen")) or limit) < limit]:
+        st_articles.pop(k)
+    live_ids = {s["id"] for s in result} | {v["story"] for v in st_articles.values()}
+    for k in [k for k in st_stories if k not in live_ids]:
+        st_stories.pop(k)
+    translate.prune_cache(st_tr)
+    images.prune_cache(st_og, {a["url"] for a in leads})
+    state["updated"] = iso(NOW)
+    dump_json(out / "state.json", state, indent=None)
+    report = {
+        "generated": iso(NOW), "seconds": round(time.time() - t0, 1), "stories_changed": changed,
+        "sources": {"feed": sum(1 for s in sources if s.get("via") != "google_news"),
+                    "google_news": sum(1 for s in sources if s.get("via") == "google_news")},
+        "feeds_ok": feed_report["feeds_ok"], "feeds_errors": feed_report["feeds_err"],
+        "google_news_refreshed": feed_report["gn_refreshed"], "articles": len(feed_arts), "google_news_titles": len(gn_arts),
+        "dropped": dict(dropped), "translated_new": tr.new,
+        "stories": len(result), "stories_2plus": sum(1 for s in result if s["n_sources"] > 1),
+        "stories_with_image": sum(1 for s in result if s["image"]),
+        "stories_translated": sum(1 for s in result if s["translated"]),
+        "categories": dict(Counter(s["category"] for s in result).most_common()),
+        "areas": dict(Counter(s["area"] for s in result)),
+    }
+    dump_json(out / "report.json", report)
+    log(json.dumps({k: v for k, v in report.items() if k != "feeds_errors"}, ensure_ascii=False))
+    log(f"fatto in {report['seconds']} s; stories.json {'aggiornato' if changed else 'invariato'}")
+
 
 if __name__ == "__main__":
     main()

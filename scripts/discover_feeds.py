@@ -18,9 +18,17 @@ COMMON = ["/feed", "/feed/", "/rss", "/rss.xml", "/feed.xml", "/atom.xml", "/ind
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "data" / "sources.json"
 
+class Redirect308(urllib.request.HTTPRedirectHandler):
+    """Python 3.9 non segue i redirect 308 (lo fa solo dalla 3.11): li trattiamo come 307."""
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return super().redirect_request(req, fp, 307 if code == 308 else code, msg, headers, newurl)
+    http_error_308 = urllib.request.HTTPRedirectHandler.http_error_302
+
+OPENER = urllib.request.build_opener(Redirect308)
+
 def get(url, timeout=12, maxbytes=600_000):
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
+    with OPENER.open(req, timeout=timeout) as r:
         return r.geturl(), r.headers.get("content-type", ""), r.read(maxbytes)
 
 class LinkFinder(HTMLParser):
