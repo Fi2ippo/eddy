@@ -1,0 +1,46 @@
+name: Richiesta di rimozione
+description: Sei una testata o l'autore di un contenuto e vuoi che Eddy non lo mostri più.
+title: "Rimozione: "
+labels: ["rimozione"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Grazie per averci scritto. Eddy mostra solo titoli, brevi estratti (al massimo tre frasi) e foto in collegamento,
+        sempre con il nome della testata e il link all'originale. Se vuoi che un contenuto o un intero sito non compaia
+        più, compila il modulo: aggiungeremo l'indirizzo all'elenco di esclusione (data/blocklist.json) e dal giro di
+        raccolta successivo non verrà più mostrato.
+
+        **Attenzione:** questa richiesta è pubblica. Non scrivere qui dati personali che non vuoi rendere visibili.
+  - type: input
+    id: testata
+    attributes:
+      label: Testata o autore
+      description: Il nome della testata o della persona che chiede la rimozione.
+    validations:
+      required: true
+  - type: dropdown
+    id: cosa
+    attributes:
+      label: Cosa vuoi rimuovere?
+      options:
+        - Un singolo articolo o una foto
+        - Tutti i contenuti del mio sito (dominio)
+    validations:
+      required: true
+  - type: textarea
+    id: indirizzi
+    attributes:
+      label: Indirizzi
+      description: Il link alla storia su Eddy e/o all'articolo originale, oppure il dominio del sito (es. www.esempio.it). Uno per riga.
+    validations:
+      required: true
+  - type: textarea
+    id: motivo
+    attributes:
+      label: Motivo (facoltativo)
+  - type: input
+    id: contatto
+    attributes:
+      label: Come ricontattarti (facoltativo)
+      description: Solo se vuoi una risposta fuori da GitHub. Ricorda che questa pagina è pubblica.

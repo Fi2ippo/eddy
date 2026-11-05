@@ -279,7 +279,7 @@ export function findStory(stories: Story[], id: string | null) {
 }
 
 export function storyHref(id: string) {
-  return `/storia?id=${encodeURIComponent(id)}`;
+  return `/storia/?id=${encodeURIComponent(id)}`;
 }
 
 export function categoryLabel(id: string) {

@@ -798,6 +798,37 @@
     opacity: 0.6;
   }
 
+  /* ---------------- Chi siamo ---------------- */
+  .about-link {
+    display: flex;
+    min-height: 3.25rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-card-sm);
+    background: var(--color-accent-soft);
+    color: var(--color-accent-soft-foreground);
+    font-weight: 800;
+  }
+
+  .about-details summary {
+    display: flex;
+    min-height: 2.75rem;
+    align-items: center;
+    padding-inline: 1rem;
+    border-radius: var(--radius-full);
+    background: var(--color-choice);
+    color: var(--color-foreground);
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .about-details[open] summary {
+    background: var(--color-accent-soft);
+    color: var(--color-accent-soft-foreground);
+  }
+
   /* ---------------- Introduzione (primo avvio) ---------------- */
   .onboarding {
     inset: 0;

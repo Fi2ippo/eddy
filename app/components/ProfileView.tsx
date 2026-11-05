@@ -1,6 +1,7 @@
 "use client";
 
-import { BarChart3, Check, ChevronRight, Compass, SlidersHorizontal, Sparkles, Type, X } from "lucide-react";
+import { BarChart3, Check, ChevronRight, Compass, Info, SlidersHorizontal, Sparkles, Type, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useRef, useState, type ReactNode, type RefObject } from "react";
 import { editorialInterests } from "../data/editorial-interests";
 import { areaFilters, textSizes } from "../lib/personal-data";
@@ -13,6 +14,7 @@ export default function ProfileView() {
   const { data, ready, notice } = usePersonalData();
   const interestsRef = useRef<HTMLDialogElement>(null);
   const settingsRef = useRef<HTMLDialogElement>(null);
+  const router = useRouter();
   const [confirming, setConfirming] = useState(false);
 
   const read = Object.values(data.stories).filter((a) => a.readAt);
@@ -95,6 +97,7 @@ export default function ProfileView() {
       <div className="flex flex-col gap-2.5">
         <ProfileRow icon={<Compass className="size-6" />} title="I tuoi interessi" detail={ready ? summary : "…"} onClick={() => open(interestsRef)} />
         <ProfileRow icon={<Type className="size-6" />} title="Impostazioni" detail="Testo di lettura, notizie, privacy e dati" onClick={() => open(settingsRef)} />
+        <ProfileRow icon={<Info className="size-6" />} title="Chi siamo" detail="Fonti, crediti, rimozioni e privacy" popup={false} onClick={() => router.push("/chi-siamo")} />
         <ProfileRow icon={<Sparkles className="size-6" />} title="Rivedi l’introduzione" detail="I tre schermi del primo avvio" popup={false} onClick={() => setOnboardingDone(false)} />
       </div>
       {notice && <p role="status" className="mt-4 text-center text-secondary text-muted">{notice}</p>}

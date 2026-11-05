@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --webpack --port 3002",
     "build": "next build --webpack",
-    "start": "next start --port 3002",
+    "start": "python3 -m http.server 3002 --directory out",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit"
   },

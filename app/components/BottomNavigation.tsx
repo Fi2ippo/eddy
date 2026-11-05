@@ -53,7 +53,8 @@ export default function BottomNavigation() {
     >
       <ul className="bottom-navigation-list">
         {destinations.map(({ label, href, icon: Icon }) => {
-          const active = pathname === href;
+          // con trailingSlash il percorso può finire con "/" (es. "/feed/")
+          const active = (pathname.replace(/\/$/, "") || "/") === href;
 
           return (
             <li key={href} className="flex min-w-0">
