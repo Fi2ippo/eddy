@@ -104,6 +104,14 @@ mem = {"a1": {"story": ids1[0]}, "a2": {"story": ids1[0]}}
 ids2 = stories.assign_ids([[arts[0], arts[1], arts[2]]], mem)
 check("id stabile quando la storia si arricchisce", ids1 == ids2)
 
+# nomi propri per confronto e "Per capire"
+import enrich  # noqa: E402
+
+nm = enrich.names_in("L'attivista di Hong Kong Joshua Wong condannato. Arriva all'Alta Corte. La Banca d'Inghilterra alza i tassi.")
+check("nomi: 'Banca d'Inghilterra' resta intero", "Banca d'Inghilterra" in nm)
+check("nomi: 'L'attivista' non è un nome", not any(n.lower().startswith("l'attivista") for n in nm))
+check("nomi: 'Arriva' a inizio frase non si attacca", not any(n.startswith("Arriva") for n in nm))
+
 # eventi: sviluppi dello stesso fatto insieme, notizie diverse separate
 def st(i, title):
     return {"id": f"s{i}", "title": title, "sources": [{"title": title, "via": "feed"}], "summary": []}

@@ -11,7 +11,17 @@ Se il lavoro si interrompe, si riparte dalla prima fase non spuntata.
 
 - [ ] **A** · La raccolta deve girare sempre
 - [x] **B** · Home (chip, Sfoglia, spazio in fondo) — chip identiche e Sfoglia tolto già il 5/11; misurato lo spazio in fondo: almeno 48px fra l'ultimo contenuto e la barra in Oggi, Libreria, Profilo e Storia
-- [ ] **C** · Storie più ricche (pipeline + pagina Storia)
+- [x] **C** · Storie più ricche (pipeline + pagina Storia)
+  - **Raccolta** (`pipeline/enrich.py`, `pipeline/wiki.py`, `pipeline/images.py`):
+    - descrizione ufficiale della pagina (og:description) quando l'estratto del feed è sotto i 120 caratteri; massimo 150 pagine per giro, con cache; nel primo giro ha arricchito circa 100 estratti;
+    - In breve fino a 6 testate, senza quasi-doppioni, prima i più informativi;
+    - Punti chiave: 3-5 frasi complete con nomi e numeri ripresi da più testate;
+    - Per capire da Wikipedia (prime 2 frasi, solo se la voce è sicura: niente disambiguazioni, niente voci su concetti generici, titolo uguale al nome; massimo 80 richieste per giro, con cache).
+  - **Pulizia:** tolti dagli estratti i link "correlati" dei feed, e dai titoli di Google News il nome della testata.
+  - **Pagina Storia:** foto, titolo, "Raccontata da…", In breve, Punti chiave, Per capire, Confronto, Cronologia, Le fonti; ogni blocco compare solo se ha contenuto. Feed: testo fino a 4 righe (l'estratto più lungo).
+  - **Su 10 storie vere con 3+ testate:** Punti chiave 8, Per capire 8, Confronto 10, Cronologia 10. Su tutte le 300: Punti chiave 28, Per capire 50, Confronto 39, Cronologia 35 (servono più testate sullo stesso fatto).
+  - **Controllo a mano dei 48 abbinamenti Wikipedia del primo giro:** 4 sbagliati (Pentagono → geometria, Banca, Valle, Congresso), eliminati con le nuove regole; dopo, tutti corretti (alcuni poco utili, es. "Cina" per i conti di Pirelli).
+  - Autotest: 37 controlli.
 - [ ] **D** · Qualità di categorie, traduzioni e ordine del Feed
 - [ ] **E** · Nuova identità visiva: anteprima e scelta (STOP)
 - [ ] **F** · Applicare l'identità, i colori dei temi e l'onboarding

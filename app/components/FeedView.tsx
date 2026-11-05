@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { areaFilters } from "../lib/personal-data";
 import { setArea, usePersonalData } from "../lib/personal-store";
-import { categoryLabel, feedOrder, outletCount, snapshotOf, storyHref, toneOf, useStories, type Story } from "../lib/stories";
+import { categoryLabel, feedOrder, leadText, outletCount, snapshotOf, storyHref, toneOf, useStories, type Story } from "../lib/stories";
 import DataNotice from "./DataNotice";
 import OutletsTag from "./OutletsTag";
 import { SaveLaterButtons } from "./StoryActions";
@@ -124,7 +124,7 @@ function FeedCard({ story, index, total }: { story: Story; index: number; total:
 
       <div className="mt-6 min-h-0 flex-1">
         <h2 id={titleId} className="feed-title">{story.title}</h2>
-        {story.summary[0] && <p className="mt-2.5 line-clamp-3 text-body text-feed-muted">{story.summary[0].text}</p>}
+        {leadText(story) && <p className="mt-2.5 line-clamp-4 text-body text-feed-muted">{leadText(story)}</p>}
         <div className="mt-3 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-label font-semibold text-feed-subtle">
           <OutletsTag count={outletCount(story)} look="dark" />
           <TimeAgo iso={story.updated} />

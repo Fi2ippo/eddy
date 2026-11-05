@@ -14,6 +14,7 @@ Dipendenze: feedparser, numpy, scikit-learn, ctranslate2, sentencepiece (pipelin
 from __future__ import annotations
 
 import argparse
+import re
 import json
 import sys
 import time
@@ -29,6 +30,7 @@ import images  # noqa: E402
 import stories  # noqa: E402
 import topics  # noqa: E402
 import translate  # noqa: E402
+import wiki  # noqa: E402
 from common import NOW, ROOT, dump_json, host, iso, load_json, log, parse_iso  # noqa: E402
 from filters import is_junk  # noqa: E402
 from textproc import fold  # noqa: E402
@@ -93,11 +95,22 @@ def prepare(raw: list[dict], block: set, state_articles: dict) -> tuple[list[dic
     return out, why
 
 
+EN_HINTS = set("the of and to in for on with after over from says is are was will has have its their".split())
+
+
+def looks_english(text: str) -> bool:
+    words = re.findall(r"[a-z]+", (text or "").lower())
+    return sum(w in EN_HINTS for w in words) >= 2
+
+
 def translate_all(arts: list[dict], tr: translate.Translator) -> int:
     by_lang: dict = {}
     for a in arts:
-        if a["lang"] != "it" and tr.can(a["lang"]):
-            by_lang.setdefault(a["lang"], []).append(a)
+        lang = a["lang"]
+        if lang not in ("it", "en") and looks_english(a["title"]):
+            lang = "en"  # fonte segnata con un'altra lingua ma titolo in inglese (es. EFE, dpa in inglese)
+        if lang != "it" and tr.can(lang):
+            by_lang.setdefault(lang, []).append(a)
     for lang, lst in by_lang.items():
         titles = tr.to_italian([a["title"] for a in lst], lang)
         extracts = tr.to_italian([a.get("extract") or "" for a in lst], lang)
@@ -123,6 +136,7 @@ def main():
     ap.add_argument("--no-translate", action="store_true")
     ap.add_argument("--no-og", action="store_true", help="non leggere le pagine per cercare og:image")
     ap.add_argument("--no-gn", action="store_true", help="non usare Google News")
+    ap.add_argument("--no-wiki", action="store_true", help="non interrogare Wikipedia")
     ap.add_argument("--debug", action="store_true", help="salva anche debug_articles.json (articoli preparati) per le prove")
     args = ap.parse_args()
     t0 = time.time()
@@ -138,7 +152,9 @@ def main():
     st_articles = state.setdefault("articles", {})
     st_stories = state.setdefault("stories", {})
     st_tr = state.setdefault("translations", {})
-    st_og = state.setdefault("og_images", {})
+    state.pop("og_images", None)  # vecchio nome della cache delle pagine
+    st_pages = state.setdefault("pages", {})
+    st_wiki = state.setdefault("wikipedia", {})
     st_gn = state.setdefault("google_news", {})
 
     # 1. feed
@@ -149,6 +165,9 @@ def main():
     feed_arts = [a for a in arts if a["via"] == "feed"]
     gn_arts = [a for a in arts if a["via"] == "google_news"]
     log(f"tenuti {len(feed_arts)} articoli + {len(gn_arts)} titoli Google News; scartati: {dict(dropped)}")
+    # 2b. estratti troppo corti: descrizione ufficiale della pagina (og:description), mai il testo dell'articolo
+    if not args.no_og:
+        images.fill_descriptions(feed_arts, st_pages)
     # 3. traduzione (prima del raggruppamento, così italiano e inglese si confrontano)
     tr = translate.Translator(Path(args.models), st_tr, enabled=not args.no_translate)
     n_tr = translate_all(arts, tr)
@@ -172,7 +191,7 @@ def main():
     if not args.no_og:
         order = sorted(range(len(groups)), key=lambda i: -len({a["source_id"] for a in groups[i]}))
         missing = [leads[i] for i in order if not any(a.get("image") for a in groups[i])]
-        images.fill_og_images(missing, st_og)
+        images.fill_og_images(missing, st_pages)
     # 7. storie con id stabili
     ids = stories.assign_ids(groups, st_articles)
     for g, sid in zip(groups, ids):
@@ -180,6 +199,13 @@ def main():
             if a["via"] == "feed":
                 st_articles[a["id"]] = {"first_seen": iso(a["first_seen"]), "story": sid}
     result = stories.build(groups, ids, st_stories)
+    # 7b. "Per capire": Wikipedia per il nome principale (citato da almeno 2 testate), dalle storie più importanti
+    wk = wiki.Wiki(st_wiki, enabled=not args.no_wiki)
+    for st in result:
+        names = st.pop("_names", [])
+        if names:
+            st["context"] = wk.context_for(names)
+    log(f"wikipedia: {wk.requests} richieste, {sum(1 for s in result if s['context'])} storie con 'Per capire'")
     # 8. scrittura (stories.json solo se le storie cambiano davvero)
     out.mkdir(parents=True, exist_ok=True)
     changed = not same_stories(out / "stories.json", result)
@@ -193,7 +219,8 @@ def main():
     for k in [k for k in st_stories if k not in live_ids]:
         st_stories.pop(k)
     translate.prune_cache(st_tr)
-    images.prune_cache(st_og, {a["url"] for a in leads})
+    images.prune_cache(st_pages, {a["url"] for a in arts})
+    wiki.prune_cache(st_wiki)
     state["updated"] = iso(NOW)
     dump_json(out / "state.json", state, indent=None)
     report = {
@@ -206,6 +233,10 @@ def main():
         "stories": len(result), "stories_2plus": sum(1 for s in result if s["n_sources"] > 1),
         "stories_with_image": sum(1 for s in result if s["image"]),
         "stories_translated": sum(1 for s in result if s["translated"]),
+        "stories_key_points": sum(1 for s in result if s["key_points"]),
+        "stories_context": sum(1 for s in result if s["context"]),
+        "stories_compare": sum(1 for s in result if s["compare"]),
+        "stories_timeline": sum(1 for s in result if s["timeline"]),
         "categories": dict(Counter(s["category"] for s in result).most_common()),
         "areas": dict(Counter(s["area"] for s in result)),
     }

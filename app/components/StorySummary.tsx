@@ -3,8 +3,10 @@
 import { defaultTextSize, textSizes } from "../lib/personal-data";
 import { usePersonalData } from "../lib/personal-store";
 import type { StorySummary as Summary } from "../lib/stories";
+import { SourceLink } from "./StoryBlocks";
 
-// "In breve": estratti brevi delle testate (massimo 3), nella dimensione di testo scelta nel Profilo.
+// "In breve": estratti brevi di testate diverse (fino a 6), nella dimensione di testo scelta nel Profilo.
+// Ogni estratto ha il nome della testata con il link all'originale.
 export default function StorySummary({ items }: { items: Summary[] }) {
   const { data } = usePersonalData();
   const size =
@@ -18,9 +20,8 @@ export default function StorySummary({ items }: { items: Summary[] }) {
           <blockquote className="m-0" style={{ fontSize: size.fontSize, lineHeight: 1.55 }}>
             {item.text}
           </blockquote>
-          <figcaption className="mt-1.5 text-label text-muted-strong">
-            {item.source}
-            {item.translated && <span className="font-semibold text-muted"> · tradotto automaticamente</span>}
+          <figcaption className="mt-1.5">
+            <SourceLink name={item.source} url={item.url} translated={item.translated} />
           </figcaption>
         </figure>
       ))}

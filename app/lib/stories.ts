@@ -20,12 +20,24 @@ const REFRESH_MINUTES = 10; // con la pagina aperta, ricontrolla se ci sono dati
 export const STALE_HOURS = 2;
 
 export type StorySource = { name: string; title: string; url: string; via: "feed" | "google_news"; published: string | null };
-export type StorySummary = { source: string; text: string; translated: boolean };
+/** Frase o estratto di una testata, sempre con il nome della testata e il link all'originale. */
+export type StorySummary = { source: string; text: string; url: string | null; translated: boolean };
+export type StoryCompare = {
+  outlets: number;
+  common: { word: string; count: number }[];
+  unique: { text: string; sources: { name: string; url: string }[] }[];
+};
+export type TimelineItem = { time: string; source: string; title: string; url: string; kind: "first" | "new" | "correction" | "last" };
+export type StoryTimeline = { items: TimelineItem[]; repeats: number };
+/** "Per capire": riassunto della voce di Wikipedia (licenza CC BY-SA). */
+export type StoryContext = { name: string; title: string; summary: string; url: string };
 export type Story = {
   id: string;
   title: string;
   titleOriginal: string | null;
   translated: boolean;
+  /** lingua del titolo originale quando è tradotto (es. "en") */
+  originalLang: string | null;
   category: string;
   topics: string[];
   area: "italia" | "mondo";
@@ -37,6 +49,10 @@ export type Story = {
   /** storie diverse sullo stesso evento hanno lo stesso valore (id della più importante) */
   event: string;
   summary: StorySummary[];
+  keyPoints: StorySummary[];
+  compare: StoryCompare | null;
+  timeline: StoryTimeline | null;
+  context: StoryContext | null;
   sources: StorySource[];
 };
 
@@ -52,6 +68,58 @@ function str(value: unknown, max = 2000): string | null {
 function httpUrl(value: unknown): string | null {
   const s = str(value);
   return s && /^https?:\/\//i.test(s) ? s : null;
+}
+
+function rec(value: unknown): Record<string, unknown> | null {
+  return typeof value === "object" && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
+}
+
+function parseCompare(value: unknown): StoryCompare | null {
+  const r = rec(value);
+  if (!r) return null;
+  const common = (Array.isArray(r.common) ? r.common : []).flatMap((c) => {
+    const o = rec(c);
+    const word = o && str(o.word, 60);
+    return word && typeof o.count === "number" ? [{ word, count: o.count }] : [];
+  });
+  const unique = (Array.isArray(r.unique) ? r.unique : []).flatMap((u) => {
+    const o = rec(u);
+    const text = o && str(o.text, 200);
+    const sources = (Array.isArray(o?.sources) ? (o.sources as unknown[]) : []).flatMap((x) => {
+      const q = rec(x);
+      const name = q && str(q.name, 120);
+      const url = q && httpUrl(q.url);
+      return name && url ? [{ name, url }] : [];
+    });
+    return text && sources.length ? [{ text, sources }] : [];
+  });
+  const outlets = typeof r.outlets === "number" ? r.outlets : 0;
+  return common.length || unique.length ? { outlets, common, unique } : null;
+}
+
+function parseTimeline(value: unknown): StoryTimeline | null {
+  const r = rec(value);
+  if (!r) return null;
+  const kinds = new Set(["first", "new", "correction", "last"]);
+  const items = (Array.isArray(r.items) ? r.items : []).flatMap((i) => {
+    const o = rec(i);
+    const time = o && str(o.time, 40);
+    const title = o && str(o.title, 400);
+    const url = o && httpUrl(o.url);
+    const source = o && str(o.source, 120);
+    const kind = o && typeof o.kind === "string" && kinds.has(o.kind) ? (o.kind as TimelineItem["kind"]) : null;
+    return time && title && url && source && kind ? [{ time, title, url, source, kind }] : [];
+  });
+  return items.length >= 2 ? { items, repeats: typeof r.repeats === "number" ? r.repeats : 0 } : null;
+}
+
+function parseContext(value: unknown): StoryContext | null {
+  const r = rec(value);
+  const name = r && str(r.name, 120);
+  const title = r && str(r.title, 200);
+  const summary = r && str(r.summary, 800);
+  const url = r && httpUrl(r.url);
+  return name && title && summary && url && url.startsWith("https://it.wikipedia.org/") ? { name, title, summary, url } : null;
 }
 
 function parseStory(raw: unknown): Story | null {
@@ -70,16 +138,18 @@ function parseStory(raw: unknown): Story | null {
     if (!name || !url) return [];
     return [{ name, url, title: str(o.title, 400) ?? name, via: o.via === "google_news" ? "google_news" as const : "feed" as const, published: str(o.published, 40) }];
   });
-  const summary: StorySummary[] = (Array.isArray(r.summary) ? r.summary : []).flatMap((s) => {
-    const o = (s ?? {}) as Record<string, unknown>;
-    const text = str(o.text, 800);
-    return text ? [{ text, source: str(o.source, 120) ?? "", translated: o.translated === true }] : [];
-  });
+  const quotes = (value: unknown, max: number): StorySummary[] =>
+    (Array.isArray(value) ? value : []).flatMap((s) => {
+      const o = (s ?? {}) as Record<string, unknown>;
+      const text = str(o.text, 800);
+      return text ? [{ text, source: str(o.source, 120) ?? "", url: httpUrl(o.url), translated: o.translated === true }] : [];
+    }).slice(0, max);
   return {
     id,
     title,
     titleOriginal: str(r.title_original, 400),
     translated: r.translated === true,
+    originalLang: str(r.original_lang, 8),
     category,
     topics: topics.length ? topics : [category],
     area: r.area === "italia" ? "italia" : "mondo",
@@ -89,7 +159,11 @@ function parseStory(raw: unknown): Story | null {
     updated,
     event: str(r.event, 128) ?? id,
     nSources: typeof r.n_sources === "number" && r.n_sources > 0 ? Math.floor(r.n_sources) : Math.max(1, sources.length),
-    summary: summary.slice(0, 3),
+    summary: quotes(r.summary, 6),
+    keyPoints: quotes(r.key_points, 5),
+    compare: parseCompare(r.compare),
+    timeline: parseTimeline(r.timeline),
+    context: parseContext(r.context),
     sources,
   };
 }
@@ -202,6 +276,11 @@ export function storyHref(id: string) {
 
 export function categoryLabel(id: string) {
   return editorialInterests.find((i) => i.id === id)?.label ?? id;
+}
+
+/** Testo sotto il titolo nel Feed: l'estratto più lungo della storia (fino a 4 righe). */
+export function leadText(story: Story) {
+  return story.summary.reduce((best, s) => (s.text.length > best.length ? s.text : best), "");
 }
 
 export function leadSource(story: Story) {

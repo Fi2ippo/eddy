@@ -10,6 +10,7 @@ import math
 from collections import Counter
 
 from common import NOW, iso, parse_iso, short_hash
+import enrich
 from topics import story_area, story_topics
 
 MAX_STORIES = 300
@@ -82,21 +83,14 @@ def build(groups: list[list[dict]], ids: list[str], state_stories: dict) -> list
             first_seen = min(first_seen, parse_iso(prev["first_seen"]))
         state_stories[sid] = {"first_seen": iso(first_seen)}
         translated = bool(lead.get("title_it"))
-        summary, seen = [], set()
-        for a in it_first:
-            text = a.get("extract_it") or a.get("extract")
-            if not text or a["source_id"] in seen:
-                continue
-            summary.append({"source": a["source"], "text": text, "translated": bool(a.get("extract_it"))})
-            seen.add(a["source_id"])
-            if len(summary) == 3:
-                break
+        title = lead.get("title_it") or lead["title"]
         topics = story_topics(g)  # votano anche i titoli arrivati da Google News
         story = {
             "id": sid,
-            "title": lead.get("title_it") or lead["title"],
+            "title": title,
             "title_original": lead["title"] if translated else None,
             "translated": translated,
+            "original_lang": lead["lang"] if translated else None,
             "category": topics[0],
             "topics": topics,
             "area": story_area(g),
@@ -105,7 +99,13 @@ def build(groups: list[list[dict]], ids: list[str], state_stories: dict) -> list
             "first_seen": iso(first_seen),
             "updated": iso(updated),
             "n_sources": len({a["source_id"] for a in g}),
-            "summary": summary,
+            # blocchi di approfondimento: solo frasi brevi delle testate, ognuna con testata e link (enrich.py)
+            "summary": enrich.in_breve(it_first),
+            "key_points": enrich.key_points(it_first, g, title),
+            "compare": enrich.compare(g),
+            "timeline": enrich.timeline(g),
+            "context": None,  # "Per capire" (Wikipedia), aggiunto dopo in collect.py
+            "_names": enrich.main_names(g),
             "sources": [{"name": a["source"], "title": a["title"], "url": a["url"], "via": a["via"],
                          "published": iso(a.get("published") or a["first_seen"])} for a in it_first + gn],
         }

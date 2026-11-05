@@ -42,8 +42,12 @@ _TITLE_PREFIX = re.compile(r"^\s*(?:ultim'?ora|ultima ora|breaking|esclusivo|esc
 _PLUS = re.compile(r"(?<![\w])\+{2,}")
 
 
+_LISTS = re.compile(r"<(ul|ol|figure|figcaption|aside)\b[^>]*>.*?</\1>", re.I | re.S)  # link correlati, didascalie
+
+
 def strip_html(text: str | None) -> str:
-    t = _TAG.sub(" ", text or "")
+    t = _LISTS.sub(" ", text or "")
+    t = _TAG.sub(" ", t)
     t = html.unescape(html.unescape(t))
     return _SPACES.sub(" ", t.replace("\xa0", " ")).strip()
 

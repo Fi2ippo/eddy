@@ -11,6 +11,7 @@ import DataNotice from "./DataNotice";
 import OutletsTag from "./OutletsTag";
 import StoryActionBar from "./StoryActionBar";
 import StoryImage from "./StoryImage";
+import { CompareBlock, ContextBox, KeyPoints, TimelineBlock } from "./StoryBlocks";
 import StorySummary from "./StorySummary";
 import TimeAgo from "./TimeAgo";
 
@@ -98,6 +99,11 @@ export default function StoryDetail() {
             <StorySummary items={story.summary} />
           </>
         )}
+        {/* ogni blocco compare solo se ha contenuto */}
+        {story.keyPoints.length > 0 && <KeyPoints items={story.keyPoints} />}
+        {story.context && <ContextBox context={story.context} />}
+        {story.compare && <CompareBlock compare={story.compare} />}
+        {story.timeline && <TimelineBlock timeline={story.timeline} />}
 
         <h2 className="mb-3 mt-7 text-center text-section">Le fonti</h2>
         <ul className="flex flex-col gap-2.5">
