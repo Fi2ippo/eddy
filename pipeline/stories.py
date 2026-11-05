@@ -103,7 +103,8 @@ def build(groups: list[list[dict]], ids: list[str], state_stories: dict) -> list
             "updated": iso(updated),
             "n_sources": len({a["source_id"] for a in g}),
             "summary": summary,
-            "sources": [{"name": a["source"], "title": a["title"], "url": a["url"], "via": a["via"]} for a in it_first + gn],
+            "sources": [{"name": a["source"], "title": a["title"], "url": a["url"], "via": a["via"],
+                         "published": iso(a.get("published") or a["first_seen"])} for a in it_first + gn],
         }
         out.append((_score(g, updated, bool(img_art)), story))
     out.sort(key=lambda x: (-x[0], x[1]["id"]))
