@@ -15,8 +15,8 @@ const destinations = [
 export default function BottomNavigation() {
   const pathname = usePathname();
   const navigationRef = useRef<HTMLElement>(null);
-  // La pagina Storia ha la sua barra (Salva / Da leggere) al posto della navigazione.
-  const hidden = pathname.startsWith("/storia/");
+  // La pagina Storia ha la sua barra (Salva / Da leggere); il Feed è a tutto schermo, senza navigazione.
+  const hidden = pathname.startsWith("/storia") || pathname.startsWith("/feed");
 
   useLayoutEffect(() => {
     const navigation = navigationRef.current;

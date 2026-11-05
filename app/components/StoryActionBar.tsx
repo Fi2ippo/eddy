@@ -1,14 +1,12 @@
 "use client";
 
-import { Bookmark, Clock } from "lucide-react";
-import { toggleStoryList, usePersonalData } from "../lib/personal-store";
+import type { StorySnapshot } from "../lib/personal-data";
+import { usePersonalData } from "../lib/personal-store";
+import { SaveLaterButtons } from "./StoryActions";
 
 // Barra fluttuante in fondo alla pagina Storia, al posto della navigazione.
-export default function StoryActionBar({ storyId }: { storyId: string }) {
-  const { data, ready, notice } = usePersonalData();
-  const activity = data.stories[storyId];
-  const saved = Boolean(activity?.savedAt);
-  const later = Boolean(activity?.readingListAt);
+export default function StoryActionBar({ storyId, card }: { storyId: string; card: StorySnapshot }) {
+  const { notice } = usePersonalData();
 
   return (
     <div role="group" aria-label="Azioni sulla storia" className="floating-bar p-2.5">
@@ -18,26 +16,7 @@ export default function StoryActionBar({ storyId }: { storyId: string }) {
         </p>
       )}
       <div className="grid min-h-13 grid-cols-2 gap-2">
-        <button
-          type="button"
-          disabled={!ready}
-          aria-pressed={saved}
-          className="toggle-pill"
-          onClick={() => toggleStoryList(storyId, "savedAt")}
-        >
-          <Bookmark aria-hidden="true" className="size-5" fill={saved ? "currentColor" : "none"} />
-          {saved ? "Salvata" : "Salva"}
-        </button>
-        <button
-          type="button"
-          disabled={!ready}
-          aria-pressed={later}
-          className="toggle-pill"
-          onClick={() => toggleStoryList(storyId, "readingListAt")}
-        >
-          <Clock aria-hidden="true" className="size-5" />
-          {later ? "In lista" : "Da leggere"}
-        </button>
+        <SaveLaterButtons storyId={storyId} card={card} look="bar" />
       </div>
     </div>
   );

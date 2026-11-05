@@ -5,12 +5,16 @@ import { editorialInterests } from "../data/editorial-interests";
 import {
   decodePersonalData,
   emptyPersonalData,
+  hasActivity,
+  isAreaFilter,
   isStoryId,
   isTextSize,
+  type AreaFilter,
   LEGACY_PERSONAL_DATA_KEY,
   PERSONAL_DATA_KEY,
   type PersonalData,
   type StoryField,
+  type StorySnapshot,
   type TextSize,
 } from "./personal-data";
 
@@ -120,10 +124,16 @@ export function setTextSize(size: TextSize) {
   return commit((data) => ({ ...data, textSize: size }));
 }
 
+export function setArea(area: AreaFilter) {
+  if (!isAreaFilter(area)) return false;
+  return commit((data) => ({ ...data, area }));
+}
+
 function updateStory(
   id: string,
   field: StoryField,
   value: (previous: number | undefined) => number | undefined,
+  card?: StorySnapshot,
 ) {
   if (!isStoryId(id)) return false;
   return commit((data) => {
@@ -131,19 +141,21 @@ function updateStory(
     const next = value(activity[field]);
     if (next === undefined) delete activity[field];
     else activity[field] = next;
+    if (card) activity.snapshot = card;
     const stories = { ...data.stories };
-    if (Object.keys(activity).length === 0) delete stories[id];
+    if (!hasActivity(activity)) delete stories[id];
     else stories[id] = activity;
     return { ...data, stories };
   });
 }
 
-export function toggleStoryList(id: string, field: "savedAt" | "readingListAt") {
-  return updateStory(id, field, (previous) => previous ? undefined : Date.now());
+// "card" è la piccola scheda della storia (titolo, categoria, foto…) da conservare per Libreria e Profilo.
+export function toggleStoryList(id: string, field: "savedAt" | "readingListAt", card?: StorySnapshot) {
+  return updateStory(id, field, (previous) => previous ? undefined : Date.now(), card);
 }
 
-export function markStoryRead(id: string) {
-  return updateStory(id, "readAt", () => Date.now());
+export function markStoryRead(id: string, card?: StorySnapshot) {
+  return updateStory(id, "readAt", () => Date.now(), card);
 }
 
 export function removeStoryFromList(id: string, field: StoryField) {

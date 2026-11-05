@@ -15,6 +15,13 @@
   --color-accent-soft-foreground: #1f3a2e;
   /* Fondo scuro dietro foto e illustrazioni. */
   --color-media: #0b1114;
+  /* Feed scuro */
+  --color-feed-bg: #0e1311;
+  --color-feed-fg: #f6f4ec;
+  --color-feed-muted: #c9d0cb;
+  --color-feed-subtle: #9faaa3;
+  --color-feed-accent: #cfe7d6;
+  --color-feed-cta: #f2f0e8;
 
   --font-sans: var(--font-manrope), system-ui, sans-serif;
 
@@ -283,131 +290,335 @@
     cursor: default;
   }
 
-  .feed-shell {
+  /* ---------------- Feed scuro a tutto schermo (design/Feed.dc.html) ---------------- */
+  .feed-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background: var(--color-feed-bg);
+    color: var(--color-feed-fg);
+  }
+
+  .feed-top {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    z-index: 2;
+    max-width: 30rem;
+    margin-inline: auto;
+    padding: max(var(--spacing-4), env(safe-area-inset-top, 0px)) var(--spacing-4) var(--spacing-2);
+    background: linear-gradient(var(--color-feed-bg) 70%, transparent);
+  }
+
+  .feed-close {
     display: flex;
-    flex-direction: column;
-    height: calc(100svh - var(--bottom-navigation-height));
-    height: calc(100dvh - var(--bottom-navigation-height));
-    min-height: 0;
+    justify-self: end;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--radius-full);
+    background: rgb(255 255 255 / 0.12);
+    color: var(--color-feed-fg);
   }
 
-  .feed-header {
-    flex-shrink: 0;
-    padding-top: max(var(--spacing-4), env(safe-area-inset-top, 0px));
-    padding-bottom: var(--spacing-4);
+  /* Filtro Italia / Mondo / Tutto: piccolo e discreto */
+  .feed-filter {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-1);
+    margin-top: var(--spacing-1);
   }
 
-  .feed-viewport {
-    flex: 1;
-    min-height: 0;
+  .feed-filter button {
+    min-width: 4.5rem;
+    min-height: 2.75rem;
+    padding-inline: var(--spacing-3);
+    border: 0;
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--color-feed-subtle);
+    font-size: var(--text-label);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .feed-filter button[aria-pressed="true"] {
+    background: rgb(207 231 214 / 0.16);
+    color: var(--color-feed-accent);
+  }
+
+  .feed-viewport-dark {
+    height: 100svh;
+    height: 100dvh;
     overflow-y: auto;
     overscroll-behavior-y: contain;
-    scroll-snap-type: y proximity;
-    scroll-behavior: auto;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
   }
 
-  .feed-viewport:focus-visible {
+  .feed-viewport-dark::-webkit-scrollbar {
+    display: none;
+  }
+
+  .feed-viewport-dark:focus-visible {
+    outline: 2px solid var(--color-feed-accent);
     outline-offset: -4px;
   }
 
-  .feed-story {
+  .feed-card {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    min-height: 100%;
-    padding-block: var(--spacing-8);
+    height: 100svh;
+    height: 100dvh;
+    max-width: 30rem;
+    margin-inline: auto;
+    padding: calc(max(var(--spacing-4), env(safe-area-inset-top, 0px)) + 6.75rem) var(--spacing-5, 1.25rem)
+      calc(max(var(--spacing-4), env(safe-area-inset-bottom, 0px)) + var(--spacing-3));
     scroll-snap-align: start;
+    scroll-snap-stop: always;
+    overflow: hidden;
   }
 
-  .feed-viewport[data-long-content="true"] {
-    scroll-snap-type: none;
+  .feed-media {
+    position: relative;
+    flex: none;
+    height: clamp(10rem, 36dvh, 20.625rem);
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    background: var(--color-media);
   }
 
-  .library-section-button {
-    display: grid;
+  .feed-title {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    color: var(--color-feed-fg);
+    font-size: clamp(1.375rem, 3.6dvh, 1.875rem);
+    font-weight: 800;
+    letter-spacing: -0.015em;
+    line-height: 1.14;
+  }
+
+  .feed-read {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    min-height: 3.75rem;
     align-items: center;
-    min-width: 44px;
-    min-height: 2.75rem;
-    padding-block: var(--spacing-3);
-    border-bottom-width: 2px;
-    cursor: pointer;
-  }
-
-  /* Riserva la larghezza del peso attivo, evitando salti al cambio sezione. */
-  .library-section-button::after {
-    content: attr(data-label);
-    grid-area: 1 / 1;
-    visibility: hidden;
-    font-weight: 600;
-  }
-
-  .library-section-button > span {
-    grid-area: 1 / 1;
-  }
-
-  .story-action {
-    display: inline-flex;
-    align-items: center;
+    justify-content: space-between;
     gap: var(--spacing-2);
-    min-height: 44px;
-    max-width: 100%;
-    text-align: left;
-    cursor: pointer;
+    padding: 0 0.75rem 0 1.25rem;
+    border-radius: var(--radius-card);
+    background: var(--color-feed-cta);
+    white-space: nowrap;
+    color: var(--color-foreground);
+    font-size: var(--text-body);
+    font-weight: 800;
   }
 
-  .interest-button {
-    display: inline-flex;
+  .feed-toggle {
+    display: flex;
+    flex: none;
+    flex-direction: column;
     align-items: center;
-    gap: var(--spacing-2);
-    min-height: 44px;
-    max-width: 100%;
-    padding: var(--spacing-2) var(--spacing-3);
-    border-width: 1px;
-    border-radius: var(--radius-full);
-    text-align: left;
+    justify-content: center;
+    gap: 0.1875rem;
+    width: 4.5rem;
+    min-height: 3.75rem;
+    padding: 0;
+    border: 1px solid rgb(255 255 255 / 0.18);
+    border-radius: 1.5rem;
+    background: rgb(255 255 255 / 0.08);
+    color: var(--color-feed-fg);
+    font-size: var(--text-caption);
+    font-weight: 700;
     cursor: pointer;
   }
 
-  .story-action:disabled,
-  .interest-button:disabled {
+  .feed-toggle[aria-pressed="true"] {
+    border-color: var(--color-feed-accent);
+    background: rgb(207 231 214 / 0.2);
+    color: var(--color-feed-accent);
+  }
+
+  .feed-toggle:disabled {
     cursor: default;
   }
 
-  .local-data-dialog {
-    --dialog-top: max(var(--spacing-4), env(safe-area-inset-top, 0px));
-    --dialog-right: max(var(--spacing-4), env(safe-area-inset-right, 0px));
-    --dialog-bottom: max(var(--spacing-4), env(safe-area-inset-bottom, 0px));
-    --dialog-left: max(var(--spacing-4), env(safe-area-inset-left, 0px));
-    inset: var(--dialog-top) var(--dialog-right) var(--dialog-bottom) var(--dialog-left);
-    width: min(calc(100% - var(--dialog-left) - var(--dialog-right)), 32rem);
-    max-height: calc(100svh - var(--dialog-top) - var(--dialog-bottom));
-    max-height: calc(100dvh - var(--dialog-top) - var(--dialog-bottom));
-    margin: auto;
-    padding: var(--spacing-6);
+  /* ---------------- Schede della Libreria e pulsanti a scelta (Libreria, Profilo) ---------------- */
+  .segmented {
+    display: grid;
+    gap: var(--spacing-1);
+    padding: 0.3125rem;
+    border-radius: var(--radius-card-sm);
+    background: #e3eae3;
+  }
+
+  .segmented button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    min-height: 3rem;
+    padding-inline: var(--spacing-1);
+    border: 0;
+    border-radius: 1.3125rem;
+    background: transparent;
+    color: var(--color-muted-strong);
+    font-size: var(--text-secondary);
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .segmented button[aria-pressed="true"] {
+    background: var(--color-surface);
+    color: var(--color-foreground);
+    box-shadow: 0 1px 3px rgb(23 25 28 / 0.14);
+  }
+
+  .segmented .count {
+    display: inline-flex;
+    min-width: 1.375rem;
+    height: 1.375rem;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 0.25rem;
+    border-radius: var(--radius-full);
+    background: rgb(255 255 255 / 0.7);
+    font-size: var(--text-label);
+  }
+
+  .segmented button[aria-pressed="true"] .count {
+    background: var(--color-accent-soft);
+  }
+
+  /* pulsanti a scelta dentro i pannelli (dimensione testo, Italia/Mondo) */
+  .choice {
+    min-height: 3.125rem;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: #eff2ec;
+    color: var(--color-foreground);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .choice[aria-pressed="true"] {
+    background: var(--color-accent);
+    color: var(--color-surface);
+  }
+
+  .interest-chip {
+    display: flex;
+    min-height: 3.375rem;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    border: 1.5px solid #d5dad0;
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+    color: var(--color-foreground);
+    font-size: var(--text-body);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .interest-chip[aria-pressed="true"] {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-surface);
+  }
+
+  .choice:disabled,
+  .interest-chip:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+
+  /* ---------------- Pannelli dal basso (Profilo) ---------------- */
+  .sheet {
+    inset: auto 0 0 0;
+    width: 100%;
+    max-width: 30rem;
+    max-height: 90svh;
+    max-height: 90dvh;
+    margin: auto auto 0;
+    padding: 0;
     overflow-y: auto;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+    border: 0;
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
     background: var(--color-surface);
     color: var(--color-foreground);
   }
 
-  .local-data-dialog::backdrop {
-    background: color-mix(in srgb, var(--color-foreground) 25%, transparent);
+  .sheet::backdrop {
+    background: rgb(23 25 28 / 0.5);
   }
 
-  .confirmation-button {
-    min-height: 44px;
-    max-width: 100%;
-    padding: var(--spacing-2) var(--spacing-4);
-    border-width: 1px;
-    border-radius: var(--radius-sm);
-    text-align: left;
+  .sheet-body {
+    padding: 0.625rem 1.25rem calc(1.75rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .sheet-handle {
+    width: 2.5rem;
+    height: 0.25rem;
+    margin: 0 auto 0.875rem;
+    border-radius: 0.125rem;
+    background: #d0d3cb;
+  }
+
+  .sheet-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    width: 2.75rem;
+    height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: #eff2ec;
+    color: var(--color-foreground);
     cursor: pointer;
   }
 
+  .danger-button {
+    width: 100%;
+    min-height: 3.375rem;
+    border: 1.5px solid #d9b4b4;
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+    color: #8e2b2b;
+    font-size: var(--text-body);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .danger-button.solid {
+    border-color: #8e2b2b;
+    background: #8e2b2b;
+    color: var(--color-surface);
+  }
+
+  /* telefoni stretti: "Leggi la storia" resta su una riga */
+  @media (max-width: 374px) {
+    .feed-read {
+      padding-left: 1rem;
+      font-size: 0.9375rem;
+    }
+
+    .feed-toggle {
+      width: 4.125rem;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .feed-viewport {
-      scroll-snap-type: none;
+    .feed-viewport-dark {
+      scroll-snap-type: y proximity;
     }
   }
 }

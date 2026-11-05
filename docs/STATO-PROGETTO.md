@@ -1,6 +1,6 @@
 # Eddy: stato del progetto
 
-Aggiornato al 5 novembre 2026, alla fine del passo 5 ("raccolta completa").
+Aggiornato al 5 novembre 2026, alla fine dei passi 6 (dati veri nell'app) e 2 (design completo).
 Repository pubblico: https://github.com/Fi2ippo/eddy. I dati raccolti stanno sul ramo `dati`.
 Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese".
 
@@ -11,11 +11,11 @@ Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese"
 | Passo (PROMPTS.md) | Stato |
 |---|---|
 | 1. Capire e rinominare ALT → Eddy | ✅ fatto |
-| 2. Design nuovo, una schermata alla volta | 🟡 **solo Oggi**. Mancano Feed, Libreria e Profilo |
-| 3. Pagina Storia | ✅ fatta con i dati di prova (`/storia/[id]`). Al passo 6 diventa `/storia?id=…` |
+| 2. Design nuovo, una schermata alla volta | ✅ fatto: Oggi, Feed, Storia, Libreria, Profilo |
+| 3. Pagina Storia | ✅ fatta: pagina unica `/storia?id=…` con i dati veri |
 | 4. Feed delle fonti + shortlist | ✅ fatto |
 | 5. Raccolta automatica | ✅ fatta: 138 fonti, raccolta ogni ora su GitHub Actions, dati sul ramo `dati` |
-| 6. Dati veri nell'app | ⬜ da fare (l'app usa ancora solo i dati di prova) |
+| 6. Dati veri nell'app | ✅ fatto: l'app legge le storie dal ramo `dati` nel browser |
 | 7. Pubblicare gratis (GitHub Pages + pagina "Chi siamo / Fonti") | ⬜ da fare |
 | 8. Rifiniture (PWA, ricerca, sezioni personali, tema scuro…) | ⬜ da fare |
 
@@ -25,24 +25,51 @@ Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese"
 
 ### App (Next.js 16, React 19, TypeScript, Tailwind 4, lucide-react; porta 3002)
 
-**Comune a tutte le schermate**
-- Nome Eddy, font Manrope e colori del brief.
-- Barra di navigazione fluttuante a pillola, nascosta nella pagina Storia.
+**Dati veri** (`app/lib/stories.ts`)
+- **Da dove:** le storie si scaricano nel browser da `https://raw.githubusercontent.com/Fi2ippo/eddy/dati/stories.json`, una volta per visita. L'indirizzo si può cambiare con `NEXT_PUBLIC_EDDY_STORIES_URL`. Il sito non va ricostruito a ogni aggiornamento.
+- **Controllo:** ogni storia viene verificata prima dell'uso. Si accettano solo link `http(s)` e argomenti fra gli 8 interessi.
+- **Casi gestiti:** caricamento, dati non raggiungibili (con "Riprova"), nessuna storia per il filtro, foto mancante o che non si carica (illustrazione segnaposto).
+- **Dati di prova:** non esistono più (`app/data/demo-stories.ts` è stato tolto).
 
 **Schermate**
-- **Oggi**: nuovo design.
-- **Storia** (`/storia/[id]`): nuovo design, con:
-  - "In breve" scritto nella dimensione di testo scelta dall'utente;
-  - fonti che si aprono in un'altra scheda;
-  - barra Salva / Da leggere.
-- **Feed, Libreria, Profilo**: layout vecchio con i colori nuovi.
-  - Il Feed ha già il pulsante "Leggi la storia".
-  - Il Profilo ha una sezione provvisoria per la dimensione del testo.
+- **Oggi:** la storia più importante (i dati arrivano già in ordine di importanza) più altre due, rispettando il filtro Italia / Mondo.
+- **Feed** (`FeedView`):
+  - scuro e a tutto schermo, senza barra di navigazione;
+  - in alto il contatore "01 / 30", "Eddy" e la X che torna a Oggi, con sotto un piccolo filtro Tutto / Italia / Mondo;
+  - una storia per schermata, a scatti, con dito, rotella e tastiera (frecce, Pagina su/giù, Inizio/Fine);
+  - ordine: prima le storie dei tuoi interessi, poi le altre, dalla più recente; 30 storie;
+  - per ogni storia: foto (o segnaposto) con credito, categoria, titolo, testo di massimo 3 righe, "Leggi la storia", Salva e Da leggere con etichetta e stato.
+- **Storia** (`/storia?id=…`, `StoryDetail`):
+  - aprirla la registra nei Recenti;
+  - "In breve" mostra gli estratti con il nome della testata e "tradotto automaticamente" quando serve; se il titolo è tradotto, compare anche quello originale;
+  - fonti con "Leggi su <testata>"; quelle arrivate da Google News sono sotto "Ne parlano anche";
+  - se la storia non c'è più, mostra la scheda salvata e un messaggio.
+- **Libreria** (`LibraryView`):
+  - titolo centrato con sottotitolo;
+  - schede Salvati / Recenti / Da leggere con i contatori;
+  - card bianca con l'elenco: miniatura, categoria, titolo, testata, data e credito della foto;
+  - stati vuoti con icona e "Vai al Feed".
+- **Profilo** (`ProfileView`):
+  - card "La tua curiosità" con i numeri veri: storie lette, argomenti esplorati, temi più letti;
+  - righe che aprono pannelli dal basso:
+    - "I tuoi interessi": 8 pulsanti;
+    - "Impostazioni": dimensione del testo con anteprima, notizie Tutto / Italia / Mondo, privacy in parole semplici, "Cancella i dati di Eddy" con conferma;
+  - i pannelli si chiudono con Esc, toccando fuori o con la X.
 
-**Dati e controlli**
-- Dati personali: chiave `eddy:personal:v1`, con migrazione da `alt:personal:v1`.
-- Dati di prova: `app/data/demo-stories.ts`.
+**Dati personali** (localStorage, chiave `eddy:personal:v1`)
+- Campi nuovi: `area` (`tutto` | `italia` | `mondo`) e, per ogni storia salvata o letta, una piccola scheda (titolo, categoria, foto, credito, testata, data). Serve perché le storie escono dai dati dopo 72 ore, ma la Libreria e il Profilo devono poterle ancora mostrare.
+- Gli archivi vecchi si leggono ancora: i campi mancanti prendono il valore predefinito.
+
+**Controlli fatti** (5/11/2026)
 - `tsc`, `lint` e `build` passano.
+- **Browser automatico a 390px:**
+  - verificati: contatore, frecce, rotella, filtro, Salva / Da leggere, Recenti dopo l'apertura, contatori della Libreria, numeri del Profilo, pannelli (Esc e tocco fuori);
+  - nessun testo sotto 12px, nessun pulsante sotto 44px, nessuna pagina più larga dello schermo, nessun errore in console;
+  - screenshot di Feed, Libreria piena e vuota, Profilo con i pannelli aperti, confrontati con `design/`.
+- **Differenze dal design corrette:**
+  - "Leggi la storia" ora sta su una riga: i pulsanti accanto sono larghi 72px invece di 78;
+  - i numeri del Profilo sono allineati in alto.
+- **Differenza voluta:** nel Feed c'è il filtro Italia / Mondo sotto l'intestazione, quindi la foto parte un po' più in basso che nel design.
 
 ### Fonti (`data/sources.json`, 362 fonti)
 
@@ -209,30 +236,21 @@ Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese"
 
 ## 3. Cosa manca, in ordine
 
-### A. Finire il passo 2: design di Feed, Libreria e Profilo
-- **Feed** (`design/Feed.dc.html`): scuro, a tutto schermo, senza barra di navigazione, contatore "01 / 03", X, scorrimento a scatti.
-- **Libreria** (`design/Libreria.dc.html`): schede Salvati / Recenti / Da leggere con contatori.
-- **Profilo** (`design/Profilo.dc.html`): righe che aprono pannelli dal basso (interessi e impostazioni con dimensione testo).
-
-### B. Passo 6: dati veri nell'app
-- Leggere `stories.json` dal ramo `dati`, per esempio `https://raw.githubusercontent.com/Fi2ippo/eddy/dati/stories.json`, oppure copiarlo durante la build.
-- Pagina Storia unica `/storia?id=…` (decisione già presa) e "aprire la Storia la registra nei Recenti" (decisione già presa).
-- Filtro Italia / Mondo / Tutto.
-- Mostrare il titolo originale e "tradotto automaticamente" quando `translated` è vero.
-- Gestire: storia senza foto (segnaposto), nessuna storia per gli interessi scelti, dati non caricati.
-
-### C. Passo 7: pubblicazione
+### A. Passo 7: pubblicazione
 - `output: 'export'`, GitHub Pages, pagina "Chi siamo / Fonti e crediti" con le istruzioni per chiedere la rimozione di un contenuto.
 
-### D. Da tenere d'occhio
+### B. Da tenere d'occhio
 - **Qualità della traduzione:** il modello Argos inglese→italiano è veloce e leggero ma a volte goffo ("Vance cammina tromba stretta…"). Ogni storia tradotta conserva `title_original`. Se servirà più qualità c'è un'alternativa: OPUS-MT "tc-big", che però richiede di convertire il modello una volta con torch.
 - **Argomenti poco presenti:** ambiente e design hanno poche storie, perché le fonti di settore pubblicano meno. Si possono aggiungere fonti o parole al lessico.
 - **Google News:** circa 30 richieste all'ora. Se Google dovesse limitarle, si alza `GN_REFRESH_HOURS` in `pipeline/feeds.py`.
 - **Workflow fermo:** GitHub sospende i workflow programmati dopo 60 giorni senza attività sul repository. Se succede, basta riattivarlo da Actions.
+- **Feed:** l'ordine "interessi, poi recenza" porta in alto anche storie con una sola testata. Si potrebbe pesare anche l'importanza (numero di testate).
+- **Categorie da migliorare:** alcune sono discutibili, per esempio Joshua Wong finisce in "Società".
+- **Uso senza rete:** se GitHub non risponde, Oggi e il Feed mostrano "Riprova". Libreria e Profilo funzionano comunque, grazie alle schede salvate.
 - `README.md` descrive ancora la versione vecchia dell'interfaccia.
 
 ---
 
 ## 4. Decisioni aperte (servono da Filippo)
 1. Controllare a mano le **22 fonti `da_controllare`** (elenco qui sopra) e decidere per ognuna: `link_e_citazione`, `da_contattare`, oppure disabilitarla.
-2. Ordine dei prossimi lavori: prima il design (A) o prima i dati veri (B)?
+2. Quando passare al passo 7 (pubblicazione su GitHub Pages).

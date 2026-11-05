@@ -10,7 +10,7 @@ Filippo, studente di UX design, non programmatore. Spiega in italiano semplice, 
 ## Regole di lavoro (obbligatorie)
 1. Un passo alla volta. Alla fine di ogni passo: `npx tsc --noEmit`, `npm run lint`, `npm run build`, e dimmi cosa è cambiato.
 2. Non modificare file non necessari. Nessuna nuova dipendenza npm senza chiedermelo. Non cambiare la porta 3002 in sviluppo.
-3. Mai confondere contenuti dimostrativi e reali: i dati demo vivono solo in `app/data/demo-*`, quelli reali arrivano da `public/data/stories.json`.
+3. Mai confondere contenuti dimostrativi e reali: i dati demo vivono solo in `app/data/demo-*` (oggi non ce ne sono più); quelli reali arrivano da `stories.json` sul ramo `dati`, letto nel browser (`app/lib/stories.ts`).
 4. Niente scrittura con IA nel prodotto: i testi sono **estratti brevi delle testate** (max 3 frasi) con link all'originale.
 5. Rispetto delle fonti: mai copiare articoli interi; foto in hotlink con credito "Foto: <testata>" e `referrerpolicy="no-referrer"`; mai riscaricare/ospitare le foto; se una testata chiede la rimozione, aggiungere il suo dominio/URL a `data/blocklist.json`. Non è consulenza legale: se Eddy diventa pubblico, scrivere a ogni testata prioritaria o preferire fonti con licenza aperta.
 6. Repository **pubblico** su GitHub (minuti di GitHub Actions gratuiti). Mai committare chiavi o dati personali.
@@ -24,7 +24,7 @@ Filippo, studente di UX design, non programmatore. Spiega in italiano semplice, 
 - **Dipendenze Python autorizzate per la pipeline** (solo GitHub Actions e Mac, mai nell'app): feedparser, numpy, scikit-learn e un traduttore offline gratuito (scelto: modelli Argos Translate eseguiti con `ctranslate2` + `sentencepiece`). Il codice deve girare con Python 3.9 sul Mac e 3.12 su Actions. Nessuna nuova dipendenza npm.
 
 ## Stato attuale del codice (questa cartella)
-Next.js 16 (App Router), React 19, TypeScript, Tailwind 4, lucide-react. Schermate: Oggi (nuovo design), Storia (`/storia/[id]`, nuovo design, dati demo: va trasformata in `/storia?id=` al passo 6), Feed, Libreria, Profilo (ancora layout vecchio con i colori nuovi). Store personale in `app/lib/personal-store.ts` (chiave `eddy:personal:v1`, migrazione da `alt:personal:v1` fatta; campo `textSize`). Demo in `app/data/demo-stories.ts`. L'app usa ancora solo dati demo.
+Next.js 16 (App Router), React 19, TypeScript, Tailwind 4, lucide-react. Tutte le schermate hanno il nuovo design e usano i dati veri (passi 2 e 6 fatti): Oggi (`app/page.tsx`), Feed (`FeedView`), Storia unica `/storia?id=` (`StoryDetail`), Libreria (`LibraryView`), Profilo (`ProfileView`, pannelli dal basso). Storie: `app/lib/stories.ts` (scarica `stories.json` dal ramo `dati`, controlla i dati, ordina Feed e Oggi). Store personale: `app/lib/personal-store.ts` (chiave `eddy:personal:v1`; campi `interests`, `stories` con scheda della storia, `textSize`, `area`).
 
 Raccolta (passo 5, fatta): `pipeline/` (più file, vedi `pipeline/collect.py`), 50 fonti via feed (con feed per sezione per ANSA, Il Post, Sole 24 Ore, Repubblica, Corriere, BBC, Guardian) + 88 via Google News (solo "Leggi su"). Workflow `.github/workflows/collect.yml` ogni ora: scrive `stories.json`, `state.json`, `report.json` sul ramo `dati` (un solo commit sostituito ogni volta). Prova locale: `python3 pipeline/collect.py` (scrive in `data/`, file ignorati da git); autotest: `python3 pipeline/selftest.py`.
 
