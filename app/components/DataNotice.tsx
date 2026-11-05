@@ -34,7 +34,7 @@ export default function DataNotice({ kind, message, tone = "light" }: DataNotice
       <h2 className={`mt-5 text-heading-3 ${dark ? "text-[#F6F4EC]" : ""}`}>{title}</h2>
       <p className={`mt-2 max-w-xs text-body ${dark ? "text-[#C9D0CB]" : "text-muted"}`}>{text}</p>
       {kind === "error" && (
-        <button type="button" onClick={loadStories} className="pill-button mt-6 cursor-pointer border-0">
+        <button type="button" onClick={() => void loadStories()} className="pill-button mt-6 cursor-pointer border-0">
           Riprova
         </button>
       )}

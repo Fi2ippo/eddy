@@ -6,9 +6,18 @@ import type { AreaFilter, StorySnapshot } from "./personal-data";
 
 // Le storie vere: le scrive ogni ora la raccolta (pipeline/collect.py) sul ramo "dati" del repository.
 // Si leggono nel browser, così il sito statico non va ricostruito a ogni aggiornamento.
+// Dove stanno i dati: repository e ramo (si possono cambiare con le variabili d'ambiente).
+const DATA_REPO = process.env.NEXT_PUBLIC_EDDY_DATA_REPO ?? "Fi2ippo/eddy";
+const DATA_BRANCH = process.env.NEXT_PUBLIC_EDDY_DATA_BRANCH ?? "dati";
+/** Indirizzo "normale" dei dati: la CDN di GitHub lo tiene in cache fino a 5 minuti. */
 export const STORIES_URL =
   process.env.NEXT_PUBLIC_EDDY_STORIES_URL ??
-  "https://raw.githubusercontent.com/Fi2ippo/eddy/dati/stories.json";
+  `https://raw.githubusercontent.com/${DATA_REPO}/${DATA_BRANCH}/stories.json`;
+/** Ultimo commit del ramo dati (cache di al massimo 1 minuto): l'indirizzo con il commit è sempre fresco. */
+const LATEST_COMMIT_URL = `https://api.github.com/repos/${DATA_REPO}/commits/${DATA_BRANCH}`;
+const REFRESH_MINUTES = 10; // con la pagina aperta, ricontrolla se ci sono dati nuovi
+/** Oltre questa età i dati si considerano "in ritardo". */
+export const STALE_HOURS = 2;
 
 export type StorySource = { name: string; title: string; url: string; via: "feed" | "google_news"; published: string | null };
 export type StorySummary = { source: string; text: string; translated: boolean };
@@ -85,10 +94,12 @@ function parseStory(raw: unknown): Story | null {
   };
 }
 
-// ------------------------------------------------------------ caricamento (una volta per visita)
+// ------------------------------------------------------------ caricamento (all'apertura, poi ogni 10 minuti)
 const serverState: StoriesState = { status: "loading", stories: [], generated: null };
 let state: StoriesState = serverState;
 let started = false;
+let loadedCommit: string | null = null;
+let loading = false;
 const listeners = new Set<() => void>();
 
 function publish(next: StoriesState) {
@@ -96,26 +107,64 @@ function publish(next: StoriesState) {
   listeners.forEach((listener) => listener());
 }
 
-export function loadStories() {
-  started = true;
-  if (state.status !== "loading") publish({ ...state, status: "loading" });
-  fetch(STORIES_URL, { cache: "no-cache" })
-    .then((response) => {
-      if (!response.ok) throw new Error(String(response.status));
-      return response.json() as Promise<unknown>;
-    })
-    .then((json) => {
-      const data = (json ?? {}) as Record<string, unknown>;
-      const stories = (Array.isArray(data.stories) ? data.stories : []).map(parseStory).filter((s): s is Story => s !== null);
-      publish({ status: "ready", stories, generated: str(data.generated, 40) });
-    })
-    .catch(() => publish({ ...state, status: "error" }));
+/** Indirizzo dei dati più freschi: quello del commit più recente del ramo dati (non passa dalla cache della CDN).
+ *  Se GitHub non risponde (es. troppe richieste), si usa l'indirizzo normale. */
+async function freshUrl(): Promise<{ url: string; commit: string | null }> {
+  if (process.env.NEXT_PUBLIC_EDDY_STORIES_URL) return { url: STORIES_URL, commit: null };
+  try {
+    const r = await fetch(LATEST_COMMIT_URL, { cache: "no-store", headers: { Accept: "application/vnd.github.sha" } });
+    const sha = r.ok ? (await r.text()).trim() : "";
+    if (/^[0-9a-f]{40}$/.test(sha)) {
+      return { url: `https://raw.githubusercontent.com/${DATA_REPO}/${sha}/stories.json`, commit: sha };
+    }
+  } catch {
+    // si usa l'indirizzo normale
+  }
+  return { url: STORIES_URL, commit: null };
 }
+
+/** Carica le storie. Con "quiet" (controlli periodici) non mostra il caricamento e non cambia nulla se i dati sono gli stessi. */
+export async function loadStories(quiet = false) {
+  started = true;
+  if (loading) return;
+  loading = true;
+  if (!quiet && state.status !== "loading") publish({ ...state, status: "loading" });
+  try {
+    const { url, commit } = await freshUrl();
+    if (quiet && commit && commit === loadedCommit) return;
+    const response = await fetch(url, { cache: commit ? "force-cache" : "no-cache" });
+    if (!response.ok) throw new Error(String(response.status));
+    const data = ((await response.json()) ?? {}) as Record<string, unknown>;
+    const stories = (Array.isArray(data.stories) ? data.stories : []).map(parseStory).filter((s): s is Story => s !== null);
+    loadedCommit = commit;
+    publish({ status: "ready", stories, generated: str(data.generated, 40) });
+  } catch {
+    if (!quiet || state.stories.length === 0) publish({ ...state, status: "error" });
+  } finally {
+    loading = false;
+  }
+}
+
+let refreshTimer: ReturnType<typeof setInterval> | undefined;
+const onVisible = () => {
+  if (document.visibilityState === "visible") void loadStories(true);
+};
 
 function subscribe(listener: () => void) {
   listeners.add(listener);
-  if (!started) queueMicrotask(loadStories);
-  return () => listeners.delete(listener);
+  if (!started) queueMicrotask(() => void loadStories());
+  if (!refreshTimer) {
+    refreshTimer = setInterval(() => void loadStories(true), REFRESH_MINUTES * 60_000);
+    document.addEventListener("visibilitychange", onVisible);
+  }
+  return () => {
+    listeners.delete(listener);
+    if (listeners.size === 0 && refreshTimer) {
+      clearInterval(refreshTimer);
+      refreshTimer = undefined;
+      document.removeEventListener("visibilitychange", onVisible);
+    }
+  };
 }
 
 export function useStories() {

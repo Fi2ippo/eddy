@@ -6,6 +6,20 @@ Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese"
 
 ---
 
+## Lavori di novembre (lista di controllo)
+Se il lavoro si interrompe, si riparte dalla prima fase non spuntata.
+
+- [ ] **A** · La raccolta deve girare sempre
+- [ ] **B** · Home (chip, Sfoglia, spazio in fondo)
+- [ ] **C** · Storie più ricche (pipeline + pagina Storia)
+- [ ] **D** · Qualità di categorie, traduzioni e ordine del Feed
+- [ ] **E** · Nuova identità visiva: anteprima e scelta (STOP)
+- [ ] **F** · Applicare l'identità, i colori dei temi e l'onboarding
+- [ ] **G** · Pubblicazione online gratis
+- [ ] **H** · Controllo finale sul sito pubblicato
+
+---
+
 ## 1. In breve
 
 | Passo (PROMPTS.md) | Stato |

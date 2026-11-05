@@ -1,12 +1,13 @@
 name: Raccogli notizie
 
-# Circa ogni ora legge i feed, raggruppa le notizie e salva i dati sul ramo "dati".
+# Circa ogni mezz'ora legge i feed, raggruppa le notizie e salva i dati sul ramo "dati".
 # Il ramo "dati" contiene un solo commit, sostituito a ogni giro: così il repository non cresce all'infinito.
 #
 # Gli orari programmati di GitHub ("schedule") partono spesso in ritardo o vengono saltati. Per questo ogni giro,
-# alla fine, prenota il successivo (lavoro "prenota"): aspetta 55 minuti nell'ambiente "attesa" (Settings →
-# Environments, timer di 55 minuti, durante l'attesa non usa macchine) e poi avvia il giro dopo. Se il timer
-# manca, il lavoro aspetta da sé. L'orario programmato resta solo come riserva per far ripartire la catena.
+# RIUSCITO, alla fine, prenota il successivo (lavoro "prenota"): aspetta 30 minuti nell'ambiente "attesa" (Settings →
+# Environments, timer di 30 minuti, durante l'attesa non usa macchine) e poi avvia il giro dopo. Se il timer
+# manca, il lavoro aspetta da sé. Se un giro fallisce non prenota niente (niente catene infinite di errori):
+# lo fa ripartire l'orario programmato, che resta come rete di sicurezza.
 on:
   schedule:
     - cron: "17 * * * *"
@@ -89,9 +90,9 @@ jobs:
 
   prenota:
     needs: collect
-    if: ${{ always() }} # anche se la raccolta fallisce, la catena continua
+    if: ${{ success() }} # solo dopo un giro riuscito; dopo un errore riparte col cron
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 40
     environment: attesa
     permissions:
       actions: write
@@ -101,10 +102,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # se l'ambiente "attesa" non ha il timer, aspetto qui il tempo che manca (almeno 50 minuti dall'inizio del giro)
+          # se l'ambiente "attesa" non ha il timer, aspetto qui il tempo che manca (almeno 30 minuti dall'inizio del giro)
           started=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" --jq .run_started_at)
           elapsed=$(( $(date -u +%s) - $(date -u -d "$started" +%s) ))
-          if [ "$elapsed" -lt 3000 ]; then echo "attendo $(( (3000 - elapsed) / 60 )) minuti"; sleep $(( 3000 - elapsed )); fi
+          if [ "$elapsed" -lt 1800 ]; then echo "attendo $(( (1800 - elapsed) / 60 )) minuti"; sleep $(( 1800 - elapsed )); fi
           # se c'è già un altro giro in coda o in corso, non ne prenoto un secondo
           others=$(gh run list -R "$GITHUB_REPOSITORY" --workflow collect.yml --limit 20 --json databaseId,status \
             --jq "[.[] | select(.databaseId != ${GITHUB_RUN_ID}) | select(.status != \"completed\")] | length")

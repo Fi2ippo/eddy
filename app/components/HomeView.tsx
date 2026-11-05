@@ -11,9 +11,11 @@ import {
   byRelevance,
   categoryLabel,
   frontPage,
+  hoursAgo,
   outletCount,
   outletNames,
   outletsShort,
+  STALE_HOURS,
   snapshotOf,
   storyHref,
   timeAgo,
@@ -54,6 +56,8 @@ export default function HomeView() {
       ? byRecency(visible.filter((s) => !topIds.has(s.id)))
       : byRelevance(visible.filter((s) => s.category === theme), ref); // solo la categoria principale: i temi secondari sono meno affidabili
   const outlets = new Set(visible.flatMap(outletNames)).size;
+  // dati vecchi di oltre STALE_HOURS ore: la raccolta è in ritardo
+  const late = Boolean(now && generated && hoursAgo(generated, now) > STALE_HOURS);
 
   const pickTheme = (id: string) => {
     setTheme(id);
@@ -70,13 +74,18 @@ export default function HomeView() {
         <h1 className="mt-1.5 text-display" suppressHydrationWarning>{now ? greeting(now) : "Oggi"}</h1>
         {generated && stories.length > 0 && (
           <div className="mt-3.5 flex flex-wrap justify-center gap-2">
-            <span className="home-chip">
-              <TimeAgo iso={generated} prefix="Aggiornato " />
+            <span className={`home-chip ${late ? "late" : ""}`}>
+              <TimeAgo iso={generated} prefix="Aggiornato " suffix={late ? " · in ritardo" : ""} />
             </span>
             <span className="home-chip">
               {visible.length} storie · {outlets} testate
             </span>
           </div>
+        )}
+        {late && (
+          <p role="status" className="mx-auto mt-2.5 max-w-[20rem] text-label font-semibold text-muted">
+            La raccolta delle notizie è in ritardo. Riparte da sola: le storie si aggiornano al prossimo giro.
+          </p>
         )}
         {data.area !== "tutto" && (
           <p className="mt-2.5 text-label text-muted">Solo notizie {data.area === "italia" ? "dall’Italia" : "dal mondo"} · si cambia nel Profilo</p>

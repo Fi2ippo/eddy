@@ -305,6 +305,12 @@
     font-weight: 700;
   }
 
+  .home-chip.late {
+    border-color: #e7c9a0;
+    background: #fdf3e4;
+    color: #7a4100;
+  }
+
   /* carosello: si allarga fino ai bordi dello schermo, la card dopo si intravede */
   .front-track {
     display: flex;
