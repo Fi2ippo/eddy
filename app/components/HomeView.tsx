@@ -1,6 +1,6 @@
 "use client";
 
-import { Bookmark, ChevronLeft, ChevronRight, Layers } from "lucide-react";
+import { Bookmark, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState, type KeyboardEvent } from "react";
 import { editorialInterests } from "../data/editorial-interests";
@@ -71,7 +71,6 @@ export default function HomeView() {
         {generated && stories.length > 0 && (
           <div className="mt-3.5 flex flex-wrap justify-center gap-2">
             <span className="home-chip">
-              <span aria-hidden="true" className="size-2 rounded-full bg-[#2f9e5b] shadow-[0_0_0_3px_rgb(47_158_91/0.18)]" />
               <TimeAgo iso={generated} prefix="Aggiornato " />
             </span>
             <span className="home-chip">
@@ -95,16 +94,6 @@ export default function HomeView() {
                 <span className="text-label text-muted">{top.length} storie</span>
               </div>
               <FrontPage items={top.map((t) => t.story)} now={now} />
-              <Link href="/feed?da=prima-pagina" className="browse-button mt-4">
-                <span aria-hidden="true" className="flex size-11 flex-none items-center justify-center rounded-full bg-accent text-surface">
-                  <Layers className="size-5" />
-                </span>
-                <span className="text-left">
-                  <strong className="block text-body font-extrabold">Sfoglia</strong>
-                  <span className="block text-secondary text-muted">una notizia per schermata</span>
-                </span>
-                <ChevronRight aria-hidden="true" className="ml-auto size-5 text-muted-strong" />
-              </Link>
             </section>
           )}
 

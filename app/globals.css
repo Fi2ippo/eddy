@@ -365,18 +365,6 @@
     }
   }
 
-  .browse-button {
-    display: flex;
-    min-height: 4rem;
-    align-items: center;
-    gap: var(--spacing-3);
-    padding: 0.625rem 1rem 0.625rem 0.625rem;
-    border-radius: var(--radius-card-sm);
-    background: var(--color-surface);
-    color: var(--color-foreground);
-    box-shadow: var(--shadow-card-sm);
-  }
-
   .theme-rail {
     display: flex;
     gap: var(--spacing-2);

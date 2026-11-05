@@ -33,13 +33,12 @@ Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese"
 
 **Schermate**
 - **Oggi** (`HomeView`), dall'alto in basso:
-  - **Intestazione:** data piccola ("Giovedì 5 novembre"), saluto in base all'ora ("Buongiorno", "Buon pomeriggio", "Buonasera"), chip "Aggiornato 5 min fa" con pallino verde e chip "300 storie · 67 testate". Le testate sono quelle presenti nelle storie.
+  - **Intestazione:** data piccola ("Giovedì 5 novembre"), saluto in base all'ora ("Buongiorno", "Buon pomeriggio", "Buonasera"), due chip identiche, solo testo: "Aggiornato 5 min fa" e "300 storie · 67 testate". Le testate sono quelle presenti nelle storie.
   - **"Prima pagina":** carosello orizzontale di 9 card grandi (foto, categoria, pillola testate, prime 2 testate, titolo, "Aggiornata 20 min fa"). Si scorre a scatti con dito, rotella e frecce della tastiera; sotto ci sono i puntini; con il mouse compaiono le frecce.
     - Solo storie delle ultime 24 ore, ordinate per punteggio = 3 punti per testata (fino a 15) + fino a 10 punti di freschezza (scendono a 0 in 24 ore) + 1,5 se c'è la foto. Pesi in `app/lib/stories.ts` (`W_OUTLET`, `MAX_OUTLETS`, `W_FRESH`, `W_PHOTO`).
     - Nessun filtro per interessi (gli interessi decidono solo l'ordine del Feed); il filtro Italia / Mondo / Tutto invece vale.
     - Una sola card per evento: la raccolta dà lo stesso `event` alle storie sullo stesso fatto (es. 8 storie sugli allarmi bomba), e la prima pagina ne mostra solo la più importante.
-  - **"Sfoglia · una notizia per schermata":** apre il Feed (`/feed?da=prima-pagina`) partendo dalle 9 storie della prima pagina.
-  - **Fila di temi:** Tutti + gli 8 interessi. Con un tema si vedono le storie che hanno quel tema come categoria principale (i temi secondari sono meno affidabili), ordinate per rilevanza.
+  - **Fila di temi** (subito dopo il carosello, con lo stesso stacco di 28px degli altri blocchi): Tutti + gli 8 interessi. Con un tema si vedono le storie che hanno quel tema come categoria principale (i temi secondari sono meno affidabili), ordinate per rilevanza.
   - **"Ultime notizie":** tutte le altre storie, dalla più recente, 20 alla volta con "Mostra altre". Ogni riga ha testate, orario, titolo, estratto breve, categoria, pillola testate e Salva.
 - **Pillola "N testate"** (`OutletsTag`) su Oggi, Feed, Libreria e Storia: conta le testate diverse, comprese quelle arrivate da Google News.
 - **Orario relativo** (`TimeAgo`): "ora", "5 min fa", "2 h fa", "ieri 18:30", "4 nov". Usa l'articolo più recente della storia e si aggiorna da solo ogni minuto.
@@ -47,7 +46,7 @@ Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese"
   - scuro e a tutto schermo, senza barra di navigazione;
   - in alto il contatore "01 / 30", "Eddy" e la X che torna a Oggi, con sotto un piccolo filtro Tutto / Italia / Mondo;
   - una storia per schermata, a scatti, con dito, rotella e tastiera (frecce, Pagina su/giù, Inizio/Fine);
-  - ordine: prima le storie dei tuoi interessi, poi le altre, dalla più recente; 30 storie (da "Sfoglia" della home: prima le 9 della prima pagina);
+  - ordine: prima le storie dei tuoi interessi, poi le altre, dalla più recente; 30 storie;
   - per ogni storia: foto (o segnaposto) con credito, categoria, titolo, testo di massimo 3 righe, "Leggi la storia", Salva e Da leggere con etichetta e stato.
 - **Storia** (`/storia?id=…`, `StoryDetail`):
   - aprirla la registra nei Recenti;
@@ -74,7 +73,7 @@ Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese"
 **Controlli della nuova home** (5/11/2026)
 - `tsc`, `lint` e `build` passano.
 - **Browser automatico a 390px:**
-  - verificati: carosello avanti e indietro con le frecce e con lo scorrimento, puntini, "Mostra altre" (da 20 a 40), tema Economia (73 storie per rilevanza, la prima pagina resta), filtro Italia anche nella home, Salva da una riga, "Sfoglia" che parte dalla prima pagina, orari, "Raccontata da…", pillola delle testate in Libreria;
+  - verificati: carosello avanti e indietro con le frecce e con lo scorrimento, puntini, "Mostra altre" (da 20 a 40), tema Economia (73 storie per rilevanza, la prima pagina resta), filtro Italia anche nella home, Salva da una riga, orari, "Raccontata da…", pillola delle testate in Libreria;
   - nessun testo sotto 12px, nessun pulsante sotto 44px, nessun errore.
 - **Pesi regolati:** con il tetto a 10 testate Joshua Wong (20 testate) finiva terzo dietro storie con 13 testate; con il tetto a 15 è primo.
 
@@ -169,6 +168,11 @@ Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese"
 - `report.json` riassume ogni giro.
 
 **Altro:** `data/blocklist.json` è stato creato (lista vuota): vi si mettono domini o URL da non mostrare mai.
+
+### Ritocchi alla home (5/11)
+- Tolti il pallino verde della chip "Aggiornato…", ora uguale all'altra chip, e il pulsante "Sfoglia · una notizia per schermata": il Feed si apre dalla barra in basso.
+- Eliminati anche il codice e gli stili rimasti senza uso: lo stile `.browse-button` e la partenza del Feed "dalla prima pagina" (`/feed?da=prima-pagina`).
+- Controlli: `tsc`, `lint`, `build` e screenshot a 390px. Lo stacco fra i puntini del carosello e i temi è di 28px, come quello fra intestazione e prima pagina.
 
 ### Correzioni del 5/11 sera
 - **Eventi** (`pipeline/stories.py`, `assign_events`):

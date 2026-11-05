@@ -2,11 +2,10 @@
 
 import { ArrowRight, X } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { areaFilters } from "../lib/personal-data";
 import { setArea, usePersonalData } from "../lib/personal-store";
-import { categoryLabel, feedOrder, frontPage, outletCount, snapshotOf, storyHref, toneOf, useNow, useStories, type Story } from "../lib/stories";
+import { categoryLabel, feedOrder, outletCount, snapshotOf, storyHref, toneOf, useStories, type Story } from "../lib/stories";
 import DataNotice from "./DataNotice";
 import OutletsTag from "./OutletsTag";
 import { SaveLaterButtons } from "./StoryActions";
@@ -17,15 +16,9 @@ const pad = (n: number) => String(n).padStart(2, "0");
 
 // Feed a tutto schermo e scuro: una storia per schermata, scorrimento a scatti (dito, rotella, frecce).
 export default function FeedView() {
-  const { status, stories, generated } = useStories();
+  const { status, stories } = useStories();
   const { data } = usePersonalData();
-  const now = useNow();
-  // Dal pulsante "Sfoglia" della home: prima le storie della prima pagina, poi tutte le altre.
-  const fromFront = useSearchParams().get("da") === "prima-pagina";
-  const ref = now ?? (generated ? Date.parse(generated) : 0);
-  const front = fromFront && ref ? frontPage(stories, data.area, ref).map((t) => t.story) : [];
-  const frontIds = new Set(front.map((s) => s.id));
-  const list = [...front, ...feedOrder(stories.filter((s) => !frontIds.has(s.id)), data.interests, data.area, 30 - front.length)];
+  const list = feedOrder(stories, data.interests, data.area);
   const viewportRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const total = list.length;
