@@ -20,6 +20,7 @@ import {
   storyHref,
   timeAgo,
   toneOf,
+  translatedFrom,
   useNow,
   useStories,
   type Story,
@@ -237,6 +238,11 @@ function NewsRow({ story }: { story: Story }) {
           {story.title}
         </Link>
       </h3>
+      {translatedFrom(story) && (
+        <p className="mt-1 truncate text-caption text-muted">
+          {translatedFrom(story)} · Titolo originale: <span lang={story.originalLang ?? "en"}>{story.titleOriginal}</span>
+        </p>
+      )}
       {story.summary[0] && <p className="mt-1.5 line-clamp-2 text-secondary text-muted">{story.summary[0].text}</p>}
       <div className="mt-3 flex items-center gap-2">
         <span className="text-label text-muted-strong">{categoryLabel(story.category)}</span>

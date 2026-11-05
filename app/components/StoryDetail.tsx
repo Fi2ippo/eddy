@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { markStoryRead, usePersonalData } from "../lib/personal-store";
-import { categoryLabel, coverageLine, findStory, outletCount, snapshotOf, toneOf, useStories } from "../lib/stories";
+import { categoryLabel, coverageLine, translatedFrom, findStory, outletCount, snapshotOf, toneOf, useStories } from "../lib/stories";
 import BackButton from "./BackButton";
 import DataNotice from "./DataNotice";
 import OutletsTag from "./OutletsTag";
@@ -82,9 +82,9 @@ export default function StoryDetail() {
         <h1 id="story-title" className="mb-2 mt-5.5 text-center">
           {story.title}
         </h1>
-        {story.translated && story.titleOriginal && (
-          <p className="mb-2 text-center text-secondary text-muted">
-            Titolo originale: <span lang="en">{story.titleOriginal}</span> · tradotto automaticamente
+        {translatedFrom(story) && (
+          <p className="mb-2 text-center text-label font-medium text-muted">
+            {translatedFrom(story)} · Titolo originale: <span lang={story.originalLang ?? "en"}>{story.titleOriginal}</span>
           </p>
         )}
         <p className="text-center text-secondary font-semibold text-muted-strong">{coverageLine(story)}</p>

@@ -22,7 +22,17 @@ Se il lavoro si interrompe, si riparte dalla prima fase non spuntata.
   - **Su 10 storie vere con 3+ testate:** Punti chiave 8, Per capire 8, Confronto 10, Cronologia 10. Su tutte le 300: Punti chiave 28, Per capire 50, Confronto 39, Cronologia 35 (servono più testate sullo stesso fatto).
   - **Controllo a mano dei 48 abbinamenti Wikipedia del primo giro:** 4 sbagliati (Pentagono → geometria, Banca, Valle, Congresso), eliminati con le nuove regole; dopo, tutti corretti (alcuni poco utili, es. "Cina" per i conti di Pirelli).
   - Autotest: 37 controlli.
-- [ ] **D** · Qualità di categorie, traduzioni e ordine del Feed
+- [x] **D** · Qualità di categorie, traduzioni e ordine del Feed
+  - **Categorie:** 60 storie a caso controllate a mano.
+    - Sulle stesse 54 ancora presenti dopo la correzione: da 45/54 (83%) a 50/54 (93%).
+    - Regola nuova in `topics.json` (`precedenza_politica`): se il titolo principale o metà dei titoli contiene governo, parlamento, elezioni, partito, democrazia, attivista, opposizione, ministro, presidente, sanzioni…, la categoria è Politica.
+    - Aggiunte parole di sport, TV e reality, monarchia, governatore, turismo.
+    - Errori rimasti: notizie finite nella sezione "business" di BBC o Guardian (Married at First Sight, il Re), turismo della chirurgia estetica.
+  - **Traduzioni:** OPUS-MT "tc-big" inglese→italiano (conversione CTranslate2 di Hugging Face, versione fissa, Apache 2.0).
+    - Su 30 titoli veri è nettamente migliore di Argos; resta Argos come riserva.
+    - Al massimo 1.200 frasi nuove per giro: sul Mac il giro con 1.104 traduzioni nuove dura 81 secondi.
+    - Nell'app, per le storie tradotte: "Tradotto dall'inglese · Titolo originale: …" (pagina Storia, Feed, Ultime notizie).
+  - **Feed:** punteggio con testate (3 punti ciascuna, fino a 10), freschezza (fino a 10 punti in 36 ore) e interessi (+8); le storie già lette vanno in fondo.
 - [ ] **E** · Nuova identità visiva: anteprima e scelta (STOP)
 - [ ] **F** · Applicare l'identità, i colori dei temi e l'onboarding
 - [ ] **G** · Pubblicazione online gratis

@@ -45,7 +45,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .cache/eddy-models
-          key: eddy-models-en-it-v1
+          key: eddy-models-tcbig-v1
 
       - name: Dati del giro precedente (ramo dati)
         env:

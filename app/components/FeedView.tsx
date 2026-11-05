@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { areaFilters } from "../lib/personal-data";
 import { setArea, usePersonalData } from "../lib/personal-store";
-import { categoryLabel, feedOrder, leadText, outletCount, snapshotOf, storyHref, toneOf, useStories, type Story } from "../lib/stories";
+import { categoryLabel, feedOrder, leadText, translatedFrom, useNow, outletCount, snapshotOf, storyHref, toneOf, useStories, type Story } from "../lib/stories";
 import DataNotice from "./DataNotice";
 import OutletsTag from "./OutletsTag";
 import { SaveLaterButtons } from "./StoryActions";
@@ -16,9 +16,12 @@ const pad = (n: number) => String(n).padStart(2, "0");
 
 // Feed a tutto schermo e scuro: una storia per schermata, scorrimento a scatti (dito, rotella, frecce).
 export default function FeedView() {
-  const { status, stories } = useStories();
+  const { status, stories, generated } = useStories();
   const { data } = usePersonalData();
-  const list = feedOrder(stories, data.interests, data.area);
+  const now = useNow();
+  const ref = now ?? (generated ? Date.parse(generated) : 0);
+  const read = new Set(Object.entries(data.stories).filter(([, a]) => a.readAt).map(([id]) => id));
+  const list = feedOrder(stories, data.interests, data.area, read, ref);
   const viewportRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const total = list.length;
@@ -124,6 +127,11 @@ function FeedCard({ story, index, total }: { story: Story; index: number; total:
 
       <div className="mt-6 min-h-0 flex-1">
         <h2 id={titleId} className="feed-title">{story.title}</h2>
+        {translatedFrom(story) && (
+          <p className="mt-1.5 truncate text-caption text-feed-subtle">
+            {translatedFrom(story)} · Titolo originale: <span lang={story.originalLang ?? "en"}>{story.titleOriginal}</span>
+          </p>
+        )}
         {leadText(story) && <p className="mt-2.5 line-clamp-4 text-body text-feed-muted">{leadText(story)}</p>}
         <div className="mt-3 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-label font-semibold text-feed-subtle">
           <OutletsTag count={outletCount(story)} look="dark" />

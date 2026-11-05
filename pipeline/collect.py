@@ -171,7 +171,7 @@ def main():
     # 3. traduzione (prima del raggruppamento, così italiano e inglese si confrontano)
     tr = translate.Translator(Path(args.models), st_tr, enabled=not args.no_translate)
     n_tr = translate_all(arts, tr)
-    log(f"traduzioni: {tr.new} nuove, {n_tr} titoli in italiano, {tr.failed} non riuscite")
+    log(f"traduzioni: {tr.new} nuove ({tr.engine_used}), {n_tr} titoli in italiano, {tr.failed} non riuscite")
     # 4. argomenti e area per articolo
     for a in arts:
         a["topics"] = topics.article_topics(a)

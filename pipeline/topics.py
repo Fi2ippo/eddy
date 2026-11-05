@@ -34,10 +34,11 @@ def _load():
 
     topics = {t: compile_list(data["topics"].get(t, [])) for t in INTERESTS}
     area = {k: compile_list(v) for k, v in data["area"].items() if not k.startswith("_")}
-    return topics, area
+    politics_first = compile_list(data.get("precedenza_politica", {}).get("parole", []))
+    return topics, area, politics_first
 
 
-TOPICS, AREA = _load()
+TOPICS, AREA, POLITICS_FIRST = _load()
 
 
 def _hits(text: str, lex) -> int:
@@ -109,6 +110,12 @@ def story_topics(members: list[dict]) -> list[str]:
             if h:
                 score[t] += h
     ordered = [t for t, _ in sorted(score.items(), key=lambda kv: (-kv[1], INTERESTS.index(kv[0])))]
+    # precedenza a Politica: parole come governo, elezioni, ministro, sanzioni nel titolo principale o in metà dei titoli
+    titles = [(a.get("title_it") or a["title"]) for a in members if a.get("via") != "google_news"] or \
+             [(a.get("title_it") or a["title"]) for a in members]
+    hits = [_hits(t, POLITICS_FIRST) > 0 for t in titles]
+    if hits and (hits[0] or sum(hits) * 2 >= len(hits)):
+        ordered = ["politica"] + [t for t in ordered if t != "politica"]
     return ordered[:3] or [FALLBACK]
 
 

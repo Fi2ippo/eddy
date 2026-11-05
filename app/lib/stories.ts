@@ -252,13 +252,21 @@ export function byArea(stories: Story[], area: AreaFilter) {
   return area === "tutto" ? stories : stories.filter((s) => s.area === area);
 }
 
-/** Feed: prima le storie dei tuoi interessi, poi le altre; dentro ciascun gruppo dalla più recente. */
-export function feedOrder(stories: Story[], interests: string[], area: AreaFilter, limit = 30) {
+/** Punteggio del Feed: testate (pesano di più), freschezza e interessi dell'utente. */
+export function feedScore(story: Story, interests: Set<string>, now: number) {
+  const fresh = Math.max(0, 1 - hoursAgo(story.updated, now) / 36);
+  const mine = interests.size && story.topics.some((t) => interests.has(t)) ? 8 : 0;
+  return 3 * Math.min(outletCount(story), 10) + 10 * fresh + mine + (story.image ? 1 : 0);
+}
+
+/** Feed: mescola testate, freschezza e interessi; le storie già lette vanno in fondo. */
+export function feedOrder(stories: Story[], interests: string[], area: AreaFilter, read: Set<string>, now: number, limit = 30) {
   const chosen = new Set(interests);
-  const match = (s: Story) => (chosen.size && s.topics.some((t) => chosen.has(t)) ? 1 : 0);
-  return [...byArea(stories, area)]
-    .sort((a, b) => match(b) - match(a) || b.updated.localeCompare(a.updated))
-    .slice(0, limit);
+  return byArea(stories, area)
+    .map((s) => ({ s, score: feedScore(s, chosen, now), read: read.has(s.id) }))
+    .sort((a, b) => Number(a.read) - Number(b.read) || b.score - a.score || b.s.updated.localeCompare(a.s.updated))
+    .slice(0, limit)
+    .map(({ s }) => s);
 }
 
 /** Oggi: la storia più importante (i dati arrivano già in ordine di importanza) e altre due. */
@@ -279,6 +287,16 @@ export function categoryLabel(id: string) {
 }
 
 /** Testo sotto il titolo nel Feed: l'estratto più lungo della storia (fino a 4 righe). */
+const FROM_LANG: Record<string, string> = {
+  en: "dall’inglese", fr: "dal francese", es: "dallo spagnolo", de: "dal tedesco", pt: "dal portoghese", nl: "dall’olandese",
+};
+
+/** "Tradotto dall'inglese" per le storie con il titolo tradotto automaticamente (null se non tradotto). */
+export function translatedFrom(story: Story) {
+  if (!story.translated || !story.titleOriginal) return null;
+  return `Tradotto ${FROM_LANG[story.originalLang ?? "en"] ?? "automaticamente"}`;
+}
+
 export function leadText(story: Story) {
   return story.summary.reduce((best, s) => (s.text.length > best.length ? s.text : best), "");
 }
