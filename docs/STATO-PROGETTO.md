@@ -141,6 +141,26 @@ Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese"
 - **Dove vanno i dati:** `stories.json`, `state.json` e `report.json` vanno sul ramo `dati`, con un solo commit sostituito a ogni giro, così il repository non cresce. Un JSON rovinato non viene salvato.
 - **Resoconto:** ogni giro scrive i numeri principali nel riepilogo della pagina Actions.
 
+### Prova su GitHub Actions (5/11/2026)
+
+**Primo giro, avviato a mano:**
+- tutti i passi verdi;
+- 77 secondi, compreso il download del modello di traduzione;
+- 300 storie: 89 con 2 o più testate, 280 con foto, 113 tradotte;
+- ramo `dati` creato con un solo commit.
+
+**Secondo giro:**
+- modello e librerie arrivati dalla cache, 26 secondi;
+- il commit del ramo `dati` è stato sostituito, non aggiunto;
+- id delle storie stabili:
+  - dei 381 articoli presenti in entrambi i giri, solo 2 sono passati a una storia con id diverso;
+  - 16 storie si sono arricchite di nuove fonti mantenendo l'id.
+
+**Come controllare che i dati siano salvati:**
+1. **Actions:** su https://github.com/Fi2ippo/eddy/actions → "Raccogli notizie", l'ultimo giro deve essere verde. Aprendolo, il riepilogo mostra i numeri principali.
+2. **Ramo dati:** su https://github.com/Fi2ippo/eddy/tree/dati, `report.json` dice data e numeri dell'ultimo giro. Il commit si chiama "dati: <data e ora>".
+3. **Dal terminale:** `gh run list --workflow "Raccogli notizie" --limit 3`
+
 ### Risultati del giro sul Mac (5/11/2026, ultime 72 ore)
 
 **Ingresso**
