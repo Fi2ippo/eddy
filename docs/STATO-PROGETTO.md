@@ -42,7 +42,12 @@ Se il lavoro si interrompe, si riparte dalla prima fase non spuntata.
   - Introduzione al primo avvio: 3 schermi a tutto schermo con "Salta", puntini, Indietro; almeno un tema per andare avanti; Italia / Mondo / Tutto; "Inizia a leggere". Salvata in `onboardingDone`, si rivede dal Profilo. Provata a 390px: tastiera (Tab ed Esc), nessun testo sotto 12px, nessun pulsante sotto 44px, nessun errore.
   - Pulizia: tolta la pagina di anteprima `/anteprima-identita` (non serve più) e il colore arancio-testo inutilizzato.
   - Raccolta (fase A): la catena si era fermata perché un vecchio giro annullato restava "in attesa"; ora il passo "prenota" ignora i giri in attesa da più di 90 minuti.
-- [ ] **G** · Pubblicazione online gratis
+- [x] **G** · Pubblicazione online gratis — **https://fi2ippo.github.io/eddy**
+  - Sito statico (`output: "export"`, percorso `EDDY_BASE_PATH`), pubblicato da `.github/workflows/pages.yml` a ogni push su `main`. Le notizie arrivano dal ramo `dati`: nessuna ricostruzione a ogni raccolta.
+  - Provato online a 390px: `/storia/?id=…` funziona da link diretto e dopo una ricarica (anche `/storia?id=…` senza barra, rimandato da GitHub), indietro, navigazione, nessun errore.
+  - Pagina **Chi siamo** dal Profilo (come funziona, 50 testate con estratti + 88 solo link da `sources.json`, foto, Wikipedia CC BY-SA, traduzioni segnalate, rimozioni, privacy). Il blocco "Grazie" è stato tolto su richiesta di Filippo.
+  - Modulo GitHub "Richiesta di rimozione" + etichetta `rimozione`. **Da fare domani:** l'email per le rimozioni (`CONTACT_EMAIL` in `app/data/contact.ts`), per ora c'è solo il modulo.
+  - `docs/licenze-da-controllare.md` (22 fonti) e README riscritto.
 - [ ] **H** · Controllo finale sul sito pubblicato
 
 ---
