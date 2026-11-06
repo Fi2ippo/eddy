@@ -7,17 +7,17 @@ import { toggleStoryList, usePersonalData } from "../lib/personal-store";
 type SaveLaterButtonsProps = {
   storyId: string;
   card: StorySnapshot;
-  /** "dark": pulsanti del Feed scuro; "bar": barra della pagina Storia. */
-  look: "dark" | "bar";
+  /** "bar": barra della pagina Storia. */
+  look: "bar";
 };
 
-// Salva / Da leggere con etichetta e stato, usati nel Feed e nella pagina Storia.
+// Salva / Da leggere con etichetta e stato, nella barra della pagina Storia (il Feed ha i suoi pulsanti tondi).
 export function SaveLaterButtons({ storyId, card, look }: SaveLaterButtonsProps) {
   const { data, ready } = usePersonalData();
   const activity = data.stories[storyId];
   const saved = Boolean(activity?.savedAt);
   const later = Boolean(activity?.readingListAt);
-  const cls = look === "dark" ? "feed-toggle" : "toggle-pill";
+  const cls = look === "bar" ? "toggle-pill" : "";
   return (
     <>
       <button type="button" disabled={!ready} aria-pressed={saved} className={cls}

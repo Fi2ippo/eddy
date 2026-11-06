@@ -3,13 +3,12 @@ import { outletsLabel } from "../lib/stories";
 
 type OutletsTagProps = {
   count: number;
-  /** "light": su fondo chiaro; "dark": nel Feed scuro; "photo": sopra una foto. */
-  look?: "light" | "dark" | "photo";
+  /** "light": su fondo chiaro; "photo": sopra una foto. */
+  look?: "light" | "photo";
 };
 
 const LOOKS = {
   light: "bg-accent-soft text-accent-soft-foreground",
-  dark: "bg-feed-fill-strong text-feed-accent",
   photo: "bg-overlay text-on-photo",
 };
 

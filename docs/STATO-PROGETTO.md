@@ -59,6 +59,8 @@ Se il lavoro si interrompe, si riparte dalla prima fase non spuntata.
 - **Interessi che non servivano:** nuova miscela (`mix` in `app/lib/stories.ts`) per Prima pagina, Ultime notizie e Feed: circa 7 storie su 10 dei temi scelti, le altre di temi diversi; stessa testata mai entro 4 storie, stesso tema al massimo 2 volte di fila (3 per i temi scelti) e, se non scelto, al massimo 4 volte ogni 10 storie. Prima pagina: al massimo 3 storie per tema non scelto, le migliori dei temi scelti anche se raccontate da meno testate, storie già lette in fondo.
 - **"Aggiornato 9 ore fa" sul telefono** (i dati su GitHub erano freschi): ogni scaricamento si interrompe dopo 15 secondi, uno rimasto appeso non blocca più i successivi, e i dati si ricontrollano anche quando la pagina torna dalla memoria del telefono, quando la finestra torna attiva o quando torna la connessione.
 
+- **Feed nuovo, come le storie di Instagram** (richiesta di Filippo del 6/11): barrette di avanzamento e X in alto, tolti filtro Italia/Mondo, scritta Eddy e contatore; scorrimento verso sinistra per la storia successiva, verso l'alto per aprirla (la storia segue il dito); in fondo freccia "Scorri su per leggere" fra i pulsanti tondi Salva e Da leggere; alone del colore del tema sullo sfondo. Provato a 390px con tocco simulato: sinistra, freccia, Salva, su (apre la storia giusta), ritorno allo stesso punto, nessun errore.
+
 ### Idee future
 - **Email per le rimozioni** in `app/data/contact.ts` (Filippo la sceglie il 6/11).
 - **Licenze:** leggere le condizioni delle 22 fonti in `docs/licenze-da-controllare.md` e scrivere alle testate principali prima di far conoscere Eddy.
