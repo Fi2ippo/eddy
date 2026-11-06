@@ -285,6 +285,8 @@ export function feedOrder(stories: Story[], interests: string[], area: AreaFilte
 export const INTEREST_SHARE = 0.7;
 const SOURCE_GAP = 4; // la stessa testata non torna prima di 4 storie
 const THEME_RUN = 2; // lo stesso tema al massimo 2 volte di fila
+const THEME_WINDOW = 10; // e, se non è fra i tuoi temi, al massimo THEME_IN_WINDOW volte ogni 10 storie
+const THEME_IN_WINDOW = 4;
 
 export function isMine(story: Story, interests: Set<string>) {
   return interests.size > 0 && interests.has(story.category); // la categoria mostrata, così ciò che vedi torna con ciò che hai scelto
@@ -297,7 +299,7 @@ type MixOptions = { interests: Set<string>; limit?: number; maxPerTheme?: number
 /** Rimescola un elenco già ordinato (per importanza o per orario) senza stravolgerlo:
  *  - se ci sono interessi, circa il 70% delle storie viene dai tuoi temi e il resto dagli altri;
  *  - la stessa testata non compare due volte entro SOURCE_GAP storie, lo stesso tema non più di THEME_RUN volte di fila
- *    (una in più per i tuoi temi);
+ *    (una in più per i tuoi temi) e un tema che non è fra i tuoi al massimo 4 volte ogni 10 storie;
  *  - con maxPerTheme, un tema che non è fra i tuoi non supera quel numero di storie.
  *  Quando le regole non si possono rispettare (es. restano storie di un solo tema), si prende la prima disponibile. */
 export function mix(ordered: Story[], { interests, limit = ordered.length, maxPerTheme, share = INTEREST_SHARE }: MixOptions) {
@@ -311,9 +313,11 @@ export function mix(ordered: Story[], { interests, limit = ordered.length, maxPe
   const underCap = (s: Story) => !maxPerTheme || interests.has(s.category) || (perTheme.get(s.category) ?? 0) < maxPerTheme;
   const varied = (s: Story, gap = SOURCE_GAP) => {
     if (out.slice(-gap).some((r) => leadOf(r) === leadOf(s))) return false;
-    const run = interests.has(s.category) ? THEME_RUN + 1 : THEME_RUN;
+    const mineTheme = interests.has(s.category);
+    const run = mineTheme ? THEME_RUN + 1 : THEME_RUN;
     const last = out.slice(-run);
-    return !(last.length === run && last.every((r) => r.category === s.category));
+    if (last.length === run && last.every((r) => r.category === s.category)) return false;
+    return mineTheme || out.slice(-(THEME_WINDOW - 1)).filter((r) => r.category === s.category).length < THEME_IN_WINDOW;
   };
   // dal gruppo voluto la prima storia che rispetta le regole (poi con una distanza fra testate più corta);
   // se non c'è, dall'altro gruppo; solo alla fine si allenta
