@@ -190,7 +190,11 @@ def entry_date(e, src):
     dt = dt.astimezone(timezone.utc)
     if dt > NOW + timedelta(minutes=20) and not rome_local:
         alt = dt.replace(tzinfo=None).replace(tzinfo=ROME).astimezone(timezone.utc)
-        dt = alt if alt <= NOW + timedelta(minutes=20) else NOW
+        if alt > NOW + timedelta(minutes=20):
+            # data nel futuro anche come ora italiana (es. feed con date di giorni dopo): si tratta come senza data,
+            # cioè vale la prima volta che la vediamo (prima diventava "adesso" a ogni giro e restava sempre in cima)
+            return None
+        dt = alt
     return min(dt, NOW)
 
 

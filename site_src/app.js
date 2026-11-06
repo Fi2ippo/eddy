@@ -15,7 +15,10 @@ const TOPICS = [
   {id:'cultura',   name:'Cultura',    long:'Cultura e società',   c:'#A0692F'},
   {id:'sport',     name:'Sport',      long:'Sport',               c:'#E07B1F'},
   {id:'motori',    name:'Motori',     long:'Motori e nautica',    c:'#C8283E'},
-  {id:'spettacoli',name:'Spettacoli', long:'Spettacoli e costume',c:'#B04BB8'}
+  {id:'spettacoli',name:'Spettacoli', long:'Spettacoli e costume',c:'#B04BB8'},
+  {id:'design',    name:'Design',     long:'Design, grafica e UX', c:'#5F7A12'},
+  {id:'architettura',name:'Architettura',long:'Architettura e città',c:'#56677A'},
+  {id:'arte',      name:'Arte',       long:'Arte e fotografia',   c:'#9B2242'}
 ];
 const TMAP = Object.fromEntries(TOPICS.map(t => [t.id, t]));
 const TICON = {
@@ -31,7 +34,10 @@ const TICON = {
   cultura:'<path d="M4 19.5V5a2 2 0 0 1 2-2h13v15H6a2 2 0 0 0-2 2 2 2 0 0 0 2 2h13"/><path d="M8.5 7.5h6"/>',
   sport:'<circle cx="12" cy="12" r="9"/><path d="M12 7.2l4.2 3-1.6 4.9H9.4L7.8 10.2z"/><path d="M12 3v4.2M16.2 10.2l4.4-1.4M14.6 15.1l2.7 3.8M9.4 15.1l-2.7 3.8M7.8 10.2L3.4 8.8"/>',
   motori:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.3"/><path d="M3.2 10.8c2.9-.9 5.8-1.3 8.8-1.3s5.9.4 8.8 1.3M9.8 12.4l-3.4 7.1M14.2 12.4l3.4 7.1"/>',
-  spettacoli:'<rect x="3" y="9" width="18" height="11" rx="2"/><path d="M3.5 9L6 4h12.5L21 9"/><path d="M9 4.2L7.5 9M14.5 4.2L13 9"/>'
+  spettacoli:'<rect x="3" y="9" width="18" height="11" rx="2"/><path d="M3.5 9L6 4h12.5L21 9"/><path d="M9 4.2L7.5 9M14.5 4.2L13 9"/>',
+  design:'<path d="M12 3l6 7-6 11-6-11z"/><circle cx="12" cy="11.5" r="1.8"/><path d="M12 13.3V21M4 5.5l3 1.5M20 5.5L17 7"/>',
+  architettura:'<path d="M3.5 21h17M5.5 21V9.5L12 4l6.5 5.5V21"/><path d="M9 21v-5h6v5M9 11h.01M12 11h.01M15 11h.01"/>',
+  arte:'<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 16l5-5 4 4 3-3 5 5"/><circle cx="15.5" cy="9" r="1.6"/>'
 };
 const PALETTE = ['#1F4E79','#8B2E2E','#2E6B4F','#6B3FA0','#9A5B13','#0F6A7A','#A33E6B','#3D4A5C','#5C6B1F','#7A2E5C','#24527A','#8A4B2A'];
 const TABS = ['oggi','perte','esplora','salvati','profilo'];
@@ -61,7 +67,7 @@ const LANGF = {en:"dall'inglese", fr:'dal francese', de:'dal tedesco', es:'dallo
 const ZONES = [['citta', 'Roma'], ['castelli', 'Castelli Romani'], ['litorale', 'Litorale'], ['nord', 'Nord e lago di Bracciano'], ['est', 'Tivoli e area est']];
 const ZMAP = Object.fromEntries(ZONES);
 const PIN = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>';
-const SECS = [['roma', 'Roma e provincia'], ['it', 'Italiane'], ['mondo', 'Dal mondo'], ['scienza', 'Scienza, salute e tecnologia'], ['motori', 'Motori e nautica']];
+const SECS = [['roma', 'Roma e provincia'], ['it', 'Italiane'], ['mondo', 'Dal mondo'], ['scienza', 'Scienza, salute e tecnologia'], ['design', 'Design, architettura e arte'], ['motori', 'Motori e nautica']];
 function ticon(id, cls){ return `<svg class="i ${cls || ''}" viewBox="0 0 24 24" aria-hidden="true">${TICON[id] || TICON.mondo}</svg>`; }
 
 /* ---------- utilità ---------- */

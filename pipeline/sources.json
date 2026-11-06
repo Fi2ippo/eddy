@@ -1915,5 +1915,525 @@
     "h": "roma"
    }
   ]
+ },
+ {
+  "o": "abitare",
+  "name": "Abitare",
+  "short": "AB",
+  "color": "#1A1A1A",
+  "kind": "Rivista di design e architettura",
+  "lang": "it",
+  "site": "https://www.abitare.it",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.abitare.it/it/feed/",
+    "h": "design"
+   }
+  ]
+ },
+ {
+  "o": "interni",
+  "name": "Interni",
+  "short": "IN",
+  "color": "#C8102E",
+  "kind": "Rivista di design",
+  "lang": "it",
+  "site": "https://www.internimagazine.it",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.internimagazine.it/feed/",
+    "h": "design"
+   }
+  ]
+ },
+ {
+  "o": "elledecor",
+  "name": "Elle Decor Italia",
+  "short": "ED",
+  "color": "#111111",
+  "kind": "Rivista di design e interni",
+  "lang": "it",
+  "site": "https://www.elledecor.com/it/",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.elledecor.com/it/rss/all.xml/",
+    "h": "design"
+   }
+  ]
+ },
+ {
+  "o": "livingcorriere",
+  "name": "Living (Corriere)",
+  "short": "LV",
+  "color": "#2B2B2B",
+  "kind": "Rivista di design e casa",
+  "lang": "it",
+  "site": "https://living.corriere.it",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://living.corriere.it/rss/",
+    "h": "design"
+   }
+  ]
+ },
+ {
+  "o": "designboom",
+  "name": "Designboom",
+  "short": "DB",
+  "color": "#E3001B",
+  "kind": "Rivista di design e architettura",
+  "lang": "en",
+  "site": "https://www.designboom.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.designboom.com/feed/",
+    "h": "design"
+   }
+  ]
+ },
+ {
+  "o": "dezeen",
+  "name": "Dezeen",
+  "short": "DZ",
+  "color": "#000000",
+  "kind": "Rivista di architettura e design",
+  "lang": "en",
+  "site": "https://www.dezeen.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.dezeen.com/design/feed/",
+    "h": "design"
+   },
+   {
+    "u": "https://www.dezeen.com/architecture/feed/",
+    "h": "architettura"
+   },
+   {
+    "u": "https://www.dezeen.com/interiors/feed/",
+    "h": "design"
+   }
+  ]
+ },
+ {
+  "o": "itsnicethat",
+  "name": "It's Nice That",
+  "short": "NT",
+  "color": "#1E1E1E",
+  "kind": "Rivista di grafica e creatività",
+  "lang": "en",
+  "site": "https://www.itsnicethat.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "http://feeds2.feedburner.com/itsnicethat/SlXC",
+    "h": "design"
+   }
+  ]
+ },
+ {
+  "o": "smashing",
+  "name": "Smashing Magazine",
+  "short": "SM",
+  "color": "#D33A2C",
+  "kind": "Design di interfacce e web",
+  "lang": "en",
+  "site": "https://www.smashingmagazine.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.smashingmagazine.com/feed/",
+    "h": "design"
+   }
+  ]
+ },
+ {
+  "o": "nngroup",
+  "name": "Nielsen Norman Group",
+  "short": "NN",
+  "color": "#2D6CA2",
+  "kind": "Ricerca sulla user experience",
+  "lang": "en",
+  "site": "https://www.nngroup.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.nngroup.com/feed/rss/",
+    "h": "design"
+   }
+  ]
+ },
+ {
+  "o": "uxcollective",
+  "name": "UX Collective",
+  "short": "UX",
+  "color": "#0E0E0E",
+  "kind": "Rivista di UX design",
+  "lang": "en",
+  "site": "https://uxdesign.cc",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://uxdesign.cc/feed",
+    "h": "design"
+   }
+  ]
+ },
+ {
+  "o": "figmablog",
+  "name": "Figma Blog",
+  "short": "FG",
+  "color": "#A259FF",
+  "kind": "Strumenti e pratica del design",
+  "lang": "en",
+  "site": "https://www.figma.com/blog/",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.figma.com/blog/feed/atom.xml",
+    "h": "design"
+   }
+  ]
+ },
+ {
+  "o": "core77",
+  "name": "Core77",
+  "short": "C7",
+  "color": "#E4002B",
+  "kind": "Rivista di design industriale",
+  "lang": "en",
+  "site": "https://www.core77.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "http://feeds.feedburner.com/core77/blog",
+    "h": "design"
+   }
+  ]
+ },
+ {
+  "o": "yanko",
+  "name": "Yanko Design",
+  "short": "YD",
+  "color": "#E85C2A",
+  "kind": "Rivista di design di prodotto",
+  "lang": "en",
+  "site": "https://www.yankodesign.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.yankodesign.com/feed/",
+    "h": "design"
+   }
+  ]
+ },
+ {
+  "o": "creativebloq",
+  "name": "Creative Bloq",
+  "short": "CB",
+  "color": "#E6007E",
+  "kind": "Rivista di grafica e creatività",
+  "lang": "en",
+  "site": "https://www.creativebloq.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.creativebloq.com/feeds/all",
+    "h": "design"
+   }
+  ]
+ },
+ {
+  "o": "creativereview",
+  "name": "Creative Review",
+  "short": "CR",
+  "color": "#111111",
+  "kind": "Rivista di comunicazione visiva",
+  "lang": "en",
+  "site": "https://www.creativereview.co.uk",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.creativereview.co.uk/feed/",
+    "h": "design"
+   }
+  ]
+ },
+ {
+  "o": "wallpaper",
+  "name": "Wallpaper*",
+  "short": "WP",
+  "color": "#000000",
+  "kind": "Rivista di design, architettura e arte",
+  "lang": "en",
+  "site": "https://www.wallpaper.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.wallpaper.com/feeds/all",
+    "h": "design"
+   }
+  ]
+ },
+ {
+  "o": "fastcodesign",
+  "name": "Fast Company Design",
+  "short": "FC",
+  "color": "#1A1A1A",
+  "kind": "Design e innovazione",
+  "lang": "en",
+  "site": "https://www.fastcompany.com/co-design",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.fastcompany.com/co-design/rss",
+    "h": "design"
+   }
+  ]
+ },
+ {
+  "o": "designmilk",
+  "name": "Design Milk",
+  "short": "DM",
+  "color": "#00A99D",
+  "kind": "Rivista di design",
+  "lang": "en",
+  "site": "https://design-milk.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://design-milk.com/feed/",
+    "h": "design"
+   }
+  ]
+ },
+ {
+  "o": "designwanted",
+  "name": "DesignWanted",
+  "short": "DW",
+  "color": "#222222",
+  "kind": "Rivista di design",
+  "lang": "en",
+  "site": "https://designwanted.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://designwanted.com/feed/",
+    "h": "design"
+   }
+  ]
+ },
+ {
+  "o": "archdaily",
+  "name": "ArchDaily",
+  "short": "AD",
+  "color": "#1C1C1C",
+  "kind": "Rivista di architettura",
+  "lang": "en",
+  "site": "https://www.archdaily.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.archdaily.com/feed",
+    "h": "architettura"
+   }
+  ]
+ },
+ {
+  "o": "giornalearchitettura",
+  "name": "Il Giornale dell'Architettura",
+  "short": "GA",
+  "color": "#B5121B",
+  "kind": "Rivista di architettura",
+  "lang": "it",
+  "site": "https://ilgiornaledellarchitettura.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://ilgiornaledellarchitettura.com/feed/",
+    "h": "architettura"
+   }
+  ]
+ },
+ {
+  "o": "artribune",
+  "name": "Artribune",
+  "short": "AR",
+  "color": "#E30613",
+  "kind": "Rivista di arte e cultura",
+  "lang": "it",
+  "site": "https://www.artribune.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.artribune.com/feed/",
+    "h": "arte"
+   }
+  ]
+ },
+ {
+  "o": "exibart",
+  "name": "Exibart",
+  "short": "EX",
+  "color": "#D7141A",
+  "kind": "Rivista d'arte",
+  "lang": "it",
+  "site": "https://www.exibart.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.exibart.com/feed/",
+    "h": "arte"
+   }
+  ]
+ },
+ {
+  "o": "finestresullarte",
+  "name": "Finestre sull'Arte",
+  "short": "FA",
+  "color": "#7A1F2B",
+  "kind": "Rivista d'arte",
+  "lang": "it",
+  "site": "https://www.finestresullarte.info",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.finestresullarte.info/rss",
+    "h": "arte"
+   }
+  ]
+ },
+ {
+  "o": "artslife",
+  "name": "ArtsLife",
+  "short": "AL",
+  "color": "#333333",
+  "kind": "Rivista di arte e mercato",
+  "lang": "it",
+  "site": "https://artslife.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://artslife.com/feed/",
+    "h": "arte"
+   }
+  ]
+ },
+ {
+  "o": "artnews",
+  "name": "ARTnews",
+  "short": "AN",
+  "color": "#E1261C",
+  "kind": "Rivista d'arte",
+  "lang": "en",
+  "site": "https://www.artnews.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.artnews.com/feed/",
+    "h": "arte"
+   }
+  ]
+ },
+ {
+  "o": "hyperallergic",
+  "name": "Hyperallergic",
+  "short": "HY",
+  "color": "#D12229",
+  "kind": "Rivista d'arte",
+  "lang": "en",
+  "site": "https://hyperallergic.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://hyperallergic.com/feed/",
+    "h": "arte"
+   }
+  ]
+ },
+ {
+  "o": "artnewspaper",
+  "name": "The Art Newspaper",
+  "short": "TA",
+  "color": "#B3132B",
+  "kind": "Giornale dell'arte",
+  "lang": "en",
+  "site": "https://www.theartnewspaper.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.theartnewspaper.com/rss.xml",
+    "h": "arte"
+   }
+  ]
+ },
+ {
+  "o": "colossal",
+  "name": "Colossal",
+  "short": "CO",
+  "color": "#111111",
+  "kind": "Arte e cultura visiva",
+  "lang": "en",
+  "site": "https://www.thisiscolossal.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.thisiscolossal.com/feed/",
+    "h": "arte"
+   }
+  ]
+ },
+ {
+  "o": "petapixel",
+  "name": "PetaPixel",
+  "short": "PP",
+  "color": "#1B7FC4",
+  "kind": "Rivista di fotografia",
+  "lang": "en",
+  "site": "https://petapixel.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://petapixel.com/feed/",
+    "h": "arte"
+   }
+  ]
+ },
+ {
+  "o": "ilfotografo",
+  "name": "Il Fotografo",
+  "short": "IF",
+  "color": "#C1272D",
+  "kind": "Rivista di fotografia",
+  "lang": "it",
+  "site": "https://www.ilfotografo.it",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.ilfotografo.it/feed/",
+    "h": "arte"
+   }
+  ]
+ },
+ {
+  "o": "fotografiaartistica",
+  "name": "Fotografia Artistica",
+  "short": "FT",
+  "color": "#444444",
+  "kind": "Rivista di fotografia",
+  "lang": "it",
+  "site": "https://www.fotografiaartistica.it",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.fotografiaartistica.it/feed/",
+    "h": "arte"
+   }
+  ]
  }
 ]

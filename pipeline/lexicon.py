@@ -103,7 +103,7 @@ T['clima'] = [
     (1, r'natura|nature|foreste|forest|acqua|water'),
 ]
 T['cultura'] = [
-    (3, r'libro|libri|\bbooks?\b|romanz|\bnovel\b|scrittor|writer|poet|poesi|letteratur|literature|casa editrice|museo|musei|museum|mostra\b|exhibition|\barte\b|artist|pittor|painter|scultur|sculpt|archeolog|patrimonio|heritage|unesco|biennale|premio strega|nobel per la letteratura|nobel per la pace|filosof|philosoph|historian|teatro|theatre|theater|opera lirica|balletto|ballet|biblioteca|library|scuola|scuole|school|studenti|students|insegnant|teachers|istruzione|education|maturita|pontefic|\bpope\b|vatican|vescov|bishop|religion|giubileo|leone xiv'),
+    (3, r'libro|libri|\bbooks?\b|romanz|\bnovel\b|scrittor|writer|poet|poesi|letteratur|literature|casa editrice|archeolog|patrimonio|heritage|unesco|biennale|premio strega|nobel per la letteratura|nobel per la pace|filosof|philosoph|historian|teatro|theatre|theater|opera lirica|balletto|ballet|biblioteca|library|scuola|scuole|school|studenti|students|insegnant|teachers|istruzione|education|maturita|pontefic|\bpope\b|vatican|vescov|bishop|religion|giubileo|leone xiv'),
     (2, r'cultur|culture|festival|premio|award|anniversario|anniversary|memoria|societa|society|giovani|youth|generazion|generation|famigli|family|donne|women|diritti|rights|lgbt|immigrazion|immigration|migranti|migrants|poverta|poverty|disuguaglian|inequality|volontariat|volunteer|universita|chiesa|church|fede\b|lingua'),
     (1, r'storia|history|tradizion|tradition|comunita|community'),
 ]
@@ -117,6 +117,22 @@ T['motori'] = [
     (3, r'\bauto\b|automobil|vettur|\bsuv\b|berlina|utilitaria|crossover|\bcars?\b|auto elettric|electric vehicle|\bevs?\b|auto ibrid|plug-in|colonnin|guida autonoma|self-driving|autonomous driving|robotaxi|formula 1|formula one|\bf1\b|gran premio|grand prix|\bgp\b|motogp|superbike|\bsbk\b|\bwec\b|le mans|indycar|nascar|pole position|ferrari|maranello|stellantis|\bfiat\b|alfa romeo|lancia ypsilon|maserati|lamborghini|ducati|aprilia|piaggio|vespa|tesla|\bbyd\b|volkswagen|\bvw\b|\baudi\b|\bbmw\b|mercedes|porsche|renault|peugeot|citroen|toyota|honda|nissan|hyundai|\bkia\b|\bford\b|general motors|volvo|\bjeep\b|dacia|skoda|cupra|polestar|rivian|verstappen|leclerc|lewis hamilton|lando norris|piastri|george russell|kimi antonelli|sainz|alonso|bagnaia|marquez|bezzecchi|bastianini|bulega|toprak|\bmoto\b|motocicl|motorcycle|scooter|codice della strada|patente|autostrad|motorway|casello|pedaggi|immatricolazion|concessionar'),
     (2, r'pilota|piloti|circuito|circuit|pit stop|gomme|tyres|tires|mondiale piloti|costruttori|constructors|batteria|battery|cavalli vapore|horsepower|velocita|speed|mobilita|mobility|parcheggi|parking|motore|motori|engine|elettrica|elettriche|ricarica|charging|qualifiche|qualifying|rally'),
     (1, r'modello|lancio|launch|versione|prova|test drive|review|benzina|gasolio|diesel|carburant|barca|barche|imbarcazion|scafo|\bboat|velist'),
+]
+# temi aggiunti in Eddy: design, architettura, arte e fotografia
+T['design'] = [
+    (3, r'design\b|designer|industrial design|product design|graphic design|graphic designer|tipografi|typograph|typeface|carattere tipografico|logo design|rebranding|brand identity|identita visiva|visual identity|packaging design|user experience|\bux\b|\bui\b|user interface|interaction design|usabilita|usability|design system|figma|wireframe|salone del mobile|fuorisalone|design week|compasso d oro|red dot award|interior design|interiors\b|arredament|furniture'),
+    (2, r'illustrazion|illustration|illustrator|motion design|prototip|prototyp|interfacc|creativ|estetic|aesthetic|artigianat|craftsmanship|lampada|sedia|divano|\bsofa\b|tessuti|ceramich|arredo\b'),
+    (1, r'collezione|collection|edizione limitata|limited edition|restyling|minimalis'),
+]
+T['architettura'] = [
+    (3, r'architett|architect|archistar|grattaciel|skyscraper|urbanistic|urban planning|rigenerazione urbana|padiglione|pavilion|biennale di architettura|pritzker|masterplan|paesaggist|landscape architect|social housing|housing sociale|cohousing'),
+    (2, r'ristrutturazion|renovation|riqualificazion|restauro architettonic|facciata|facade|edificio|edifici\b|building\b|cemento armato|concrete\b|timber|in legno|mattoni|brick\b|loft\b|interni di|metri quadrati|square metres|square meters'),
+    (1, r'progetto|project|spazio|spazi|space\b|struttura|structure|abitazion|residenz'),
+]
+T['arte'] = [
+    (3, r'museo|musei|museum|mostra\b|mostre\b|exhibition|\barte\b|\bart\b|artista|artisti|artist|pittor|pittura|painter|painting|dipint|scultur|sculpt|galleria d arte|art gallery|curator|curatrice|curatore|biennale di venezia|documenta|art basel|arte contemporanea|contemporary art|installazion|installation|opera d arte|artwork|capolavoro|masterpiece|\basta\b|auction|christie|sotheby|caravaggio|leonardo da vinci|michelangelo|raffaello|picasso|van gogh|warhol|banksy|fotografo|fotografa|fotografi\b|fotografia|fotografie|photographer|photography|photo essay|reportage fotografico|world press photo|magnum photos|fotoreporter|photojournal'),
+    (2, r'artistic|vernissage|retrospettiva|retrospective|collezionist|art collector|ritratto|portrait|mirrorless|reflex\b|bianco e nero|black and white|fotocamera'),
+    (1, r'opere|works|catalogo|catalogue|esposizion'),
 ]
 T['spettacoli'] = [
     (3, r'\bfilm\b|cinema|movie|serie tv|tv series|netflix|disney\+|prime video|\bhbo\b|attor|\bactor|actress|attrice|regist[ai]\b|film director|hollywood|oscar|golden globe|emmy|festival di venezia|mostra del cinema|cannes|berlinale|box office|botteghino|cantant|singer|rapper|trapper|\bband\b|concert|album|canzon|\bsong\b|sanremo|eurovision|x factor|musica|\bmusic\b|discograf|spotify|grammy|televisione|programma tv|conduttor|presentatr|reality|grande fratello|ballando con le stelle|gossip|celebrity|\bvip\b|influencer|ferragni|royal family|famiglia reale|fumett|\bcomics?\b|manga'),
@@ -300,7 +316,7 @@ def expand(text, lang='it'):
 TOPIC_RX = {t: [(w, re.compile(r'\b(?:' + rx + r')', re.I)) for w, rx in lst] for t, lst in T.items()}
 
 # priorità di ripiego per temi equivalenti
-TOPIC_ORDER = ['italia', 'mondo', 'economia', 'cronaca', 'roma', 'motori', 'sport', 'scienza', 'salute', 'tech', 'clima', 'cultura', 'spettacoli']
+TOPIC_ORDER = ['italia', 'mondo', 'economia', 'cronaca', 'roma', 'motori', 'sport', 'scienza', 'salute', 'tech', 'clima', 'architettura', 'design', 'arte', 'cultura', 'spettacoli']
 
 # testate specializzate: tema di partenza
 OUTLET_TOPIC = {
@@ -310,6 +326,15 @@ OUTLET_TOPIC = {
     'theconversation': 'scienza', 'nasa': 'scienza', 'esa': 'scienza', 'carbonbrief': 'clima', 'arstechnica': 'tech',
     'theverge': 'tech', 'techcrunch': 'tech', 'lavoce': 'economia', 'sole24ore': 'economia', 'ft': 'economia', 'wsj': 'economia',
     'economist': 'economia', 'politico': 'mondo', 'kyivindependent': 'mondo', 'timesofisrael': 'mondo',
+    # riviste di design, architettura e arte (Eddy)
+    'abitare': 'design', 'interni': 'design', 'elledecor': 'design', 'livingcorriere': 'design', 'designboom': 'design',
+    'itsnicethat': 'design', 'smashing': 'design', 'nngroup': 'design', 'uxcollective': 'design', 'figmablog': 'design',
+    'core77': 'design', 'yanko': 'design', 'creativebloq': 'design', 'creativereview': 'design', 'wallpaper': 'design',
+    'fastcodesign': 'design', 'designmilk': 'design', 'designwanted': 'design',
+    'archdaily': 'architettura', 'giornalearchitettura': 'architettura',
+    'artribune': 'arte', 'exibart': 'arte', 'finestresullarte': 'arte', 'artslife': 'arte', 'artnews': 'arte',
+    'hyperallergic': 'arte', 'artnewspaper': 'arte', 'colossal': 'arte', 'petapixel': 'arte', 'ilfotografo': 'arte',
+    'fotografiaartistica': 'arte',
 }
 MOTORSPORT = {'formulapassion', 'motorsport', 'gpone', 'therace'}
 NAUTICA = {'barcheamotore', 'nautica', 'barchemagazine', 'farevela', 'mby', 'yachtingworld', 'powermotoryacht', 'megayachtnews', 'boatingindustry'}
