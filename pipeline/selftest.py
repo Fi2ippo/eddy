@@ -121,6 +121,14 @@ for a, nm in zip(cmp_arts, ["ANSA", "Il Post", "EFE", "La Stampa"]):
 cmpb = enrich.compare(cmp_arts) or {"unique": []}
 check("confronto: il nome della testata non compare tra i dettagli", all(u["text"] != "EFE" for u in cmpb["unique"]))
 
+# lingua: una fonte segnata come spagnola che scrive in inglese (EFE) si traduce dall'inglese
+import collect  # noqa: E402
+
+efe = [{"lang": "es", "source_id": "efe", "title": t} for t in [
+    "President of Paraguay resigns after the bank closure", "The talks on the climate deal stall in Brazil",
+    "Hong Kong pro-democracy activist Wong handed 10 years in jail"]]
+check("lingua: EFE in inglese riconosciuta come fonte inglese", collect.english_sources(efe) == {"efe"})
+
 # eventi: sviluppi dello stesso fatto insieme, notizie diverse separate
 def st(i, title):
     return {"id": f"s{i}", "title": title, "sources": [{"title": title, "via": "feed"}], "summary": []}

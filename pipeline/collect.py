@@ -103,11 +103,27 @@ def looks_english(text: str) -> bool:
     return sum(w in EN_HINTS for w in words) >= 2
 
 
+OTHER_HINTS = set("el los las del que por para una y der die das und mit für von le les des du et pour avec il gli della che".split())
+
+
+def english_sources(arts: list[dict]) -> set:
+    """Fonti segnate con un'altra lingua (es. EFE, dpa) che in questo giro scrivono quasi sempre in inglese."""
+    seen: dict = {}
+    for a in arts:
+        if a["lang"] not in ("it", "en"):
+            n = seen.setdefault(a["source_id"], [0, 0])
+            n[0] += 1
+            n[1] += looks_english(a["title"])
+    return {sid for sid, (tot, en) in seen.items() if en >= 2 and en / tot >= 0.6}
+
+
 def translate_all(arts: list[dict], tr: translate.Translator) -> int:
     by_lang: dict = {}
+    en_src = english_sources(arts)
     for a in arts:
         lang = a["lang"]
-        if lang not in ("it", "en") and looks_english(a["title"]):
+        words = set(re.findall(r"[a-zà-ÿ]+", a["title"].lower()))
+        if lang not in ("it", "en") and (looks_english(a["title"]) or (a["source_id"] in en_src and len(words & OTHER_HINTS) < 2)):
             lang = "en"  # fonte segnata con un'altra lingua ma titolo in inglese (es. EFE, dpa in inglese)
         if lang != "it" and tr.can(lang):
             by_lang.setdefault(lang, []).append(a)

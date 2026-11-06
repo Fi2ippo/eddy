@@ -19,7 +19,8 @@ const REFRESH_MINUTES = 10; // con la pagina aperta, ricontrolla se ci sono dati
 /** Oltre questa età i dati si considerano "in ritardo". */
 export const STALE_HOURS = 2;
 
-export type StorySource = { name: string; title: string; url: string; via: "feed" | "google_news"; published: string | null };
+/** titleOriginal: il titolo nella lingua della testata, quando "title" è una traduzione automatica */
+export type StorySource = { name: string; title: string; titleOriginal: string | null; url: string; via: "feed" | "google_news"; published: string | null };
 /** Frase o estratto di una testata, sempre con il nome della testata e il link all'originale. */
 export type StorySummary = { source: string; text: string; url: string | null; translated: boolean };
 export type StoryCompare = {
@@ -136,7 +137,8 @@ function parseStory(raw: unknown): Story | null {
     const name = str(o.name, 120);
     const url = httpUrl(o.url);
     if (!name || !url) return [];
-    return [{ name, url, title: str(o.title, 400) ?? name, via: o.via === "google_news" ? "google_news" as const : "feed" as const, published: str(o.published, 40) }];
+    const titleOriginal = o.translated === true ? str(o.title_original, 400) : null;
+    return [{ name, url, title: str(o.title, 400) ?? name, titleOriginal, via: o.via === "google_news" ? "google_news" as const : "feed" as const, published: str(o.published, 40) }];
   });
   const quotes = (value: unknown, max: number): StorySummary[] =>
     (Array.isArray(value) ? value : []).flatMap((s) => {

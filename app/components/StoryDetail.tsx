@@ -126,6 +126,11 @@ export default function StoryDetail() {
                     <TimeAgo iso={source.published} className="font-semibold text-muted" />
                   </span>
                   <span className="mt-0.5 line-clamp-3 block text-[0.9375rem] font-bold leading-snug">{source.title}</span>
+                  {source.titleOriginal && (
+                    <span className="mt-0.5 line-clamp-2 block text-caption text-muted">
+                      Tradotto automaticamente. Originale: {source.titleOriginal}
+                    </span>
+                  )}
                   <span className="sr-only"> (si apre in un’altra scheda)</span>
                 </span>
                 <ArrowUpRight aria-hidden="true" className="size-5 flex-none text-muted-strong" strokeWidth={2.2} />

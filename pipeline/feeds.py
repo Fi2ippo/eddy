@@ -70,7 +70,8 @@ def _read(src: dict, feed: dict) -> tuple[list[dict], str | None]:
             # anche più volte ("… - EFE - EFE") e comunque il nome della testata in fondo
             for _ in range(3):
                 title = re.sub(r"\s+[-–—|]\s+[^-–—|]{2,60}$", "", title).strip() or title
-            title = re.sub(r"\s+[-–—|]\s+" + re.escape(src["name"]) + r"\s*$", "", title, flags=re.I).strip() or title
+            for _ in range(3):  # il nome della testata in fondo, anche ripetuto
+                title = re.sub(r"\s+[-–—|]\s+" + re.escape(src["name"]) + r"\s*$", "", title, flags=re.I).strip() or title
             src_url = (e.get("source") or {}).get("href") or ""
             dom = src.get("gn_domain", "").split("/")[0]
             if src_url and dom and not host(src_url).endswith(dom):

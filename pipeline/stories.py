@@ -106,8 +106,11 @@ def build(groups: list[list[dict]], ids: list[str], state_stories: dict) -> list
             "timeline": enrich.timeline(g),
             "context": None,  # "Per capire" (Wikipedia), aggiunto dopo in collect.py
             "_names": enrich.main_names(g),
-            "sources": [{"name": a["source"], "title": a["title"], "url": a["url"], "via": a["via"],
-                         "published": iso(a.get("published") or a["first_seen"])} for a in it_first + gn],
+            # titolo in italiano (tradotto se serve) e, se tradotto, anche quello originale
+            "sources": [{"name": a["source"], "title": a.get("title_it") or a["title"], "url": a["url"], "via": a["via"],
+                         "published": iso(a.get("published") or a["first_seen"]),
+                         **({"title_original": a["title"], "translated": True} if a.get("title_it") else {})}
+                        for a in it_first + gn],
         }
         out.append((_score(g, updated, bool(img_art)), story))
     out.sort(key=lambda x: (-x[0], x[1]["id"]))

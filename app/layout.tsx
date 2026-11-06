@@ -16,10 +16,7 @@ export const metadata: Metadata = {
   title: "Eddy",
   description:
     "Informarsi attraverso più fonti, fuori dal rumore dei social network.",
-  // Nessun marchio grafico provvisorio; evita il fallback /favicon.ico inesistente.
-  icons: {
-    icon: "data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22/%3E",
-  },
+  // Icona: app/icon.svg (scheda del browser) e app/apple-icon.png (schermata Home di iPhone).
 };
 
 export const viewport: Viewport = {

@@ -57,13 +57,13 @@ Se il lavoro si interrompe, si riparte dalla prima fase non spuntata.
 ### Idee future
 - **Email per le rimozioni** in `app/data/contact.ts` (Filippo la sceglie il 6/11).
 - **Licenze:** leggere le condizioni delle 22 fonti in `docs/licenze-da-controllare.md` e scrivere alle testate principali prima di far conoscere Eddy.
-- **Titoli in spagnolo/inglese da Google News** (es. EFE) restano non tradotti nella Cronologia: tradurre anche questi o mostrare il titolo italiano di un'altra testata.
+- ~~Titoli di Google News non tradotti~~ — fatto il 6/11: le testate segnate con un'altra lingua che scrivono in inglese (EFE, Deutsche Welle…) si riconoscono e si traducono; in "Le fonti" i titoli sono in italiano con "Tradotto automaticamente. Originale: …"; tolto anche il " - EFE" ripetuto in fondo.
 - **App installabile (PWA)**: icona sulla schermata Home e lettura delle storie salvate anche senza rete.
 - **Ricerca** tra le storie dei tre giorni.
-- **Icona e favicon** di Eddy (oggi c'è un'icona vuota).
+- ~~Icona di Eddy~~ — fatta il 6/11: "E" bianca su quadrato blu Inchiostro con punto arancio (`app/icon.svg`, `app/apple-icon.png`).
 - **Notifica "nuove storie"** quando l'app resta aperta e arrivano dati nuovi.
 - **Dominio proprio** (es. eddy.it) puntato su GitHub Pages, se il progetto cresce.
-- **Tema scuro** per tutta l'app, partendo dai colori del Feed.
+- **Tema scuro** per tutta l'app (non prioritario, decisione di Filippo del 6/11).
 
 ---
 
