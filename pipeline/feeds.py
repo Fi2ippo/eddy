@@ -47,6 +47,16 @@ def _entry_date(e) -> datetime | None:
         return None
 
 
+def gn_title(title: str, name: str) -> str:
+    """Google News aggiunge " - Testata" in fondo, anche più volte ("… - EFE - EFE"): si toglie.
+    Si usa sia quando si legge il feed sia sui titoli già salvati nello stato (scritti da versioni precedenti)."""
+    for _ in range(3):
+        title = re.sub(r"\s+[-–—|]\s+[^-–—|]{2,60}$", "", title).strip() or title
+    for _ in range(5):  # il nome della testata in fondo, anche ripetuto
+        title = re.sub(r"\s+[-–—|]\s+" + re.escape(name) + r"\s*$", "", title, flags=re.I).strip() or title
+    return title
+
+
 def _read(src: dict, feed: dict) -> tuple[list[dict], str | None]:
     """Legge un feed e restituisce (articoli, errore)."""
     try:
@@ -66,12 +76,8 @@ def _read(src: dict, feed: dict) -> tuple[list[dict], str | None]:
         if not link or not title:
             continue
         if gn:
-            # Google News aggiunge " - Testata" in fondo e mescola a volte altri siti: teniamo solo quelli giusti
-            # anche più volte ("… - EFE - EFE") e comunque il nome della testata in fondo
-            for _ in range(3):
-                title = re.sub(r"\s+[-–—|]\s+[^-–—|]{2,60}$", "", title).strip() or title
-            for _ in range(3):  # il nome della testata in fondo, anche ripetuto
-                title = re.sub(r"\s+[-–—|]\s+" + re.escape(src["name"]) + r"\s*$", "", title, flags=re.I).strip() or title
+            # Google News mescola a volte altri siti: teniamo solo quelli giusti
+            title = gn_title(title, src["name"])
             src_url = (e.get("source") or {}).get("href") or ""
             dom = src.get("gn_domain", "").split("/")[0]
             if src_url and dom and not host(src_url).endswith(dom):
@@ -155,6 +161,6 @@ def read_all(sources: list[dict], gn_cache: dict) -> tuple[list[dict], dict]:
                 continue
             articles.append({"id": short_hash(it["url"]), "source_id": sid, "source": s["name"],
                              "lang": s.get("language") or "en", "src_area": s.get("area") or "mondo", "section": None,
-                             "topic_hint": None, "area_hint": None, "default_topics": [], "title": it["title"],
+                             "topic_hint": None, "area_hint": None, "default_topics": [], "title": gn_title(it["title"], s["name"]),
                              "extract": "", "url": it["url"], "published": d, "image": None, "via": "google_news"})
     return articles, report

@@ -121,13 +121,21 @@ for a, nm in zip(cmp_arts, ["ANSA", "Il Post", "EFE", "La Stampa"]):
 cmpb = enrich.compare(cmp_arts) or {"unique": []}
 check("confronto: il nome della testata non compare tra i dettagli", all(u["text"] != "EFE" for u in cmpb["unique"]))
 
+# titoli di Google News: il nome della testata in fondo si toglie, anche ripetuto
+import feeds  # noqa: E402
+
+check("Google News: tolto ' - EFE' ripetuto", feeds.gn_title("Wong handed 10 years in jail - EFE - EFE", "EFE") == "Wong handed 10 years in jail")
+
 # lingua: una fonte segnata come spagnola che scrive in inglese (EFE) si traduce dall'inglese
 import collect  # noqa: E402
 
 efe = [{"lang": "es", "source_id": "efe", "title": t} for t in [
-    "President of Paraguay resigns after the bank closure", "The talks on the climate deal stall in Brazil",
+    "President of Paraguay resigns after Ueno Bank closure", "Russell Brand found guilty of rape, sexual assaults, faces prison",
     "Hong Kong pro-democracy activist Wong handed 10 years in jail"]]
+efe += [{"lang": "es", "source_id": "efe-es", "title": t} for t in [
+    "El presidente de Paraguay renuncia tras el cierre del banco", "Los mercados caen en Europa por la guerra"]]
 check("lingua: EFE in inglese riconosciuta come fonte inglese", collect.english_sources(efe) == {"efe"})
+check("lingua: titolo spagnolo non scambiato per inglese", collect.other_hits(efe[3]["title"]) >= 2)
 
 # eventi: sviluppi dello stesso fatto insieme, notizie diverse separate
 def st(i, title):
