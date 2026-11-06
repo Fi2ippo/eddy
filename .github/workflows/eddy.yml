@@ -1,0 +1,301 @@
+name: Eddy
+
+# Ogni quarto d'ora circa: raccoglie i feed delle testate (pipeline/collect.py), compone le storie e la prima pagina
+# (pipeline/editor.py), costruisce il sito (build_site.py) e lo pubblica su GitHub Pages. Lo stato della raccolta
+# resta sul ramo "dati" (un solo commit, sostituito a ogni giro).
+#
+# Gli orari programmati di GitHub partono spesso in ritardo o vengono saltati: per questo ogni giro, alla fine, prenota
+# il successivo. Il giro prenotato aspetta 12 minuti nell'ambiente "attesa" (timer impostato nelle impostazioni del
+# repository, senza usare macchine); se il timer manca, il lavoro "attesa" aspetta da sé. Gli orari restano come riserva.
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+    inputs:
+      catena:
+        description: 'Giro prenotato dal giro precedente (per un avvio a mano lasciare «no»)'
+        required: false
+        default: 'no'
+        type: choice
+        options: ['no', 'si']
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  # Se un giro resta bloccato (GitHub a volte lascia un lavoro in coda per ore), lo annulla.
+  sblocca:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    steps:
+      - name: Libera i giri rimasti bloccati
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          WF="${GITHUB_WORKFLOW_REF%@*}"; WF="${WF##*/}"
+          NOW=$(date -u +%s)
+          for st in queued in_progress waiting pending requested; do
+            gh api "repos/$GITHUB_REPOSITORY/actions/workflows/$WF/runs?status=$st&per_page=50" --jq '.workflow_runs[] | "\(.id) \(.created_at) \(.run_number)"' || true
+          done | sort -u | while read -r id created num; do
+            [ -z "$id" ] && continue
+            [ "$id" = "$GITHUB_RUN_ID" ] && continue
+            age=$(( (NOW - $(date -u -d "$created" +%s)) / 60 ))
+            if [ "$age" -ge 50 ]; then
+              echo "giro #$num fermo da $age minuti: lo annullo"
+              gh api -X POST "repos/$GITHUB_REPOSITORY/actions/runs/$id/cancel" >/dev/null 2>&1 || true
+              if [ "$age" -ge 110 ]; then
+                gh api -X POST "repos/$GITHUB_REPOSITORY/actions/runs/$id/force-cancel" >/dev/null 2>&1 || true
+              fi
+            fi
+          done
+          echo "controllo dei giri bloccati completato"
+
+  # Giro prenotato: aspetta 12 minuti dalla prenotazione, poi lascia partire la redazione.
+  attesa:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.catena == 'si' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      actions: read
+    environment: attesa
+    steps:
+      - name: Attendi i 12 minuti dalla prenotazione
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CREATED=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq .created_at || echo "")
+          ETA=0
+          if [[ "$CREATED" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T ]]; then ETA=$(( $(date -u +%s) - $(date -u -d "$CREATED" +%s) )); fi
+          RESTA=$(( 12 * 60 - ETA ))
+          if [ "$RESTA" -gt 0 ]; then echo "aspetto altri $RESTA secondi"; sleep "$RESTA"; else echo "attesa già trascorsa"; fi
+
+  eddy:
+    needs: [sblocca, attesa]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    # un giro alla volta: due giri insieme scriverebbero lo stesso ramo dati
+    concurrency:
+      group: eddy-redazione
+      cancel-in-progress: false
+    permissions:
+      contents: write   # ramo dati
+      pages: write      # pubblicazione del sito
+      id-token: write   # pubblicazione del sito
+      actions: write    # prenotazione del giro successivo
+      issues: write     # segnalazioni dall'app e avvisi di guasto
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: pipeline/requirements.txt
+
+      - name: Dipendenze
+        run: pip install --quiet -r pipeline/requirements.txt
+
+      - name: Controlli del codice
+        run: |
+          # un codice rotto non arriva al sito: il giro si ferma qui e resta online la versione precedente
+          python -m py_compile pipeline/*.py build_site.py make_icons.py
+          python pipeline/selftest.py
+          node --check site_src/app.js
+          node --check site_src/sw.js
+
+      - name: Stato precedente (ramo dati)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          REPO="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          rc=0; git ls-remote --exit-code --heads "$REPO" dati >/dev/null || rc=$?
+          if [ $rc -eq 0 ]; then
+            git clone --quiet --depth 1 --branch dati --single-branch "$REPO" state
+          elif [ $rc -eq 2 ]; then
+            echo "primo avvio: stato nuovo"; mkdir state && git -C state init -q -b dati
+          else
+            echo "::error::ramo dati irraggiungibile, riprovo al prossimo giro"; exit 1
+          fi
+          # file della raccolta precedente (prima della nuova app): non servono più
+          rm -f state/stories.json state/state.json state/report.json
+          rm -rf state/img
+
+      - name: Modelli di traduzione (copia salvata)
+        uses: actions/cache/restore@v4
+        with:
+          path: mt
+          key: eddy-mt-v1-${{ github.run_id }}
+          restore-keys: eddy-mt-v1-
+
+      - name: Prepara i modelli di traduzione mancanti
+        id: mt
+        continue-on-error: true
+        timeout-minutes: 25
+        run: |
+          # solo la prima volta (o quando manca un modello): torch e transformers servono a convertire i modelli
+          # OPUS-MT per CTranslate2, poi restano salvati nella cache e i giri successivi non li installano più
+          if python pipeline/translate.py need mt; then
+            pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+            pip install --quiet "transformers>=4.40,<5" "huggingface_hub<1" sacremoses protobuf
+            python pipeline/translate.py setup mt
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "modelli già pronti"
+          fi
+
+      - name: Salva i modelli di traduzione
+        if: steps.mt.outputs.changed == 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: mt
+          key: eddy-mt-v1-${{ github.run_id }}
+
+      - name: Raccolta
+        id: raccolta
+        continue-on-error: true
+        timeout-minutes: 12
+        run: python pipeline/collect.py pipeline/sources.json state
+
+      - name: Segnalazioni dall'app
+        id: segnalazioni
+        continue-on-error: true
+        timeout-minutes: 3
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python pipeline/reports.py state
+
+      - name: Redazione automatica
+        id: redazione
+        run: |
+          mkdir -p state/ultimo
+          if timeout 12m python pipeline/editor.py state site mt; then
+            cp site/data/feed.json site/data/archive.json state/ultimo/
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::redazione non riuscita: ripubblico l'ultima edizione buona"
+            mkdir -p site/data && { cp state/ultimo/*.json site/data/ 2>/dev/null || echo "::warning::nessuna edizione precedente"; }
+          fi
+
+      - name: Sito
+        id: sito
+        run: |
+          python build_site.py site
+          if python - <<'PY'
+          import json, os, sys
+          try:
+              d = json.load(open('site/data/feed.json', encoding='utf-8'))
+              assert d.get('stories'), 'prima pagina vuota'
+              for f in ('site/version.json', 'site/manifest.webmanifest'):
+                  json.load(open(f, encoding='utf-8'))
+          except Exception as e:
+              print('dati del sito non validi:', e)
+              sys.exit(1)
+          PY
+          then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::error::nessuna edizione valida da pubblicare: resta online la versione precedente del sito"
+          fi
+
+      - name: Salva lo stato sul ramo dati
+        id: stato
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd state
+          find . -path ./.git -prune -o -name '*.tmp' -type f -exec rm -f {} +
+          if ! python - <<'PY'
+          import json, os, sys
+          bad = []
+          for root, dirs, files in os.walk('.'):
+              dirs[:] = [d for d in dirs if d != '.git']
+              for f in files:
+                  if f.endswith('.json'):
+                      try:
+                          json.load(open(os.path.join(root, f), encoding='utf-8'))
+                      except Exception:
+                          bad.append(os.path.join(root, f))
+          if bad:
+              print('file non validi:', ', '.join(bad))
+          sys.exit(1 if bad else 0)
+          PY
+          then
+            echo "::error::stato danneggiato: non lo salvo, il giro dopo riparte dal precedente"; exit 1
+          fi
+          git config user.name "eddy-bot"
+          git config user.email "eddy-bot@users.noreply.github.com"
+          git checkout -q --orphan nuovo
+          git add -A
+          git commit -qm "dati: $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" nuovo:dati
+
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.sito.outputs.ok == 'true'
+        with:
+          path: site
+
+      - name: Pubblica il sito
+        id: deploy
+        if: steps.sito.outputs.ok == 'true'
+        uses: actions/deploy-pages@v4
+
+      - name: Prenota il prossimo giro
+        id: prenota
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          CATENA: ${{ inputs.catena }}
+        run: |
+          WF="${GITHUB_WORKFLOW_REF%@*}"; WF="${WF##*/}"
+          CREATED=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq .created_at)
+          AGE=$(( ( $(date -u +%s) - $(date -u -d "$CREATED" +%s) ) / 60 ))
+          # un giro prenotato che non ha aspettato fermerebbe la catena invece di partire ogni pochi minuti
+          if [ "$CATENA" = "si" ] && [ "$AGE" -lt 9 ]; then
+            echo "::warning::il giro prenotato non ha aspettato: restano gli orari di GitHub"; exit 0
+          fi
+          # una sola catena: se c'è già un giro in programma (non bloccato da più di 90 minuti) non ne prenoto un altro
+          LIMIT=$(date -u -d "90 minutes ago" +%Y-%m-%dT%H:%M:%SZ)
+          ALTRI=0
+          for st in queued waiting in_progress pending requested; do
+            n=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/$WF/runs?status=$st&per_page=30" \
+              --jq "[.workflow_runs[] | select(.id != $GITHUB_RUN_ID) | select(.created_at > \"$LIMIT\")] | length")
+            ALTRI=$((ALTRI + n))
+          done
+          if [ "$ALTRI" -gt 0 ]; then echo "c'è già un giro in programma ($ALTRI): non ne prenoto un altro"; exit 0; fi
+          gh workflow run "$WF" --repo "$GITHUB_REPOSITORY" --ref main -f catena=si
+          echo "prossimo giro prenotato: parte tra circa 12 minuti"
+
+      - name: Esito del giro
+        if: ${{ !cancelled() }}
+        env:
+          RACCOLTA: ${{ steps.raccolta.outcome }}
+          REDAZIONE: ${{ steps.redazione.outputs.ok }}
+          SITO: ${{ steps.sito.outputs.ok }}
+          STATO: ${{ steps.stato.outcome }}
+          PRENOTA: ${{ steps.prenota.outcome }}
+        run: |
+          G=""
+          [ "$RACCOLTA" = "failure" ] && G="$G raccolta;"
+          [ "$REDAZIONE" = "false" ] && G="$G redazione;"
+          [ "$SITO" = "false" ] && G="$G sito;"
+          [ "$STATO" = "failure" ] && G="$G stato;"
+          [ "$PRENOTA" = "failure" ] && G="$G prenotazione;"
+          if [ -n "$G" ]; then echo "### Problemi:$G" >> "$GITHUB_STEP_SUMMARY"; echo "::error::problemi nel giro:$G"; exit 1; fi
+          echo "### Tutto regolare" >> "$GITHUB_STEP_SUMMARY"

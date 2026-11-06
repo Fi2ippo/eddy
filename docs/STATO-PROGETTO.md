@@ -6,6 +6,17 @@ Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese"
 
 ---
 
+## Nuova app (6 novembre 2026)
+Filippo ha deciso di rifare Eddy sulla base di un'app di un amico che gli piace in tutto (codice riusato con il suo permesso, nessuna citazione). Lavoro fatto sul ramo `nuova-app` e poi portato su `main`:
+- [x] **1 · Base:** sito in una sola pagina (`site_src/`, `build_site.py`), raccolta (`pipeline/collect.py`) e redazione automatica (`pipeline/editor.py`) al posto del sito Next.js e della vecchia raccolta. Nome Eddy ovunque, icone nuove (`make_icons.py`).
+- [x] **2 · Sezioni nuove:** Design, Architettura, Arte e fotografia, con 32 riviste verificate (design e UX, architettura, arte e fotografia) e parole chiave controllate contro i falsi positivi.
+- [x] **3 · Napoli e provincia** al posto di Roma: 12 testate locali verificate, 5 zone (Napoli, Area flegrea, Area vesuviana, Area nord e nolana, Isole e penisola sorrentina), luoghi sulla mappa, il Napoli calcio resta nello sport.
+- [x] **4 · Regole di Eddy:** foto mostrate direttamente dal sito della testata con credito "Foto: testata", nessun logo scaricato (bollini con le iniziali), `data/blocklist.json` rispettato.
+- [x] **5 · Automazione:** `.github/workflows/eddy.yml` (raccolta, redazione, sito e prenotazione del giro dopo, circa ogni 15 minuti).
+- [x] **6 · Pubblicazione** su https://fi2ippo.github.io/eddy
+
+Le sezioni qui sotto descrivono la versione precedente (Next.js) e restano come storia del progetto.
+
 ## Lavori di novembre (lista di controllo)
 Se il lavoro si interrompe, si riparte dalla prima fase non spuntata.
 
