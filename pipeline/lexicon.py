@@ -120,7 +120,7 @@ T['motori'] = [
 ]
 # temi aggiunti in Eddy: design, architettura, arte e fotografia
 T['design'] = [
-    (3, r'design\b|designer|industrial design|product design|graphic design|graphic designer|tipografi|typograph|typeface|carattere tipografico|logo design|rebranding|brand identity|identita visiva|visual identity|packaging design|user experience|\bux\b|\bui\b|user interface|interaction design|usabilita|usability|design system|figma|wireframe|salone del mobile|fuorisalone|design week|compasso d oro|red dot award|interior design|interiors\b|arredament|furniture'),
+    (3, r'design\b|designers\b|(?:graphic|product|type|fashion|ux|ui|interaction|interior|industrial|famous|italian|famoso|celebre) designer|designer (?:di|del|della|italian|britannic|american|giapponese|francese|tedesco|olandese|danese|svedese)|industrial design|product design|graphic design|graphic designer|tipografi|typograph|typeface|carattere tipografico|logo design|rebranding|brand identity|identita visiva|visual identity|packaging design|user experience|\bux\b|\bui\b|user interface|interaction design|usabilita|usability|design system|figma|wireframe|salone del mobile|fuorisalone|design week|compasso d oro|red dot award|interior design|interiors\b|arredament|furniture'),
     (2, r'illustrazion|illustration|illustrator|motion design|prototip|prototyp|interfacc|creativ|estetic|aesthetic|artigianat|craftsmanship|lampada|sedia|divano|\bsofa\b|tessuti|ceramich|arredo\b'),
     (1, r'collezione|collection|edizione limitata|limited edition|restyling|minimalis'),
 ]
@@ -152,90 +152,84 @@ EXPAND_ANY = [(re.compile(r'\b(?:EU)\b'), 'European Union'), (re.compile(r'\bA\.
               (re.compile(r'\bU\.S\.'), 'United States')]
 
 
-# ------------------------------------------------------------------ Roma e provincia
+# ------------------------------------------------------------------ Napoli e provincia
 # zone della città metropolitana (testo normalizzato: minuscole, senza accenti, apostrofi = spazio)
-ZONE_LABEL = {'citta': 'Roma', 'castelli': 'Castelli Romani', 'litorale': 'Litorale', 'nord': 'Nord e lago di Bracciano', 'est': 'Tivoli e area est'}
+ZONE_LABEL = {'citta': 'Napoli', 'flegrea': 'Area flegrea', 'vesuviana': 'Area vesuviana', 'nord': 'Area nord e nolana',
+              'isole': 'Isole e penisola sorrentina'}
 ZONE_WORDS = {
     'citta': (
-        'campidoglio|roma capitale|assemblea capitolina|giunta capitolina|sindaco di roma|comune di roma|municipio [ivx]{1,4}|municipio \\d{1,2}|'
-        'trastevere|testaccio|garbatella|ostiense|san lorenzo|pigneto|centocelle|tor bella monaca|torpignattara|tor pignattara|quarticciolo|primavalle|'
-        'monteverde|parioli|montesacro|monte sacro|talenti|tufello|san basilio|casal bruciato|pietralata|ponte mammolo|rebibbia|cinecitta|quadraro|tuscolano|'
-        'eur|laurentino|spinaceto|torrino|magliana|corviale|portuense|trullo|boccea|balduina|monte mario|trionfale|prima porta|labaro|ottavia|torrevecchia|'
-        'casalotti|tor vergata|torre angela|torre maura|giardinetti|borghesiana|ponte di nona|lunghezza|settecamini|bufalotta|fidene|nuovo salario|esquilino|'
-        'aventino|nomentano|vigna clara|ponte milvio|tor di quinto|grottarossa|colosseo|fori imperiali|piazza venezia|stazione termini|villa borghese|gianicolo|'
-        'tor sapienza|casilino|prenestino|alessandrino|quarto miglio|romanina|anagnina|tor tre teste|piazza di spagna|fontana di trevi|circo massimo|tiburtino|'
-        'appio latino|san giovanni in laterano|piazza san giovanni|raccordo anulare|grande raccordo|gra|tangenziale est|metro a|metro b|metro c|'
-        'metropolitana di roma|atac|ama roma|polizia locale di roma|vigili urbani di roma|policlinico umberto i|policlinico casilino|piazzale clodio|'
-        'colli portuensi|collatino|quartiere africano|ponte galeria|casal de pazzi|val melaina|serpentara|appio claudio|gianicolense|bravetta|massimina|'
-        'casetta mattei|tor marancia|cecchignola|vitinia|mostacciano|castel di leva|castel giubileo|settebagni|castel fusano|centro giano|madonnetta|'
-        'dragoncello|villa gordiani|casal bertone|portonaccio|tor de schiavi|tor cervara|quartiere trieste|quartiere prati|rione monti|pinciano|'
-        'villaggio olimpico|tor di valle|casal monastero|case rosse|castelverde|colle salario|vigne nuove|porta di roma|la rustica|torre spaccata|'
-        'torrenova|osteria del curato|capannelle|appio pignatelli|casal morena|caffarella|tor de cenci|malafede|giardino di roma|ostia ponente|'
-        'ostia levante|la giustiniana|olgiata|santa maria di galeria|isola farnese|saxa rubra|valle aurelia|borgo pio|campo de fiori|ghetto ebraico|'
-        'centro storico di roma|periferia di roma|periferie romane|teatro valle|teatro argentina|teatro dell opera di roma|auditorium parco della musica|'
-        'festa del cinema di roma|festa cinema roma|maxxi|palazzo delle esposizioni|biblioteche di roma'),
-    'castelli': (
-        'frascati|grottaferrata|marino|castel gandolfo|albano laziale|albano|ariccia|genzano|nemi|lanuvio|velletri|lariano|rocca di papa|rocca priora|'
-        'monte porzio catone|monte compatri|montecompatri|colonna|ciampino|castelli romani|pavona|cecchina|frattocchie|santa maria delle mole|campoleone|'
-        'lago albano|lago di nemi|artemisio|ospedale dei castelli|asl roma 6|nettunense|appia nuova|via dei laghi|tuscolana'),
-    'litorale': (
-        'ostia|lido di ostia|ostia antica|acilia|infernetto|casal palocco|dragona|fiumicino|fregene|focene|maccarese|passoscuro|torrimpietra|isola sacra|'
-        'torvaianica|pomezia|santa palomba|ardea|tor san lorenzo|anzio|lavinio|nettuno|ladispoli|cerveteri|santa marinella|santa severa|civitavecchia|'
-        'municipio x|litorale romano|litorale laziale|via del mare|pontina|asl roma 3|asl roma 4|allumiere|tolfa'),
+        'palazzo san giacomo|comune di napoli|sindaco di napoli|consiglio comunale di napoli|giunta comunale di napoli|municipalita|'
+        'chiaia|vomero|arenella|posillipo|fuorigrotta|bagnoli|soccavo|pianura|scampia|secondigliano|miano|piscinola|marianella|chiaiano|'
+        'san giovanni a teduccio|barra|ponticelli|san pietro a patierno|poggioreale|vicaria|stella|san carlo all arena|avvocata|montecalvario|'
+        'pendino|mercato|san ferdinando|rione sanita|quartieri spagnoli|forcella|decumani|spaccanapoli|via toledo|piazza garibaldi|'
+        'piazza del plebiscito|piazza plebiscito|maschio angioino|castel dell ovo|castel sant elmo|lungomare di napoli|lungomare caracciolo|mergellina|'
+        'capodimonte|stadio maradona|stadio diego armando maradona|rione traiano|rione luzzatti|rione villa|napoli est|zona orientale|'
+        'centro direzionale|porto di napoli|molo beverello|stazione centrale di napoli|napoli centrale|capodichino|aeroporto di napoli|'
+        'ospedale cardarelli|cardarelli|ospedale del mare|policlinico federico ii|ospedale pellegrini|ospedale cotugno|ospedale santobono|'
+        'universita federico ii|federico ii|orientale di napoli|anm|metro linea 1|linea 1 della metropolitana|funicolare|via caracciolo|'
+        'galleria umberto|teatro san carlo|museo archeologico nazionale di napoli|mann|duomo di napoli|san gennaro|rione alto|colli aminei|'
+        'materdei|sanita|museo|santa lucia|borgo marinari|via chiaia|corso umberto|via foria|corso vittorio emanuele|piazza dante|piazza carita|'
+        'pallonetto|via marina|gianturco|vasto|arenaccia|ponti rossi|doganella|calata capodichino|camaldoli|vomero alto|largo maradona'),
+    'flegrea': (
+        'pozzuoli|bacoli|monte di procida|quarto flegreo|comune di quarto|campi flegrei|bradisismo|solfatara|lucrino|arco felice|licola|agnano|'
+        'baia|miseno|cuma|lago d averno|lago fusaro|fusaro|rione terra|area flegrea|flegreo|flegrea|varcaturo|lago patria|monterusciello|toiano'),
+    'vesuviana': (
+        'ercolano|portici|san giorgio a cremano|torre del greco|torre annunziata|pompei|boscoreale|boscotrecase|trecase|castellammare di stabia|'
+        'castellammare|gragnano|sant antonio abate|santa maria la carita|pimonte|agerola|lettere|casola di napoli|san giuseppe vesuviano|ottaviano|'
+        'somma vesuviana|sant anastasia|pollena trocchia|cercola|volla|san sebastiano al vesuvio|massa di somma|terzigno|poggiomarino|striano|'
+        'palma campania|san gennaro vesuviano|vesuvio|parco nazionale del vesuvio|scavi di pompei|circumvesuviana|area vesuviana|vesuviano|vesuviana|'
+        'zona rossa|stabia|juve stabia|scafati'),
     'nord': (
-        'bracciano|anguillara|trevignano|manziana|canale monterano|oriolo romano|campagnano|formello|sacrofano|morlupo|rignano flaminio|'
-        'castelnuovo di porto|riano|fiano romano|capena|sant oreste|cesano|la storta|lago di bracciano|cassia bis|braccianese|magliano romano|'
-        'mazzano romano|nazzano|torrita tiberina|filacciano|ponzano romano|civitella san paolo|nerola|moricone|montelibretti|monteflavio|montorio romano'),
-    'est': (
-        'tivoli|guidonia|montecelio|setteville|villalba di guidonia|monterotondo|mentana|fonte nuova|tor lupara|palombara sabina|marcellina|subiaco|'
-        'vicovaro|valle dell aniene|villa adriana|bagni di tivoli|colleferro|valmontone|palestrina|zagarolo|san cesareo|gallicano nel lazio|labico|artena|'
-        'genazzano|olevano romano|castel madama|san polo dei cavalieri|sant angelo romano|asl roma 5|carpineto romano|segni|gavignano|montelanico|'
-        'gorga|rocca di cave|capranica prenestina|cave|poli|casape|san gregorio da sassola|arsoli|agosta|anticoli corrado|cervara di roma|jenne|'
-        'vallepietra|licenza|roviano|riofreddo|cineto romano|sambuci|saracinesco|ciciliano|pisoniano|bellegra|rocca santo stefano|roiate|affile|'
-        'arcinazzo romano|percile|mandela|vivaro romano|vallinfreda|camerata nuova|marano equo|canterano|rocca canterano|cerreto laziale|gerano'),
+        'giugliano|afragola|casoria|acerra|casalnuovo|pomigliano d arco|pomigliano|marano di napoli|melito di napoli|mugnano|arzano|frattamaggiore|'
+        'frattaminore|grumo nevano|sant antimo|casandrino|qualiano|villaricca|calvizzano|caivano|parco verde|crispano|cardito|casavatore|'
+        'nola|marigliano|san vitaliano|cicciano|saviano|brusciano|mariglianella|castello di cisterna|camposano|comiziano|tufino|roccarainola|'
+        'liveri|visciano|carbonara di nola|san paolo bel sito|scisciano|cimitile|terra dei fuochi|area nord|area nolana|nolano|interporto di nola|'
+        'cis di nola|vulcano buono|casalnuovo di napoli|licignano|tavernanova'),
+    'isole': (
+        'ischia|casamicciola|lacco ameno|forio|barano d ischia|barano|serrara fontana|sant angelo d ischia|procida|capri|anacapri|marina grande|'
+        'faraglioni|grotta azzurra|sorrento|piano di sorrento|sant agnello|meta di sorrento|vico equense|massa lubrense|penisola sorrentina|'
+        'costiera sorrentina|seiano|marina del cantone|nerano'),
 }
 ZONE_RX = {z: re.compile(r'\b(?:' + w + r')\b') for z, w in ZONE_WORDS.items()}
-# segni certi di cronaca romana anche in una testata nazionale (niente nomi che sono anche cognomi, pianeti o parole comuni)
-_AMBIGUI = {'marino', 'albano', 'colonna', 'nettuno', 'mentana', 'artena', 'romani', 'tuscolana', 'pontina', 'eur', 'gra', 'ostiense', 'trionfale',
-            'riano', 'cesano', 'labico', 'fondi', 'lunghezza', 'ottavia', 'talenti', 'sora', 'segni', 'cave', 'poli', 'licenza', 'mandela', 'agosta',
-            'gorga', 'gerano', 'tolfa',
-            # eventi di richiamo nazionale: la copertura delle testate nazionali non è cronaca locale
-            'festa del cinema di roma', 'festa cinema roma',
-            # monumenti: compaiono anche nei documentari e nella storia antica, non sono cronaca locale
-            'colosseo', 'fori imperiali', 'piazza venezia', 'villa borghese', 'gianicolo', 'piazza di spagna', 'fontana di trevi', 'circo massimo',
-            'san giovanni in laterano', 'piazza san giovanni'}
+# segni certi di cronaca napoletana anche in una testata nazionale (niente nomi che sono anche cognomi, città altrove o parole comuni)
+_AMBIGUI = {'stella', 'barra', 'mercato', 'avvocata', 'vicaria', 'pianura', 'miano', 'baia', 'cuma', 'portici', 'lettere', 'sanita', 'museo',
+            'santa lucia', 'vasto', 'federico ii', 'mann', 'anm', 'castellammare', 'stabia', 'juve stabia', 'scafati', 'nola', 'barano',
+            'mugnano', 'agerola', 'zona rossa', 'funicolare', 'municipalita', 'san gennaro', 'cardarelli', 'flegreo', 'flegrea',
+            'vesuviano', 'vesuviana', 'nolano', 'area nord',
+            # monumenti e luoghi noti: compaiono anche nei documentari, nel turismo e nella storia, non sono cronaca locale
+            'scavi di pompei', 'pompei', 'capri', 'faraglioni', 'grotta azzurra', 'teatro san carlo', 'maschio angioino', 'castel dell ovo',
+            'museo archeologico nazionale di napoli', 'duomo di napoli', 'stadio maradona', 'stadio diego armando maradona', 'largo maradona'}
 _FORTI = [x for w in ZONE_WORDS.values() for x in w.split('|') if x not in _AMBIGUI]
-_FORTI += ['regione lazio', 'consiglio regionale del lazio', 'citta metropolitana di roma', 'provincia di roma', 'asl roma \\d', 'questura di roma',
-           'prefettura di roma']
-ROMA_STRONG = re.compile(r'\b(?:' + '|'.join(sorted(_FORTI, key=len, reverse=True)) + r')\b')
-ROMA_DATELINE = re.compile(r'^roma\b')
-ROMA_ANY = re.compile(r'\broma\b|\blazio\b')
+_FORTI += ['regione campania', 'consiglio regionale della campania', 'citta metropolitana di napoli', 'provincia di napoli', 'asl napoli \\d',
+           'questura di napoli', 'prefettura di napoli', 'procura di napoli', 'tribunale di napoli', 'carabinieri di napoli']
+CITY_STRONG = re.compile(r'\b(?:' + '|'.join(sorted(_FORTI, key=len, reverse=True)) + r')\b')
+CITY_DATELINE = re.compile(r'^napoli\b')
+CITY_ANY = re.compile(r'\bnapoli\b|\bnapoletan|\bpartenope|\bcampania\b')
 ZONE_ANY = re.compile(r'\b(?:' + '|'.join(ZONE_WORDS.values()) + r')\b')
-# altre province del Lazio: fuori dalla sezione (niente parole comuni come «fondi», «cori», «piglio»)
-OTHER_LAZIO = re.compile(r'\b(?:(?<!america )(?<!lingua )latina|aprilia|cisterna di latina|sermoneta|sezze|priverno|sonnino|pontinia|sabaudia|san felice circeo|circeo|'
-                         r'terracina|monte san biagio|sperlonga|itri|formia|gaeta|minturno|ponza|ventotene|agro pontino|pontino|frosinone|ciociaria|cassino|anagni|'
-                         r'alatri|ferentino|ceccano|veroli|fiuggi|isola del liri|arpino|pontecorvo|ceprano|paliano|roccasecca|viterbo|tuscia|civita castellana|'
-                         r'tarquinia|montalto di castro|vetralla|ronciglione|sutri|nepi|bolsena|montefiascone|tuscania|rieti|reatino|reatina|fara in sabina|'
-                         r'poggio mirteto|cittaducale|amatrice|leonessa)\b')
+# altre province della Campania: fuori dalla sezione (niente parole comuni)
+OTHER_REGION = re.compile(r'\b(?:salerno|salernitan|amalfi|costiera amalfitana|positano|ravello|maiori|minori|cetara|vietri sul mare|'
+                          r'cava de tirreni|nocera inferiore|nocera superiore|pagani|angri|sarno|battipaglia|eboli|paestum|agropoli|cilento|'
+                          r'vallo della lucania|sapri|caserta|casertan|aversa|marcianise|maddaloni|santa maria capua vetere|capua|mondragone|'
+                          r'castel volturno|sessa aurunca|caserta reggia|reggia di caserta|avellino|irpinia|irpino|ariano irpino|atripalda|'
+                          r'benevento|sannio|sannita|telese)\b')
 
 # sport: nella cronaca locale restano solo le piccole squadre del territorio
 SPORT_CTX = re.compile(r'\b(?:calci[oa]\b|calciator|gol\b|partit[ae]\b|campionat|allenator|mister\b|serie [abcd]\b|eccellenza|prima categoria|'
                        r'seconda categoria|terza categoria|juniores|basket|pallacanestro|volley|pallavolo|rugby|tennis|atletica|maratona|giocator|classifica|'
                        r'trasferta|derby|scudetto|champions|calciomercato|tifos|ultras|nuoto|pallanuoto|ciclismo|playoff|play off|coppa\b)')
-# solo nomi che non sono anche città (Napoli, Torino, Como... compaiono nella cronaca e nelle trasferte delle squadre minori)
-BIG_SPORT = re.compile(r'\b(?:as roma|ss lazio|(?:la|alla|della|dalla|nella|sulla|per la|con la|contro la) (?:roma|lazio)\b(?! (?:city|calcio a 5|c5))|'
-                       r'gialloross[oi]|biancocelest[ei]|trigoria|stadio olimpico|all olimpico|derby della capitale|derby capitolino|serie a\b|serie a1|'
-                       r'superlega|champions|europa league|conference league|coppa italia|supercoppa|nazionale italiana|la nazionale|azzurri|olimpiadi|'
-                       r'olimpiade|juventus|juve|inter|milan|atalanta|fiorentina|genoa|udinese|hellas|sinner|internazionali d italia|foro italico|atp|wta|'
-                       r'formula 1|f1|motogp|giro d italia|sei nazioni|nba|eurolega)\b')
+# la squadra si riconosce dall'articolo («il Napoli», «del Napoli»): la città non lo vuole («a Napoli», «di Napoli»)
+_TEAM = r'ssc napoli|(?:il|del|al|dal|nel|sul|col|per il|contro il|con il) napoli\b(?! (?:est|nord|centro|basket|calcio a 5|c5))|partenopei|azzurri di'
+BIG_SPORT = re.compile(r'\b(?:' + _TEAM + r'|stadio maradona|al maradona|castel volturno|serie a\b|serie a1|superlega|champions|europa league|'
+                       r'conference league|coppa italia|supercoppa|nazionale italiana|la nazionale|azzurri|olimpiadi|olimpiade|juventus|juve\b|inter\b|'
+                       r'milan\b|atalanta|fiorentina|roma\b|lazio\b|genoa|udinese|hellas|sinner|atp\b|wta\b|formula 1|f1\b|motogp|giro d italia|'
+                       r'sei nazioni|nba\b|eurolega)')
 
 
-# segni che bastano da soli (la squadra, il campionato maggiore) e contesto da squadra per «Roma, ...» / «Lazio, ...» in apertura
-TEAM_RX = re.compile(r'\b(?:as roma|ss lazio|(?:la|alla|della|dalla|nella|sulla|per la|con la|contro la) lazio\b|gialloross[oi]|biancocelest[ei]|'
-                     r'derby della capitale|derby capitolino|serie a\b|serie a1|champions league|europa league|conference league|calciomercato|scudetto)')
+# segni che bastano da soli (la squadra, il campionato maggiore) e contesto da squadra per «Napoli, ...» in apertura
+TEAM_RX = re.compile(r'\b(?:' + _TEAM + r'|serie a\b|serie a1|champions league|europa league|conference league|calciomercato|scudetto)')
 TEAM_CTX = re.compile(r'\b(?:calci[oa]\b|calciator|gol\b|partit[ae]\b|campionat|allenator|mister\b|serie [abcd]\b|giocator|trasferta|derby|tifos|ultras|'
                       r'playoff|convocat)')
-_TEAM_LEAD = re.compile(r'(?:roma|lazio)\b')
+_TEAM_LEAD = re.compile(r'napoli\b')
 
 
 def big_sport(nt):
@@ -252,25 +246,25 @@ NATIONAL_RX = re.compile(r'\b(?:' + '|'.join(_NAT) + r'|governo\b|ministr[oaie]\
 
 
 def _national(nt):
-    # i luoghi di Roma con nomi stranieri («piazza di Spagna») non fanno notizia nazionale
+    # i luoghi di Napoli con nomi che ricordano altro («via Toledo», «Santa Lucia») non fanno notizia nazionale
     return bool(NATIONAL_RX.search(ZONE_ANY.sub(' ', nt)))
 
 
 def is_local_text(nt, mode='local'):
-    """nt: titolo e sommario normalizzati. mode: 'pure' testata solo locale o rubrica Roma di una nazionale (basta che non parli
-    d'altro); 'local' testata che rilancia anche agenzie nazionali (serve un luogo della provincia o «Roma»);
+    """nt: titolo e sommario normalizzati. mode: 'pure' testata solo locale o rubrica Napoli di una nazionale (basta che non parli
+    d'altro); 'local' testata che rilancia anche agenzie nazionali (serve un luogo della provincia o «Napoli»);
     'mixed' testata anche nazionale (servono segni certi)."""
     if big_sport(nt):
         return False
-    if ROMA_STRONG.search(nt):
+    if CITY_STRONG.search(nt):
         return True
-    if OTHER_LAZIO.search(nt) or _national(nt):
+    if OTHER_REGION.search(nt) or _national(nt):
         return False
     if mode == 'mixed':
-        return bool(ROMA_DATELINE.search(nt))
+        return bool(CITY_DATELINE.search(nt))
     if mode == 'pure':
         return True
-    return bool(ZONE_ANY.search(nt) or ROMA_ANY.search(nt))
+    return bool(ZONE_ANY.search(nt) or CITY_ANY.search(nt))
 
 
 def story_local(headline, titles, n_loc, n_nat, foreign=False):
@@ -279,7 +273,7 @@ def story_local(headline, titles, n_loc, n_nat, foreign=False):
     txt = headline + ' . ' + titles
     if big_sport(txt):
         return False
-    strong_h = bool(ROMA_STRONG.search(headline))
+    strong_h = bool(CITY_STRONG.search(headline))
     if not n_nat:
         return n_loc > 0
     if not strong_h and (foreign or _national(headline)):
@@ -287,7 +281,7 @@ def story_local(headline, titles, n_loc, n_nat, foreign=False):
     if not n_loc:
         return strong_h and n_nat <= 3
     # con testate nazionali di mezzo il luogo deve stare nel titolo della storia, non solo in qualche voce
-    if strong_h or ROMA_ANY.search(headline) or ZONE_ANY.search(headline):
+    if strong_h or CITY_ANY.search(headline) or ZONE_ANY.search(headline):
         return True
     return n_loc >= n_nat
 
@@ -305,7 +299,7 @@ def zone_of(texts, default=None):
     return sc.most_common(1)[0][0] if sc else 'citta'
 
 
-T['roma'] = [(3, '|'.join(sorted(_FORTI, key=len, reverse=True)))]
+T['napoli'] = [(3, '|'.join(sorted(_FORTI, key=len, reverse=True)))]
 
 def expand(text, lang='it'):
     for rx, rep in (EXPAND_IT if lang == 'it' else EXPAND_ANY):
@@ -316,7 +310,7 @@ def expand(text, lang='it'):
 TOPIC_RX = {t: [(w, re.compile(r'\b(?:' + rx + r')', re.I)) for w, rx in lst] for t, lst in T.items()}
 
 # priorità di ripiego per temi equivalenti
-TOPIC_ORDER = ['italia', 'mondo', 'economia', 'cronaca', 'roma', 'motori', 'sport', 'scienza', 'salute', 'tech', 'clima', 'architettura', 'design', 'arte', 'cultura', 'spettacoli']
+TOPIC_ORDER = ['italia', 'mondo', 'economia', 'cronaca', 'napoli', 'motori', 'sport', 'scienza', 'salute', 'tech', 'clima', 'architettura', 'design', 'arte', 'cultura', 'spettacoli']
 
 # testate specializzate: tema di partenza
 OUTLET_TOPIC = {
@@ -334,7 +328,7 @@ OUTLET_TOPIC = {
     'archdaily': 'architettura', 'giornalearchitettura': 'architettura',
     'artribune': 'arte', 'exibart': 'arte', 'finestresullarte': 'arte', 'artslife': 'arte', 'artnews': 'arte',
     'hyperallergic': 'arte', 'artnewspaper': 'arte', 'colossal': 'arte', 'petapixel': 'arte', 'ilfotografo': 'arte',
-    'fotografiaartistica': 'arte',
+    'fotografiaartistica': 'arte', 'ilnapolista': 'sport',
 }
 MOTORSPORT = {'formulapassion', 'motorsport', 'gpone', 'therace'}
 NAUTICA = {'barcheamotore', 'nautica', 'barchemagazine', 'farevela', 'mby', 'yachtingworld', 'powermotoryacht', 'megayachtnews', 'boatingindustry'}

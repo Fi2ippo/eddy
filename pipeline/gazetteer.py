@@ -1,4 +1,4 @@
-"""Luoghi riconoscibili nei testi di Eddy, per le mappe delle storie.
+"""Luoghi riconoscibili nei testi di Eddy, per le mappe delle storie (con quartieri e comuni della provincia di Napoli).
 
 Ogni luogo: nomi (il primo è quello mostrato), codice numerico del paese (come in world-atlas),
 latitudine, longitudine, zoom ('citta', 'regione', 'paese', 'continente').
@@ -358,6 +358,60 @@ Fiano Romano;380;42.165;12.596;citta
 Civitavecchia;380;42.093;11.796;citta
 Caivano;380;40.957;14.306;citta
 Scampia;380;40.89;14.239;citta
+Ercolano;380;40.806;14.348;citta
+San Giorgio a Cremano;380;40.83;14.334;citta
+Torre del Greco;380;40.786;14.368;citta
+Torre Annunziata;380;40.753;14.452;citta
+Castellammare di Stabia;380;40.701;14.487;citta
+Gragnano;380;40.689;14.519;citta
+Boscoreale;380;40.774;14.476;citta
+Ottaviano;380;40.851;14.48;citta
+San Giuseppe Vesuviano;380;40.836;14.505;citta
+Somma Vesuviana;380;40.871;14.437;citta
+Sant'Anastasia;380;40.868;14.402;citta
+Cercola;380;40.858;14.357;citta
+Volla;380;40.88;14.341;citta
+Terzigno;380;40.809;14.493;citta
+Pollena Trocchia;380;40.853;14.381;citta
+Vesuvio|Vesuvius;380;40.821;14.426;citta
+Bacoli;380;40.797;14.078;citta
+Monte di Procida;380;40.797;14.05;citta
+Quarto Flegreo;380;40.879;14.142;citta
+Campi Flegrei|Phlegraean Fields;380;40.827;14.139;citta
+Giugliano in Campania|Giugliano;380;40.928;14.195;citta
+Afragola;380;40.922;14.309;citta
+Casoria;380;40.907;14.293;citta
+Acerra;380;40.946;14.372;citta
+Casalnuovo di Napoli|Casalnuovo;380;40.91;14.351;citta
+Pomigliano d'Arco|Pomigliano;380;40.909;14.383;citta
+Marano di Napoli;380;40.899;14.188;citta
+Melito di Napoli;380;40.922;14.231;citta
+Mugnano di Napoli;380;40.909;14.208;citta
+Arzano;380;40.912;14.266;citta
+Frattamaggiore;380;40.941;14.274;citta
+Sant'Antimo;380;40.942;14.235;citta
+Villaricca;380;40.92;14.193;citta
+Qualiano;380;40.92;14.153;citta
+Nola;380;40.926;14.528;citta
+Marigliano;380;40.925;14.457;citta
+Sorrento;380;40.626;14.376;citta
+Vico Equense;380;40.663;14.427;citta
+Massa Lubrense;380;40.611;14.344;citta
+Piano di Sorrento;380;40.633;14.411;citta
+Procida;380;40.762;14.024;citta
+Anacapri;380;40.555;14.214;citta
+Casamicciola Terme|Casamicciola;380;40.746;13.909;citta
+Forio;380;40.738;13.857;citta
+Lacco Ameno;380;40.751;13.887;citta
+Fuorigrotta;380;40.825;14.193;citta
+Bagnoli;380;40.806;14.163;citta
+Vomero;380;40.846;14.232;citta
+Posillipo;380;40.811;14.205;citta
+Secondigliano;380;40.898;14.258;citta
+Ponticelli;380;40.858;14.331;citta
+San Giovanni a Teduccio;380;40.837;14.306;citta
+Soccavo;380;40.846;14.194;citta
+Chiaia;380;40.836;14.236;citta
 Lamezia Terme;380;38.97;16.31;citta
 Mugello;380;43.997;11.371;citta
 Misano;380;43.962;12.684;citta

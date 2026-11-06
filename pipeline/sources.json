@@ -106,10 +106,6 @@
    {
     "u": "https://www.corriere.it/dynamic-feed/rss/section/motomondiale.xml",
     "h": "motori"
-   },
-   {
-    "u": "https://roma.corriere.it/rss/homepage.xml",
-    "h": "roma"
    }
   ]
  },
@@ -131,8 +127,8 @@
     "h": "motori"
    },
    {
-    "u": "https://roma.repubblica.it/rss/cronaca/rss2.0.xml",
-    "h": "roma"
+    "u": "https://napoli.repubblica.it/rss/cronaca/rss2.0.xml",
+    "h": "napoli"
    }
   ]
  },
@@ -209,10 +205,6 @@
    {
     "u": "https://www.ilmessaggero.it/rss/motori.xml",
     "h": "motori"
-   },
-   {
-    "u": "https://www.ilmessaggero.it/rss/roma.xml",
-    "h": "roma"
    }
   ]
  },
@@ -1667,256 +1659,6 @@
   ]
  },
  {
-  "o": "romatoday",
-  "name": "RomaToday",
-  "short": "RT",
-  "color": "#C8102E",
-  "kind": "Cronaca di Roma e provincia",
-  "lang": "it",
-  "site": "https://www.romatoday.it",
-  "sec": "roma",
-  "zona": "citta",
-  "feeds": [
-   {
-    "u": "https://www.romatoday.it/rss",
-    "h": "roma"
-   }
-  ]
- },
- {
-  "o": "iltempo",
-  "name": "Il Tempo",
-  "short": "TE",
-  "color": "#1B3A6B",
-  "kind": "Quotidiano di Roma",
-  "lang": "it",
-  "site": "https://www.iltempo.it",
-  "sec": "roma",
-  "zona": "citta",
-  "feeds": [],
-  "mista": true,
-  "gnq": "Roma"
- },
- {
-  "o": "abitarearoma",
-  "name": "Abitare a Roma",
-  "short": "AR",
-  "color": "#2E7D32",
-  "kind": "Quartieri e municipi di Roma",
-  "lang": "it",
-  "site": "https://www.abitarearoma.it",
-  "sec": "roma",
-  "zona": "citta",
-  "feeds": [
-   {
-    "u": "https://www.abitarearoma.it/feed/",
-    "h": "roma"
-   }
-  ]
- },
- {
-  "o": "diarioromano",
-  "name": "DiarioRomano",
-  "short": "DR",
-  "color": "#5D4037",
-  "kind": "Inchieste civiche su Roma",
-  "lang": "it",
-  "site": "https://www.diarioromano.it",
-  "sec": "roma",
-  "zona": "citta",
-  "feeds": [
-   {
-    "u": "https://www.diarioromano.it/feed/",
-    "h": "roma"
-   }
-  ]
- },
- {
-  "o": "vignaclarablog",
-  "name": "VignaClaraBlog",
-  "short": "VC",
-  "color": "#00695C",
-  "kind": "Roma nord",
-  "lang": "it",
-  "site": "https://www.vignaclarablog.it",
-  "sec": "roma",
-  "zona": "citta",
-  "feeds": [
-   {
-    "u": "https://www.vignaclarablog.it/feed/",
-    "h": "roma"
-   }
-  ]
- },
- {
-  "o": "ilmamilio",
-  "name": "Il Mamilio",
-  "short": "MA",
-  "color": "#8E1B3A",
-  "kind": "Castelli Romani",
-  "lang": "it",
-  "site": "https://www.ilmamilio.it",
-  "sec": "roma",
-  "zona": "castelli",
-  "feeds": []
- },
- {
-  "o": "castellinotizie",
-  "name": "Castelli Notizie",
-  "short": "CN",
-  "color": "#1565C0",
-  "kind": "Castelli Romani",
-  "lang": "it",
-  "site": "https://www.castellinotizie.it",
-  "sec": "roma",
-  "zona": "castelli",
-  "feeds": [
-   {
-    "u": "https://www.castellinotizie.it/feed/",
-    "h": "roma"
-   }
-  ]
- },
- {
-  "o": "ilcaffe",
-  "name": "Il Caffè",
-  "short": "CF",
-  "color": "#6D4C41",
-  "kind": "Inchieste su Castelli e litorale",
-  "lang": "it",
-  "site": "https://www.ilcaffe.tv",
-  "sec": "roma",
-  "zona": "castelli",
-  "feeds": [
-   {
-    "u": "https://www.ilcaffe.tv/feed/",
-    "h": "roma"
-   }
-  ]
- },
- {
-  "o": "metamagazine",
-  "name": "Meta Magazine",
-  "short": "ME",
-  "color": "#AD1457",
-  "kind": "Castelli Romani e litorale",
-  "lang": "it",
-  "site": "https://www.metamagazine.it",
-  "sec": "roma",
-  "zona": "castelli",
-  "feeds": [
-   {
-    "u": "https://www.metamagazine.it/feed/",
-    "h": "roma"
-   }
-  ]
- },
- {
-  "o": "infocastelli",
-  "name": "Giornale Info Castelli Romani",
-  "short": "GC",
-  "color": "#283593",
-  "kind": "Castelli Romani",
-  "lang": "it",
-  "site": "https://www.giornaleinfocastelliromani.it",
-  "sec": "roma",
-  "zona": "castelli",
-  "feeds": [
-   {
-    "u": "https://www.giornaleinfocastelliromani.it/feed/",
-    "h": "roma"
-   }
-  ],
-  "rilancia": true
- },
- {
-  "o": "ilfaroonline",
-  "name": "Il Faro Online",
-  "short": "FO",
-  "color": "#0277BD",
-  "kind": "Litorale romano",
-  "lang": "it",
-  "site": "https://www.ilfaroonline.it",
-  "sec": "roma",
-  "zona": "litorale",
-  "feeds": [
-   {
-    "u": "https://www.ilfaroonline.it/feed/",
-    "h": "roma"
-   }
-  ],
-  "mista": true
- },
- {
-  "o": "ilclandestino",
-  "name": "Il Clandestino",
-  "short": "CL",
-  "color": "#37474F",
-  "kind": "Anzio, Nettuno e litorale sud",
-  "lang": "it",
-  "site": "https://ilclandestinogiornale.radioroma.it",
-  "sec": "roma",
-  "zona": "litorale",
-  "feeds": [
-   {
-    "u": "https://ilclandestinogiornale.radioroma.it/feed/",
-    "h": "roma"
-   }
-  ],
-  "rilancia": true
- },
- {
-  "o": "terzobinario",
-  "name": "TerzoBinario",
-  "short": "T3",
-  "color": "#EF6C00",
-  "kind": "Litorale nord e lago di Bracciano",
-  "lang": "it",
-  "site": "https://www.terzobinario.it",
-  "sec": "roma",
-  "zona": "nord",
-  "feeds": [
-   {
-    "u": "https://www.terzobinario.it/feed/",
-    "h": "roma"
-   }
-  ]
- },
- {
-  "o": "baraondanews",
-  "name": "BaraondaNews",
-  "short": "BA",
-  "color": "#6A1B9A",
-  "kind": "Litorale nord e lago di Bracciano",
-  "lang": "it",
-  "site": "https://www.baraondanews.it",
-  "sec": "roma",
-  "zona": "nord",
-  "feeds": [
-   {
-    "u": "https://www.baraondanews.it/feed/",
-    "h": "roma"
-   }
-  ]
- },
- {
-  "o": "tiburno",
-  "name": "Tiburno",
-  "short": "TI",
-  "color": "#00838F",
-  "kind": "Tivoli, Guidonia e Valle dell’Aniene",
-  "lang": "it",
-  "site": "https://www.tiburno.tv",
-  "sec": "roma",
-  "zona": "est",
-  "feeds": [
-   {
-    "u": "https://www.tiburno.tv/feed/",
-    "h": "roma"
-   }
-  ]
- },
- {
   "o": "abitare",
   "name": "Abitare",
   "short": "AB",
@@ -2433,6 +2175,234 @@
    {
     "u": "https://www.fotografiaartistica.it/feed/",
     "h": "arte"
+   }
+  ]
+ },
+ {
+  "o": "ilmattino",
+  "name": "Il Mattino",
+  "short": "MT",
+  "color": "#00427A",
+  "kind": "Quotidiano di Napoli",
+  "lang": "it",
+  "site": "https://www.ilmattino.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.ilmattino.it/rss/home.xml"
+   },
+   {
+    "u": "https://www.ilmattino.it/rss/napoli.xml",
+    "h": "napoli"
+   }
+  ]
+ },
+ {
+  "o": "napolitoday",
+  "name": "NapoliToday",
+  "short": "NT",
+  "color": "#C8102E",
+  "kind": "Cronaca di Napoli e provincia",
+  "lang": "it",
+  "site": "https://www.napolitoday.it",
+  "sec": "napoli",
+  "zona": "citta",
+  "feeds": [
+   {
+    "u": "https://www.napolitoday.it/rss",
+    "h": "napoli"
+   }
+  ]
+ },
+ {
+  "o": "ilroma",
+  "name": "Il Roma",
+  "short": "RM",
+  "color": "#1B3A6B",
+  "kind": "Quotidiano di Napoli",
+  "lang": "it",
+  "site": "https://www.ilroma.net",
+  "sec": "napoli",
+  "zona": "citta",
+  "mista": true,
+  "feeds": [
+   {
+    "u": "https://www.ilroma.net/rss.xml",
+    "h": "napoli"
+   }
+  ]
+ },
+ {
+  "o": "internapoli",
+  "name": "Internapoli",
+  "short": "IN",
+  "color": "#0277BD",
+  "kind": "Cronaca di Napoli e area nord",
+  "lang": "it",
+  "site": "https://www.internapoli.it",
+  "sec": "napoli",
+  "zona": "nord",
+  "rilancia": true,
+  "feeds": [
+   {
+    "u": "https://www.internapoli.it/feed/",
+    "h": "napoli"
+   }
+  ]
+ },
+ {
+  "o": "ilmediano",
+  "name": "Il Mediano",
+  "short": "MD",
+  "color": "#6A1B9A",
+  "kind": "Area nord di Napoli",
+  "lang": "it",
+  "site": "https://www.ilmediano.com",
+  "sec": "napoli",
+  "zona": "nord",
+  "rilancia": true,
+  "feeds": [
+   {
+    "u": "https://www.ilmediano.com/feed/",
+    "h": "napoli"
+   }
+  ]
+ },
+ {
+  "o": "metropolis",
+  "name": "Metropolis",
+  "short": "MP",
+  "color": "#B71C1C",
+  "kind": "Area vesuviana e stabiese",
+  "lang": "it",
+  "site": "https://www.metropolisweb.it",
+  "sec": "napoli",
+  "zona": "vesuviana",
+  "feeds": [
+   {
+    "u": "https://www.metropolisweb.it/feed/",
+    "h": "napoli"
+   }
+  ]
+ },
+ {
+  "o": "vesuviolive",
+  "name": "Vesuvio Live",
+  "short": "VL",
+  "color": "#E65100",
+  "kind": "Area vesuviana e Napoli",
+  "lang": "it",
+  "site": "https://www.vesuviolive.it",
+  "sec": "napoli",
+  "zona": "vesuviana",
+  "rilancia": true,
+  "feeds": [
+   {
+    "u": "https://www.vesuviolive.it/feed/",
+    "h": "napoli"
+   }
+  ]
+ },
+ {
+  "o": "fattovesuviano",
+  "name": "Il Fatto Vesuviano",
+  "short": "FV",
+  "color": "#2E7D32",
+  "kind": "Area vesuviana",
+  "lang": "it",
+  "site": "https://www.ilfattovesuviano.it",
+  "sec": "napoli",
+  "zona": "vesuviana",
+  "rilancia": true,
+  "feeds": [
+   {
+    "u": "https://www.ilfattovesuviano.it/feed/",
+    "h": "napoli"
+   }
+  ]
+ },
+ {
+  "o": "ilgolfo",
+  "name": "Il Golfo 24",
+  "short": "G2",
+  "color": "#00838F",
+  "kind": "Ischia e Procida",
+  "lang": "it",
+  "site": "https://www.ilgolfo24.it",
+  "sec": "napoli",
+  "zona": "isole",
+  "feeds": [
+   {
+    "u": "https://www.ilgolfo24.it/feed/",
+    "h": "napoli"
+   }
+  ]
+ },
+ {
+  "o": "capripress",
+  "name": "Capri Press",
+  "short": "CP",
+  "color": "#1565C0",
+  "kind": "Capri",
+  "lang": "it",
+  "site": "https://www.capripress.com",
+  "sec": "napoli",
+  "zona": "isole",
+  "feeds": [
+   {
+    "u": "https://www.capripress.com/feed/",
+    "h": "napoli"
+   }
+  ]
+ },
+ {
+  "o": "sorrentopress",
+  "name": "Sorrento Press",
+  "short": "SP",
+  "color": "#5D4037",
+  "kind": "Penisola sorrentina",
+  "lang": "it",
+  "site": "https://www.sorrentopress.it",
+  "sec": "napoli",
+  "zona": "isole",
+  "feeds": [
+   {
+    "u": "https://www.sorrentopress.it/feed/",
+    "h": "napoli"
+   }
+  ]
+ },
+ {
+  "o": "positanonews",
+  "name": "Positano News",
+  "short": "PN",
+  "color": "#AD1457",
+  "kind": "Penisola sorrentina e costiera",
+  "lang": "it",
+  "site": "https://www.positanonews.it",
+  "sec": "napoli",
+  "zona": "isole",
+  "rilancia": true,
+  "feeds": [
+   {
+    "u": "https://www.positanonews.it/feed/",
+    "h": "napoli"
+   }
+  ]
+ },
+ {
+  "o": "ilnapolista",
+  "name": "Il Napolista",
+  "short": "NA",
+  "color": "#0A86BF",
+  "kind": "Il Napoli e il calcio",
+  "lang": "it",
+  "site": "https://www.ilnapolista.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.ilnapolista.it/feed/",
+    "h": "sport"
    }
   ]
  }

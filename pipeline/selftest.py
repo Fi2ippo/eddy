@@ -25,18 +25,37 @@ def check(name, cond):
         FAIL.append(name)
 
 
-# cronaca locale di Roma e provincia
+# cronaca locale di Napoli e provincia
 loc = lambda t, m='pure': L.is_local_text(L.norm(t), m)  # noqa: E731
-check('locale: Frascati', loc('Calcio Eccellenza, la Lupa Frascati pareggia contro l Arce'))
-check('locale: Ciampino', loc('Ciampino, autista positivo a cocaina e alcol', 'local'))
+check('locale: Pozzuoli', loc('Bradisismo, nuova scossa a Pozzuoli: verifiche nelle scuole'))
+check('locale: Casoria', loc('Casoria, auto in fiamme nella notte in via Nazionale', 'local'))
+check('locale: Vomero', loc('Vomero, chiusa la funicolare di Chiaia per un guasto', 'local'))
 check('nazionale: governo', not loc('Tetto al gas, Pichetto Fratin: taglierà le bollette', 'local'))
 check('estero', not loc('Francia, 855 fermi dopo i disordini a Parigi', 'local'))
-check('sport di vertice', not loc('La Lazio a Torino: Gattuso cerca punti pesanti'))
-check('altra provincia', not loc('Dramma a Pontecorvo, travolge un bracciante e fugge', 'local'))
-check('piazza di Spagna non è la Spagna', loc('Premiate cinque donne del cinema a Piazza di Spagna'))
+check('sport di vertice: il Napoli', not loc('Il Napoli a Torino: Conte cerca punti pesanti'))
+check('altra provincia: Salerno', not loc('Dramma a Battipaglia, travolge un bracciante e fugge', 'local'))
 check('testata mista senza segni certi', not loc('Meloni alla Niaf: il Columbus Day resta', 'mixed'))
-check('storia locale con testate nazionali', L.story_local(L.norm('Omicidio-suicidio a Roma, anziano spara alla moglie'), '', 3, 8))
+check('storia locale con testate nazionali', L.story_local(L.norm('Omicidio-suicidio a Napoli, anziano spara alla moglie'), '', 3, 8))
 check('storia nazionale con una voce locale', not L.story_local(L.norm('Attentato a Ranucci, Lavitola resta in carcere'), '', 1, 4))
+check('zona: Ischia nelle isole', L.zone_of([(L.norm('Ischia, frana a Casamicciola'), 3)]) == 'isole')
+
+# design, architettura, arte
+from collections import Counter  # noqa: E402
+
+
+def top_topic(t):
+    sc = Counter()
+    for tp, rules in L.TOPIC_RX.items():
+        for w, rx in rules:
+            sc[tp] += w * len({m.group(0) for m in rx.finditer(L.norm(t))})
+    return sc.most_common(1)[0][0] if sc and max(sc.values()) > 0 else None
+
+
+check('tema: design', top_topic('Salone del Mobile, le novità del design italiano') == 'design')
+check('tema: architettura', top_topic('Renzo Piano progetta il nuovo padiglione della Biennale di Architettura') == 'architettura')
+check('tema: arte', top_topic('Caravaggio ritrovato, la mostra al museo di Capodimonte') == 'arte')
+check('«désigner» in francese non è design', top_topic('Le congrès du parti devant désigner son successeur') != 'design')
+check('Casa Bianca non è architettura', top_topic('Trump alla Casa Bianca incontra Zelensky') == 'mondo')
 
 # indirizzi e voci
 outlets = {'ansa': {'name': 'ANSA', 'lang': 'it', 'sec': 'it'}}
@@ -59,7 +78,7 @@ check('testata indipendente', 'ag' not in srcs[3])
 check('nomi e numeri', E.informative('Milano, Piantedosi risponde a Sala: 17 arrestati') >= {'piantedosi', 'sala', '17'})
 
 # segni «++» delle ultim'ora
-check('via i ++', E.clean_title('++ Omicidio a Roma, arrestato il vicino ++', {}) == 'Omicidio a Roma, arrestato il vicino')
+check('via i ++', E.clean_title('++ Omicidio a Napoli, arrestato il vicino ++', {}) == 'Omicidio a Napoli, arrestato il vicino')
 check('++ attaccati', E.clean_title('++Ucraina: attacco su Kiev++', {}) == 'Ucraina: attacco su Kiev')
 check('C++ resta', E.clean_title('Microsoft aggiorna C++ e Notepad++', {}) == 'Microsoft aggiorna C++ e Notepad++')
 check('sintesi senza ++', E.noplus('Primo ++ urgente ++ (ANSA)\n\nSecondo', False) == 'Primo urgente (ANSA)\n\nSecondo')

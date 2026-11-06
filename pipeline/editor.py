@@ -40,8 +40,11 @@ RECENT_HOURS = 48
 TAU = float(os.environ.get('EDDY_TAU', '0.30'))
 MAX_RECENT = 320          # storie delle ultime 48 ore pubblicate al massimo
 MAX_SINGLE = 80           # di cui al massimo queste di una sola testata (le specialistiche prima)
-MAX_LOCAL = 110           # Roma e provincia: conto a parte, non tolgono posto alle altre
+MAX_LOCAL = 110           # Napoli e provincia: conto a parte, non tolgono posto alle altre
 MAX_LOCAL_SINGLE = 80
+MAX_THEMED = 90           # design, architettura, arte: conto a parte (riviste di settore), come Napoli
+MAX_THEMED_SINGLE = 75
+THEMED = ('design', 'architettura', 'arte')
 LIVE = re.compile(r'(\blive\b|liveblog|live blog|live updates|\bdiretta\b|in diretta|minuto per minuto|as it happened|en direct|\ben vivo\b|\bticker\b|newsblog|🔴)', re.I)
 MAX_SOURCES = 16
 AGENCIES = {'ansa', 'agi', 'adnkronos'}
@@ -253,13 +256,13 @@ def prepare(items, outlets):
         if junk_title(t, it.get('s') or ''):
             continue
         hint = it.get('h')
-        if o.get('sec') == 'roma' or hint == 'roma':
+        if o.get('sec') == 'napoli' or hint == 'napoli':
             # solo cronaca locale: le testate del territorio perdono le notizie nazionali, estere e lo sport di vertice;
-            # la rubrica Roma di una testata nazionale le tiene, ma come notizie nazionali
+            # la rubrica Napoli di una testata nazionale le tiene, ma come notizie nazionali
             mode = 'mixed' if o.get('mista') else 'local' if o.get('rilancia') else 'pure'
             if L.is_local_text(L.norm(t + ' . ' + (it.get('s') or '')), mode):
-                hint = 'roma'
-            elif o.get('sec') == 'roma':
+                hint = 'napoli'
+            elif o.get('sec') == 'napoli':
                 continue
             else:
                 hint = None
@@ -502,8 +505,8 @@ def topic_scores(text_title, text_body, members, outlets):
             sc[t] += w * (2 * len(hits_t) + min(len(hits_b), 4))
     for it in members:
         o = outlets.get(it['o'], {})
-        if it.get('h') == 'roma':
-            sc['roma'] += 9
+        if it.get('h') == 'napoli':
+            sc['napoli'] += 9
         elif it.get('h'):
             sc[it['h']] += 5
         ot = L.OUTLET_TOPIC.get(it['o'])
@@ -682,7 +685,7 @@ def weight_of(o, outlets):
         return 1.1
     if oo.get('sec') in ('scienza', 'motori'):
         return 0.7
-    if oo.get('sec') == 'roma':
+    if oo.get('sec') == 'napoli':
         return 0.6
     return 1.0
 
@@ -786,21 +789,21 @@ def build_story(members, vecs_idx, vecs, outlets, geoc):
     if place and place['cc'] != '380' and max([sc[t] for t in sc if t not in ('italia', 'cronaca', 'mondo')] or [0]) < 8:
         sc['mondo'] += 6
     topic, alt = classify(sc, members, outlets)
-    # Roma e provincia: solo cronaca locale. Le storie nazionali o estere che citano Roma restano nei loro temi, senza Roma.
-    loc_o = {it['o'] for it in members if it.get('h') == 'roma'}
-    nat_o = {it['o'] for it in members if it.get('h') != 'roma'} - loc_o
-    if (topic == 'roma' or 'roma' in alt or loc_o) and L.story_local(L.norm(headline), L.norm(titles), len(loc_o), len(nat_o),
+    # Napoli e provincia: solo cronaca locale. Le storie nazionali o estere che citano Napoli restano nei loro temi, senza Napoli.
+    loc_o = {it['o'] for it in members if it.get('h') == 'napoli'}
+    nat_o = {it['o'] for it in members if it.get('h') != 'napoli'} - loc_o
+    if (topic == 'napoli' or 'napoli' in alt or loc_o) and L.story_local(L.norm(headline), L.norm(titles), len(loc_o), len(nat_o),
                                                                     bool(place and place['cc'] != '380')):
-        if topic != 'roma':
-            topic, alt = 'roma', [topic] + [t for t in alt if t not in ('roma', topic)][:1]
-    elif topic == 'roma':
-        rest = [t for t, v in sorted(sc.items(), key=lambda kv: -kv[1]) if t != 'roma' and v > 0]
+        if topic != 'napoli':
+            topic, alt = 'napoli', [topic] + [t for t in alt if t not in ('napoli', topic)][:1]
+    elif topic == 'napoli':
+        rest = [t for t, v in sorted(sc.items(), key=lambda kv: -kv[1]) if t != 'napoli' and v > 0]
         topic = rest[0] if rest else 'cronaca'
-        alt = [t for t in alt if t not in ('roma', topic)][:2]
-    alt = [t for t in alt if t != 'roma']
+        alt = [t for t in alt if t not in ('napoli', topic)][:2]
+    alt = [t for t in alt if t != 'napoli']
     dossier = pick_dossier(headline + ' . ' + titles, body, topic, alt)
     zona = None
-    if topic == 'roma':
+    if topic == 'napoli':
         dz = Counter(outlets.get(it['o'], {}).get('zona') for it in members if outlets.get(it['o'], {}).get('zona'))
         zona = L.zone_of([(L.norm(headline), 3), (L.norm(titles), 2), (L.norm(body), 1)], dz.most_common(1)[0][0] if dz else None)
 
@@ -906,7 +909,7 @@ def eligible(members, outlets):
     o = outlets.get(it['o'], {})
     if it.get('live'):
         return False, True
-    if o.get('sec') in ('scienza', 'motori', 'roma') or it.get('h') in ('scienza', 'salute', 'tech', 'clima', 'motori', 'roma'):
+    if o.get('sec') in ('scienza', 'motori', 'napoli', 'design') or it.get('h') in ('scienza', 'salute', 'tech', 'clima', 'motori', 'napoli') + THEMED:
         return bool(it.get('img') or len(it['s']) >= 40), True
     if it.get('img') and len(it['s']) >= 80:
         return True, True
@@ -1013,13 +1016,13 @@ def main():
     have = Counter()
     for sid, s in prev.items():
         if s.get('weak') and s.get('outletIds') and (NOW - (pdate(s.get('updatedAt') or '') or NOW)) < timedelta(hours=24):
-            have[(s['outletIds'][0], s.get('topic') == 'roma')] += 1
+            have[(s['outletIds'][0], s.get('topic') == 'napoli')] += 1
 
     def cap_of(o, local=False):
         if local:
             return 8
         sec = outlets_src.get(o, {}).get('sec')
-        return {'it': 2, 'mondo': 1, 'scienza': 2, 'motori': 2}.get(sec, 1)
+        return {'it': 2, 'mondo': 1, 'scienza': 2, 'motori': 2, 'design': 3}.get(sec, 1)
 
     def sing_score(it):
         hrs = (NOW - it['d']).total_seconds() / 3600
@@ -1029,7 +1032,7 @@ def main():
         g, members, weak, cvec, sid = row
         if weak and not sid and len({m['o'] for m in members}) == 1:
             o = members[0]['o']
-            loc = members[0].get('h') == 'roma'
+            loc = members[0].get('h') == 'napoli'
             if (NOW - members[-1]['d']) > timedelta(hours=24) or have[(o, loc)] >= cap_of(o, loc):
                 continue
             have[(o, loc)] += 1
@@ -1133,13 +1136,13 @@ def main():
             s['sources'] = srcs
             s['outletIds'] = list(dict.fromkeys(x['o'] for x in srcs))
             s['keys'] = [k for k in keys if k not in claimed]
-        if s.get('topic') == 'roma' or 'roma' in (s.get('alt') or []):
+        if s.get('topic') == 'napoli' or 'napoli' in (s.get('alt') or []):
             # storie d'archivio classificate con regole più larghe: le voci delle testate locali passano di nuovo
-            # il filtro della cronaca locale e Roma resta solo se la storia è locale
+            # il filtro della cronaca locale di Napoli resta solo se la storia è locale
             so = []
             for x in s.get('sources', []):
                 oo = outlets_src.get(x['o'], {})
-                if oo.get('sec') == 'roma' and not L.is_local_text(L.norm((x.get('t') or '') + ' . ' + (x.get('s') or '')),
+                if oo.get('sec') == 'napoli' and not L.is_local_text(L.norm((x.get('t') or '') + ' . ' + (x.get('s') or '')),
                                                                      'mixed' if oo.get('mista') else 'local' if oo.get('rilancia') else 'pure'):
                     continue
                 so.append(x)
@@ -1149,13 +1152,13 @@ def main():
                 s = dict(s)
                 s['sources'] = so
                 s['outletIds'] = list(dict.fromkeys(x['o'] for x in so))
-            loc = {x['o'] for x in so if outlets_src.get(x['o'], {}).get('sec') == 'roma' or x.get('h') == 'roma'}
+            loc = {x['o'] for x in so if outlets_src.get(x['o'], {}).get('sec') == 'napoli' or x.get('h') == 'napoli'}
             nat = {x['o'] for x in so} - loc
             ok = L.story_local(L.norm(s.get('headline') or ''), L.norm(' . '.join(x.get('t') or '' for x in so[:12])), len(loc), len(nat))
-            if not ok or s.get('topic') != 'roma':
+            if not ok or s.get('topic') != 'napoli':
                 s = dict(s)
-                alt = [t for t in (s.get('alt') or []) if t != 'roma']
-                if s.get('topic') == 'roma':
+                alt = [t for t in (s.get('alt') or []) if t != 'napoli']
+                if s.get('topic') == 'napoli':
                     s['topic'], alt = (alt[0] if alt else 'cronaca'), alt[1:]
                     s.pop('zona', None)
                 s['alt'] = alt
@@ -1188,11 +1191,12 @@ def main():
     def worth(k):
         v = stories[k]
         hrs = (NOW - (pdate(v['updatedAt']) or NOW)).total_seconds() / 3600
-        spec = outlets_src.get((v.get('outletIds') or [''])[0], {}).get('sec') in ('scienza', 'motori', 'roma')
+        spec = outlets_src.get((v.get('outletIds') or [''])[0], {}).get('sec') in ('scienza', 'motori', 'napoli', 'design')
         return (v.get('rank', 40) + 6 * min(len(v.get('outletIds', [])), 6) - hrs * 0.8 + (4 if v.get('img') else 0)
                 + (8 if spec else 0) + (10 if k in prev else 0))
-    rec_l = [k for k in rec if stories[k].get('topic') == 'roma']
-    rec = [k for k in rec if stories[k].get('topic') != 'roma']
+    rec_l = [k for k in rec if stories[k].get('topic') == 'napoli']
+    rec_t = [k for k in rec if stories[k].get('topic') in THEMED]
+    rec = [k for k in rec if stories[k].get('topic') != 'napoli' and stories[k].get('topic') not in THEMED]
     singles = sorted((k for k in rec if len(stories[k].get('outletIds', [])) < 2), key=worth, reverse=True)
     multis = sorted((k for k in rec if len(stories[k].get('outletIds', [])) >= 2), key=worth, reverse=True)
     n_single = min(len(singles), MAX_SINGLE, max(0, MAX_RECENT - min(len(multis), MAX_RECENT - min(len(singles), MAX_SINGLE))))
@@ -1204,6 +1208,12 @@ def main():
     n_ls = min(len(l_single), MAX_LOCAL_SINGLE)
     n_lm = min(len(l_multi), MAX_LOCAL - n_ls)
     for k in l_single[n_ls:] + l_multi[n_lm:]:
+        stories.pop(k)
+    t_single = sorted((k for k in rec_t if len(stories[k].get('outletIds', [])) < 2), key=worth, reverse=True)
+    t_multi = sorted((k for k in rec_t if len(stories[k].get('outletIds', [])) >= 2), key=worth, reverse=True)
+    n_ts = min(len(t_single), MAX_THEMED_SINGLE)
+    n_tm = min(len(t_multi), MAX_THEMED - n_ts)
+    for k in t_single[n_ts:] + t_multi[n_tm:]:
         stories.pop(k)
 
     # traduzioni vecchie con caratteri persi («⁇»): si riparano dall'originale
@@ -1237,15 +1247,15 @@ def main():
         hrs = (NOW - up).total_seconds() / 3600
         if hrs > 16 or len(s['outletIds']) < 2:
             continue
-        if s.get('topic') == 'roma' and all(outlets_src.get(o, {}).get('sec') == 'roma' for o in s['outletIds']):
-            continue  # in prima pagina solo la cronaca romana ripresa anche dalle testate nazionali
+        if s.get('topic') == 'napoli' and all(outlets_src.get(o, {}).get('sec') == 'napoli' for o in s['outletIds']):
+            continue  # in prima pagina solo la cronaca napoletana ripresa anche dalle testate nazionali
         sc = s['rank'] - 1.2 * hrs + (8 if sid in prev_top else 0) + (2 if s.get('img') else 0)
         cands.append((sc, sid))
     cands.sort(reverse=True)
     top, per_t, per_d = [], Counter(), Counter()
     for sc, sid in cands:
         s = stories[sid]
-        if per_t[s['topic']] >= (1 if s['topic'] == 'roma' else 3) or (s.get('dossier') and per_d[s['dossier']] >= 2):
+        if per_t[s['topic']] >= (1 if s['topic'] == 'napoli' else 3) or (s.get('dossier') and per_d[s['dossier']] >= 2):
             continue
         if any(cos(s.get('vec') or {}, stories[t].get('vec') or {}) >= 0.3 for t in top):
             continue

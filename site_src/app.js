@@ -3,7 +3,7 @@
 
 /* ---------- costanti ---------- */
 const TOPICS = [
-  {id:'roma',      name:'Roma',       long:'Roma e provincia',    c:'#9B2242'},
+  {id:'napoli',    name:'Napoli',     long:'Napoli e provincia',  c:'#0A86BF'},
   {id:'italia',    name:'Politica',   long:'Politica italiana',   c:'#D0553A'},
   {id:'mondo',     name:'Mondo',      long:'Esteri e geopolitica',c:'#2F6FD0'},
   {id:'economia',  name:'Economia',   long:'Economia e lavoro',   c:'#B7861C'},
@@ -22,7 +22,7 @@ const TOPICS = [
 ];
 const TMAP = Object.fromEntries(TOPICS.map(t => [t.id, t]));
 const TICON = {
-  roma:'<path d="M3.5 20.5h17"/><path d="M4.5 20.5V10c0-2.5 3.4-4.5 7.5-4.5s7.5 2 7.5 4.5v10.5"/><path d="M4.5 13.5h15M8 20.5v-3.2a1.5 1.5 0 0 1 3 0v3.2M13 20.5v-3.2a1.5 1.5 0 0 1 3 0v3.2M8 10.2v.6M12 9.8v.6M16 10.2v.6"/>',
+  napoli:'<path d="M2.5 20h19"/><path d="M3.5 20l5.2-8.6c.7-1.1 1.6-1.4 2.3-.6l.9 1 1-1.2c.6-.7 1.5-.6 2.1.3L20.5 20"/><path d="M11.2 8.2c.2-1.6 1.4-2.7 2.8-2.7M13.6 4.2c.9-.8 2.2-1 3.4-.5"/>',
   italia:'<path d="M3 20h18M4.5 17h15M6 10v7M10 10v7M14 10v7M18 10v7M3 10h18L12 4z"/>',
   mondo:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/>',
   economia:'<path d="M3 17l5.5-5.5 4 4L21 7"/><path d="M15 7h6v6"/>',
@@ -64,10 +64,10 @@ const ICON = {
 };
 const LANGN = {it:'italiano', en:'inglese', fr:'francese', de:'tedesco', es:'spagnolo', pt:'portoghese', nl:'olandese'};
 const LANGF = {en:"dall'inglese", fr:'dal francese', de:'dal tedesco', es:'dallo spagnolo', pt:'dal portoghese', nl:"dall'olandese"};
-const ZONES = [['citta', 'Roma'], ['castelli', 'Castelli Romani'], ['litorale', 'Litorale'], ['nord', 'Nord e lago di Bracciano'], ['est', 'Tivoli e area est']];
+const ZONES = [['citta', 'Napoli'], ['flegrea', 'Area flegrea'], ['vesuviana', 'Area vesuviana'], ['nord', 'Area nord e nolana'], ['isole', 'Isole e penisola sorrentina']];
 const ZMAP = Object.fromEntries(ZONES);
 const PIN = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>';
-const SECS = [['roma', 'Roma e provincia'], ['it', 'Italiane'], ['mondo', 'Dal mondo'], ['scienza', 'Scienza, salute e tecnologia'], ['design', 'Design, architettura e arte'], ['motori', 'Motori e nautica']];
+const SECS = [['napoli', 'Napoli e provincia'], ['it', 'Italiane'], ['mondo', 'Dal mondo'], ['scienza', 'Scienza, salute e tecnologia'], ['design', 'Design, architettura e arte'], ['motori', 'Motori e nautica']];
 function ticon(id, cls){ return `<svg class="i ${cls || ''}" viewBox="0 0 24 24" aria-hidden="true">${TICON[id] || TICON.mondo}</svg>`; }
 
 /* ---------- utilità ---------- */
@@ -265,8 +265,13 @@ function imgUrl(img){
 function logoUrl(l){ return /^(https?:|\/|logos\/|data:)/.test(l) ? l : '/_blob/' + l; }
 function hasPlace(s){ return s && s.place && typeof s.place.lat === 'number' && typeof s.place.lon === 'number'; }
 function fallbackVisual(s, kind){ return hasPlace(s) ? mapSvg(s.place, kind) : art(s, kind); }
-function visual(s, kind){
-  if (hasImg(s)) return `<span class="vis"><img class="ph" src="${esc(imgUrl(s.img, kind))}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" data-sid="${esc(s.id)}" data-kind="${kind}"></span>`;
+// Ogni foto porta il credito della testata (sulle miniature è nel testo accanto e nel titolo dell'immagine).
+function visual(s, kind, credit = true){
+  if (hasImg(s)) {
+    const who = s.img.o ? outlet(s.img.o).name : '';
+    const cr = credit && kind !== 'thumb' && who ? `<span class="pcred">Foto: ${esc(who)}</span>` : '';
+    return `<span class="vis"><img class="ph" src="${esc(imgUrl(s.img, kind))}" alt="" title="${who ? 'Foto: ' + esc(who) : ''}" loading="lazy" decoding="async" referrerpolicy="no-referrer" data-sid="${esc(s.id)}" data-kind="${kind}">${cr}</span>`;
+  }
   return fallbackVisual(s, kind);
 }
 document.addEventListener('error', e => {
@@ -314,7 +319,7 @@ function mono(id, cls){
 }
 function langOf(x){ return (x && x.l) || outlet(x && x.o).lang || 'it'; }
 function secOf(o){ return o.sec || (o.lang && o.lang !== 'it' ? 'mondo' : 'it'); }
-function hasTopic(s, t){ return s.topic === t || (t !== 'roma' && Array.isArray(s.alt) && s.alt.includes(t)); }
+function hasTopic(s, t){ return s.topic === t || (t !== 'napoli' && Array.isArray(s.alt) && s.alt.includes(t)); }
 /* traduzioni dei titoli esteri: dalla redazione (campo ti) o, per le storie più vecchie, tradotte qui e tenute in cache */
 const TR = new Map(Object.entries(LS.get('tr') || {}));
 function trKey(t){ return hash(t).toString(36) + String(t).length; }
@@ -349,8 +354,8 @@ function oggiLists(){
   let list = visible(S.stories);
   if (S.outletF) list = list.filter(s => outletsOf(s).includes(S.outletF));
   if (S.topic !== 'tutti') list = list.filter(s => hasTopic(s, S.topic));
-  else if (!S.outletF) list = list.filter(s => s.topic !== 'roma' || s.top);
-  if (S.topic === 'roma' && S.zona) list = list.filter(s => (s.zona || 'citta') === S.zona);
+  else if (!S.outletF) list = list.filter(s => s.topic !== 'napoli' || s.top);
+  if (S.topic === 'napoli' && S.zona) list = list.filter(s => (s.zona || 'citta') === S.zona);
   const filtered = !!S.outletF || S.topic !== 'tutti';
   const top = filtered ? [] : list.filter(s => s.top).sort((a, b) => (b.rank || 0) - (a.rank || 0)).slice(0, 9);
   const topIds = new Set(top.map(s => s.id));
@@ -466,7 +471,7 @@ function coverage(n, id){
 function isSaved(id){ return !!S.saved[id]; }
 function isNew(s){ const a = ts(s.addedAt); return !!a && a > S.lastSeen && Date.now() - a < 36 * 3600000; }
 function saveBtn(s){ const on = isSaved(s.id); return `<button class="savebtn" data-act="save" data-id="${esc(s.id)}" aria-pressed="${on}" aria-label="${on ? 'Rimuovi dai salvati' : 'Salva'}">${ICON.save}</button>`; }
-function topicTag(s){ const t = TMAP[s.topic] || {name:s.topic || '', c:'#888'}; const nm = s.topic === 'roma' && s.zona && s.zona !== 'citta' ? ZMAP[s.zona] || t.name : t.name; return `<span class="topic" style="--tc:${t.c}">${ticon(s.topic)}${esc(nm)}</span>`; }
+function topicTag(s){ const t = TMAP[s.topic] || {name:s.topic || '', c:'#888'}; const nm = s.topic === 'napoli' && s.zona && s.zona !== 'citta' ? ZMAP[s.zona] || t.name : t.name; return `<span class="topic" style="--tc:${t.c}">${ticon(s.topic)}${esc(nm)}</span>`; }
 function row(s){
   pushCtx(s.id);
   return `<article class="row press" data-act="open" data-id="${esc(s.id)}" tabindex="0" aria-label="${esc(s.headline)}">
@@ -519,7 +524,7 @@ function feature(s, flag){
 function hero(s){
   pushCtx(s.id);
   const t = TMAP[s.topic] || {name:'', c:'#888'};
-  const nm = s.topic === 'roma' && s.zona && s.zona !== 'citta' ? ZMAP[s.zona] || t.name : t.name;
+  const nm = s.topic === 'napoli' && s.zona && s.zona !== 'citta' ? ZMAP[s.zona] || t.name : t.name;
   const n = outletsOf(s).length;
   return `<article class="hero press" data-act="open" data-id="${esc(s.id)}" tabindex="0" aria-label="${esc(s.headline)}">
     <div class="hv"><div class="hph">${visual(s, 'wide')}</div><span class="hk" style="--tc:${t.c}">${ticon(s.topic)}${esc(nm)}</span><span class="hcount">${n} ${n === 1 ? 'testata' : 'testate'}</span></div>
@@ -824,7 +829,7 @@ function viewOggi(){
   }
   h += `<div class="chipbar"><div class="rail" role="toolbar" aria-label="Filtra per tema">${topicChips(S.topic, 'topic', true)}</div></div>`;
   const label = S.topic !== 'tutti' ? (TMAP[S.topic] || {}).long : S.outletF ? 'Le sue notizie' : 'Ultime notizie';
-  h += `<div class="sec" id="latest"><h2>${esc(label)}</h2><span>${rest.length} storie</span></div>` + (S.topic === 'roma' ? zoneChips() : '');
+  h += `<div class="sec" id="latest"><h2>${esc(label)}</h2><span>${rest.length} storie</span></div>` + (S.topic === 'napoli' ? zoneChips() : '');
   if (!rest.length && !top.length) return h + `<div class="state"><h3>Niente qui, per ora</h3><p>L'edizione corrente non ha storie con questo filtro. La redazione automatica aggiorna le notizie ogni quarto d'ora; il pulsante in alto scarica subito l'ultima raccolta.</p></div>`;
   return h + paged('oggi|' + S.topic + '|' + (S.outletF || '') + '|' + (S.zona || ''), rest);
 }
@@ -832,21 +837,21 @@ function viewOggi(){
 function lcard(s){
   pushCtx(s.id);
   return `<article class="lcard press" data-act="open" data-id="${esc(s.id)}" tabindex="0" aria-label="${esc(s.headline)}">
-    <div class="lv">${visual(s, 'band')}<span class="lz">${PIN}${esc(ZMAP[s.zona] || 'Roma')}</span></div>
+    <div class="lv">${visual(s, 'band')}<span class="lz">${PIN}${esc(ZMAP[s.zona] || 'Napoli')}</span></div>
     <div class="lin"><h3>${esc(s.headline)}</h3><div class="lmeta">${stack(s, 3)}<span class="ln">${vnames(s, 1)}</span><span class="time">${esc(ago(s.updatedAt))}</span></div></div>
   </article>`;
 }
 function localRail(vis){
-  const all = vis.filter(s => hasTopic(s, 'roma'));
+  const all = vis.filter(s => hasTopic(s, 'napoli'));
   if (all.length < 3) return '';
   const list = all.slice().sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt)).slice(0, 12);
-  return `<div class="sec"><h2>Roma e provincia</h2><button class="lnk" data-act="roma-all">Tutte · ${all.length}</button></div><div class="lrail">${list.map(lcard).join('')}</div>`;
+  return `<div class="sec"><h2>Napoli e provincia</h2><button class="lnk" data-act="napoli-all">Tutte · ${all.length}</button></div><div class="lrail">${list.map(lcard).join('')}</div>`;
 }
 function zoneChips(){
-  const all = visible(S.stories).filter(s => hasTopic(s, 'roma') && (!S.outletF || outletsOf(s).includes(S.outletF)));
+  const all = visible(S.stories).filter(s => hasTopic(s, 'napoli') && (!S.outletF || outletsOf(s).includes(S.outletF)));
   const zc = {}; all.forEach(s => { const z = s.zona || 'citta'; zc[z] = (zc[z] || 0) + 1; });
   const opts = [['', 'Tutta la provincia', all.length]].concat(ZONES.filter(([z]) => zc[z]).map(([z, l]) => [z, l, zc[z]]));
-  return `<div class="rail zrail" role="toolbar" aria-label="Zone di Roma e provincia">${opts.map(([z, l, n]) => `<button class="chip plain" data-act="zona" data-id="${z}" aria-pressed="${(S.zona || '') === z}">${z ? PIN : ''}${esc(l)} <em>${n}</em></button>`).join('')}</div>`;
+  return `<div class="rail zrail" role="toolbar" aria-label="Zone di Napoli e provincia">${opts.map(([z, l, n]) => `<button class="chip plain" data-act="zona" data-id="${z}" aria-pressed="${(S.zona || '') === z}">${z ? PIN : ''}${esc(l)} <em>${n}</em></button>`).join('')}</div>`;
 }
 function foreignRail(vis, topIds){
   const list = vis.filter(s => !topIds.has(s.id) && srcOf(s).some(x => langOf(x) !== 'it')).sort((a, b) => score(b) - score(a)).slice(0, 12);
@@ -1089,9 +1094,10 @@ function viewProfilo(){
   h += `<div class="pgroup"><h3>Il tuo nome</h3><div class="pbox"><label class="sr" for="nameInput">Nome per il saluto</label><input id="nameInput" class="tinput" value="${esc(S.prefs.name || '')}" placeholder="Come ti saluta Eddy" autocomplete="given-name" maxlength="40"></div></div>`;
   h += `<div class="pgroup"><h3>Copia di sicurezza</h3><div class="pbox"><p style="margin:0">Interessi, testate, salvati e cronologia restano su questo dispositivo. Per spostarli su un altro telefono esporta il file e importalo là.</p><div class="row2" style="margin-top:12px"><button class="btn ghost" data-act="export">Esporta</button><label class="btn ghost" for="importFile">Importa</label><input id="importFile" type="file" accept="application/json,.json" hidden></div></div></div>`;
   h += `<div class="pgroup"><h3>Come funziona</h3><div class="pbox prose">
-    <p>Ogni quarto d'ora un programma automatico, che gira gratis su GitHub, legge i feed pubblici di oltre cento testate italiane, locali di Roma e provincia ed estere, riconosce quando più giornali raccontano lo stesso fatto confrontando le parole e i nomi dei titoli, e li riunisce in un'unica storia con le testate in cima. Alle 07:00 e alle 19:00 sceglie la prima pagina: le storie riprese da più testate, con una sola storia per fatto.</p>
+    <p>Ogni quarto d'ora un programma automatico, che gira gratis su GitHub, legge i feed pubblici di oltre cento testate italiane, locali di Napoli e provincia ed estere, riconosce quando più giornali raccontano lo stesso fatto confrontando le parole e i nomi dei titoli, e li riunisce in un'unica storia con le testate in cima. Alle 07:00 e alle 19:00 sceglie la prima pagina: le storie riprese da più testate, con una sola storia per fatto.</p>
     <p>Non ci sono intelligenze artificiali generative né abbonamenti: titoli, sommari e punti chiave sono frasi delle testate stesse, con il nome di chi le ha scritte. I titoli e i sommari esteri sono tradotti in italiano da modelli di traduzione aperti (OPUS-MT dell'Università di Helsinki) che girano nello stesso programma; sotto ogni traduzione resta l'originale con il link all'articolo.</p>
-    <p>I loghi sono le icone ufficiali dei siti delle testate. Le foto restano sui siti di chi le ha pubblicate e arrivano ridimensionate tramite wsrv.nl; quando una notizia non ha foto compare la mappa del luogo o un'illustrazione del tema.</p>
+    <p>Le testate sono indicate con le loro iniziali. Le foto restano sui siti di chi le ha pubblicate: Eddy le mostra direttamente da lì, senza copiarle, sempre con il credito «Foto: nome della testata». Quando una notizia non ha foto compare la mappa del luogo o un'illustrazione del tema.</p>
+    <p>Per chiedere la rimozione di un contenuto si usa il <a href="https://github.com/Fi2ippo/eddy/issues/new?template=rimozione.yml" target="_blank" rel="noopener">modulo «Richiesta di rimozione» su GitHub</a>: il sito o l'articolo finisce nell'elenco di esclusione e dal giro successivo non viene più raccolto.</p>
     <p>Le tue scelte e i salvati non lasciano il dispositivo.</p>
   </div></div>`;
   h += `<div class="pgroup"><button class="btn ghost full" data-act="onb-open" data-step="0">Rifai la configurazione iniziale</button></div>`;
@@ -1189,7 +1195,7 @@ function renderSheet(keepScroll){
     <button class="iconbtn" data-act="close" aria-label="Chiudi la notizia">${ICON.back}</button><span class="grow"></span>
     ${srcs.length ? `<button class="iconbtn" data-act="copy" data-url="${esc(srcs[srcs.length - 1].u)}" aria-label="Copia il link della fonte">${ICON.copy}</button>` : ''}
   </div></div>
-  <div class="scover">${visual(s, 'wide')}${hasImg(s) ? `<span class="credit">Foto: ${esc(outlet(s.img.o).name)}</span>` : ''}</div>
+  <div class="scover">${visual(s, 'wide', false)}${hasImg(s) ? `<span class="credit">Foto: ${esc(outlet(s.img.o).name)}</span>` : ''}</div>
   <div class="sin"><div class="wrap">
     <div class="coverage-head"><small>Riportata da</small>${coverage(ids.length, s.id)}</div>
     <div class="ostrip">${ids.map(id => { const x = srcs.filter(y => y.o === id).slice(-1)[0]; return `<a class="ochip" href="${esc(x ? x.u : '#')}" target="_blank" rel="noopener">${mono(id)}${esc(outlet(id).name)}</a>`; }).join('')}</div>
@@ -1467,8 +1473,8 @@ document.addEventListener('click', e => {
     case 'open-next': openStory(id, {keepCtx:true}); break;
     case 'close': closeStory(); break;
     case 'zona': S.zona = id || null; render(); break;
-    case 'roma-all': {
-      S.topic = 'roma'; S.zona = null; render();
+    case 'napoli-all': {
+      S.topic = 'napoli'; S.zona = null; render();
       const cb = $('.chipbar'); if (cb) window.scrollTo({top:cb.getBoundingClientRect().top + window.scrollY - (document.querySelector('.top').offsetHeight || 56), behavior:'smooth'});
       break;
     }

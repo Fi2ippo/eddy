@@ -41,7 +41,8 @@ except Exception:  # noqa: BLE001
 HOURS = 36
 PER_FEED = 25
 PER_OUTLET = 45
-MAX_ITEMS = 1500
+MAX_ITEMS = 2000
+MIN_PER_OUTLET = 12  # voci più recenti garantite a ogni testata (le riviste che pubblicano poco non vengono spinte fuori)
 MAX_W = 960
 LOGO = 192
 LOGO_MAX_AGE_DAYS = 14
@@ -669,7 +670,22 @@ def main():
                 p['ik'] = False
             fresh[k] = p
 
-    items = sorted(fresh.values(), key=lambda x: x['d'], reverse=True)[:MAX_ITEMS]
+    # richieste di rimozione: indirizzi esatti o domini in data/blocklist.json non si raccolgono più
+    block = set(load_json(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'blocklist.json'), []))
+    if block:
+        def blocked(u):
+            h = host(u)
+            return u in block or any(h == b or h.endswith('.' + b) for b in block if '/' not in b)
+        fresh = {k: v for k, v in fresh.items() if not blocked(v.get('u') or '')}
+    by_time = sorted(fresh.values(), key=lambda x: x['d'], reverse=True)
+    kept, per_o = [], {}
+    for it in by_time:  # prima le voci garantite a ogni testata, poi il resto per orario
+        if per_o.get(it['o'], 0) < MIN_PER_OUTLET:
+            per_o[it['o']] = per_o.get(it['o'], 0) + 1
+            kept.append(it)
+    ids = {id(it) for it in kept}
+    kept += [it for it in by_time if id(it) not in ids][:max(0, MAX_ITEMS - len(kept))]
+    items = sorted(kept, key=lambda x: x['d'], reverse=True)[:max(MAX_ITEMS, len(kept))]
 
     # foto generiche: stessa immagine per molte voci della stessa testata
     count = {}
