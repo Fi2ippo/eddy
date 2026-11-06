@@ -137,6 +137,13 @@ efe += [{"lang": "es", "source_id": "efe-es", "title": t} for t in [
 check("lingua: EFE in inglese riconosciuta come fonte inglese", collect.english_sources(efe) == {"efe"})
 check("lingua: titolo spagnolo non scambiato per inglese", collect.other_hits(efe[3]["title"]) >= 2)
 
+# date nel futuro: valgono come la prima volta che Eddy ha visto l'articolo (non "adesso" a ogni giro)
+fut = art(30, "nice", "Una rivista di design con date sbagliate nel feed")
+fut["published"] = NOW + timedelta(days=3)
+seen_at = (NOW - timedelta(hours=9)).strftime("%Y-%m-%dT%H:%M:%SZ")
+kept, _ = collect.prepare([fut], set(), {fut["id"]: {"first_seen": seen_at}})
+check("data nel futuro: resta quella della prima volta", bool(kept) and kept[0]["published"] < NOW - timedelta(hours=8))
+
 # eventi: sviluppi dello stesso fatto insieme, notizie diverse separate
 def st(i, title):
     return {"id": f"s{i}", "title": title, "sources": [{"title": title, "via": "feed"}], "summary": []}

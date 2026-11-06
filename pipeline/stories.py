@@ -14,6 +14,7 @@ import enrich
 from topics import story_area, story_topics
 
 MAX_STORIES = 300
+MAX_SOLO_PER_SOURCE = 6  # storie raccontate da una sola testata: al massimo 6 per testata, per avere varietà
 EVENT_SIM = 0.17   # somiglianza con almeno una storia dell'evento
 EVENT_AVG = 0.10   # e somiglianza media con tutte le sue storie (evita le catene che uniscono temi diversi)
 EVENT_MAX = 8      # storie al massimo in un evento
@@ -114,7 +115,16 @@ def build(groups: list[list[dict]], ids: list[str], state_stories: dict) -> list
         }
         out.append((_score(g, updated, bool(img_art)), story))
     out.sort(key=lambda x: (-x[0], x[1]["id"]))
-    result = [s for _, s in out[:MAX_STORIES]]
+    result, solo = [], Counter()
+    for _, s in out:
+        if len(result) == MAX_STORIES:
+            break
+        if s["n_sources"] == 1:
+            src = s["sources"][0]["name"]
+            if solo[src] >= MAX_SOLO_PER_SOURCE:
+                continue
+            solo[src] += 1
+        result.append(s)
     assign_events(result)
     return result
 

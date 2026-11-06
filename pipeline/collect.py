@@ -69,7 +69,9 @@ def prepare(raw: list[dict], block: set, state_articles: dict) -> tuple[list[dic
         mem = state_articles.get(a["id"]) if a["via"] == "feed" else None
         a["first_seen"] = parse_iso(mem["first_seen"]) if mem else NOW
         if a["published"] is None or a["published"] > NOW + timedelta(minutes=30):
-            a["published"] = a["first_seen"] if a["published"] is None else NOW  # feed senza date (es. Le Scienze)
+            # feed senza date (es. Le Scienze) o con date nel futuro (es. It's Nice That): vale la prima volta che
+            # Eddy ha visto l'articolo, che resta fissa nei giri successivi (prima diventava "adesso" a ogni giro)
+            a["published"] = a["first_seen"]
         if a["published"] < cutoff:
             why["più vecchio di 72 ore"] += 1
             continue

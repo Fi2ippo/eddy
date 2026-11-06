@@ -16,6 +16,9 @@ export const STORIES_URL =
 /** Ultimo commit del ramo dati (cache di al massimo 1 minuto): l'indirizzo con il commit è sempre fresco. */
 const LATEST_COMMIT_URL = `https://api.github.com/repos/${DATA_REPO}/commits/${DATA_BRANCH}`;
 const REFRESH_MINUTES = 10; // con la pagina aperta, ricontrolla se ci sono dati nuovi
+const FETCH_TIMEOUT_MS = 15_000; // uno scaricamento che non risponde (es. telefono che ha sospeso la pagina) si interrompe
+// (AbortSignal.timeout manca nei browser più vecchi: lì si scarica senza limite di tempo)
+const timeoutSignal = () => (typeof AbortSignal.timeout === "function" ? AbortSignal.timeout(FETCH_TIMEOUT_MS) : undefined);
 /** Oltre questa età i dati si considerano "in ritardo". */
 export const STALE_HOURS = 2;
 
@@ -175,7 +178,7 @@ const serverState: StoriesState = { status: "loading", stories: [], generated: n
 let state: StoriesState = serverState;
 let started = false;
 let loadedCommit: string | null = null;
-let loading = false;
+let loadingSince = 0; // quando è partito lo scaricamento in corso (0 = nessuno)
 const listeners = new Set<() => void>();
 
 function publish(next: StoriesState) {
@@ -188,7 +191,7 @@ function publish(next: StoriesState) {
 async function freshUrl(): Promise<{ url: string; commit: string | null }> {
   if (process.env.NEXT_PUBLIC_EDDY_STORIES_URL) return { url: STORIES_URL, commit: null };
   try {
-    const r = await fetch(LATEST_COMMIT_URL, { cache: "no-store", headers: { Accept: "application/vnd.github.sha" } });
+    const r = await fetch(LATEST_COMMIT_URL, { cache: "no-store", headers: { Accept: "application/vnd.github.sha" }, signal: timeoutSignal() });
     const sha = r.ok ? (await r.text()).trim() : "";
     if (/^[0-9a-f]{40}$/.test(sha)) {
       return { url: `https://raw.githubusercontent.com/${DATA_REPO}/${sha}/stories.json`, commit: sha };
@@ -202,13 +205,14 @@ async function freshUrl(): Promise<{ url: string; commit: string | null }> {
 /** Carica le storie. Con "quiet" (controlli periodici) non mostra il caricamento e non cambia nulla se i dati sono gli stessi. */
 export async function loadStories(quiet = false) {
   started = true;
-  if (loading) return;
-  loading = true;
+  // uno scaricamento rimasto appeso (pagina sospesa dal telefono) non deve bloccare per sempre i successivi
+  if (loadingSince && Date.now() - loadingSince < 2 * FETCH_TIMEOUT_MS + 5_000) return;
+  const mine = (loadingSince = Date.now());
   if (!quiet && state.status !== "loading") publish({ ...state, status: "loading" });
   try {
     const { url, commit } = await freshUrl();
     if (quiet && commit && commit === loadedCommit) return;
-    const response = await fetch(url, { cache: commit ? "force-cache" : "no-cache" });
+    const response = await fetch(url, { cache: commit ? "force-cache" : "no-cache", signal: timeoutSignal() });
     if (!response.ok) throw new Error(String(response.status));
     const data = ((await response.json()) ?? {}) as Record<string, unknown>;
     const stories = (Array.isArray(data.stories) ? data.stories : []).map(parseStory).filter((s): s is Story => s !== null);
@@ -217,14 +221,17 @@ export async function loadStories(quiet = false) {
   } catch {
     if (!quiet || state.stories.length === 0) publish({ ...state, status: "error" });
   } finally {
-    loading = false;
+    if (loadingSince === mine) loadingSince = 0;
   }
 }
 
 let refreshTimer: ReturnType<typeof setInterval> | undefined;
+// Si ricontrolla appena si torna sulla pagina: scheda di nuovo visibile, pagina ripristinata dalla memoria
+// del telefono (pageshow), finestra di nuovo attiva o connessione tornata.
 const onVisible = () => {
   if (document.visibilityState === "visible") void loadStories(true);
 };
+const WAKE_EVENTS = ["pageshow", "focus", "online"] as const;
 
 function subscribe(listener: () => void) {
   listeners.add(listener);
@@ -232,6 +239,7 @@ function subscribe(listener: () => void) {
   if (!refreshTimer) {
     refreshTimer = setInterval(() => void loadStories(true), REFRESH_MINUTES * 60_000);
     document.addEventListener("visibilitychange", onVisible);
+    WAKE_EVENTS.forEach((e) => window.addEventListener(e, onVisible));
   }
   return () => {
     listeners.delete(listener);
@@ -239,6 +247,7 @@ function subscribe(listener: () => void) {
       clearInterval(refreshTimer);
       refreshTimer = undefined;
       document.removeEventListener("visibilitychange", onVisible);
+      WAKE_EVENTS.forEach((e) => window.removeEventListener(e, onVisible));
     }
   };
 }
@@ -254,26 +263,77 @@ export function byArea(stories: Story[], area: AreaFilter) {
   return area === "tutto" ? stories : stories.filter((s) => s.area === area);
 }
 
-/** Punteggio del Feed: testate (pesano di più), freschezza e interessi dell'utente. */
-export function feedScore(story: Story, interests: Set<string>, now: number) {
+/** Punteggio del Feed: testate (pesano di più), freschezza, foto. Gli interessi contano dopo, nella miscela. */
+export function feedScore(story: Story, now: number) {
   const fresh = Math.max(0, 1 - hoursAgo(story.updated, now) / 36);
-  const mine = interests.size && story.topics.some((t) => interests.has(t)) ? 8 : 0;
-  return 3 * Math.min(outletCount(story), 10) + 10 * fresh + mine + (story.image ? 1 : 0);
+  return 3 * Math.min(outletCount(story), 10) + 10 * fresh + (story.image ? 1 : 0);
 }
 
-/** Feed: mescola testate, freschezza e interessi; le storie già lette vanno in fondo. */
+/** Feed: storie per punteggio, mescolate con i tuoi interessi in proporzione e con varietà di testate e temi;
+ *  le storie già lette vanno in fondo. */
 export function feedOrder(stories: Story[], interests: string[], area: AreaFilter, read: Set<string>, now: number, limit = 30) {
-  const chosen = new Set(interests);
-  return byArea(stories, area)
-    .map((s) => ({ s, score: feedScore(s, chosen, now), read: read.has(s.id) }))
-    .sort((a, b) => Number(a.read) - Number(b.read) || b.score - a.score || b.s.updated.localeCompare(a.s.updated))
-    .slice(0, limit)
+  const ordered = byArea(stories, area)
+    .map((s) => ({ s, score: feedScore(s, now) }))
+    .sort((a, b) => b.score - a.score || b.s.updated.localeCompare(a.s.updated))
     .map(({ s }) => s);
+  const unread = ordered.filter((s) => !read.has(s.id));
+  return [...mix(unread, { interests: new Set(interests), limit }), ...ordered.filter((s) => read.has(s.id))].slice(0, limit);
 }
 
-/** Oggi: la storia più importante (i dati arrivano già in ordine di importanza) e altre due. */
-export function todayPicks(stories: Story[], area: AreaFilter) {
-  return byArea(stories, area).slice(0, 3);
+// ------------------------------------------------------------ miscela: interessi in proporzione e varietà
+/** Quota delle storie dei tuoi temi quando hai scelto degli interessi: 7 su 10 (le altre 3 per non chiudersi in una bolla). */
+export const INTEREST_SHARE = 0.7;
+const SOURCE_GAP = 4; // la stessa testata non torna prima di 4 storie
+const THEME_RUN = 2; // lo stesso tema al massimo 2 volte di fila
+
+export function isMine(story: Story, interests: Set<string>) {
+  return interests.size > 0 && interests.has(story.category); // la categoria mostrata, così ciò che vedi torna con ciò che hai scelto
+}
+
+const leadOf = (s: Story) => s.sources[0]?.name ?? "";
+
+type MixOptions = { interests: Set<string>; limit?: number; maxPerTheme?: number; share?: number };
+
+/** Rimescola un elenco già ordinato (per importanza o per orario) senza stravolgerlo:
+ *  - se ci sono interessi, circa il 70% delle storie viene dai tuoi temi e il resto dagli altri;
+ *  - la stessa testata non compare due volte entro SOURCE_GAP storie, lo stesso tema non più di THEME_RUN volte di fila
+ *    (una in più per i tuoi temi);
+ *  - con maxPerTheme, un tema che non è fra i tuoi non supera quel numero di storie.
+ *  Quando le regole non si possono rispettare (es. restano storie di un solo tema), si prende la prima disponibile. */
+export function mix(ordered: Story[], { interests, limit = ordered.length, maxPerTheme, share = INTEREST_SHARE }: MixOptions) {
+  const mine: Story[] = [];
+  const other: Story[] = [];
+  for (const s of ordered) (isMine(s, interests) ? mine : other).push(s);
+  const out: Story[] = [];
+  const perTheme = new Map<string, number>();
+  let taken = 0; // storie dei tuoi temi già scelte
+  // per i tuoi temi i limiti sono più larghi: la proporzione la decide già la quota
+  const underCap = (s: Story) => !maxPerTheme || interests.has(s.category) || (perTheme.get(s.category) ?? 0) < maxPerTheme;
+  const varied = (s: Story, gap = SOURCE_GAP) => {
+    if (out.slice(-gap).some((r) => leadOf(r) === leadOf(s))) return false;
+    const run = interests.has(s.category) ? THEME_RUN + 1 : THEME_RUN;
+    const last = out.slice(-run);
+    return !(last.length === run && last.every((r) => r.category === s.category));
+  };
+  // dal gruppo voluto la prima storia che rispetta le regole (poi con una distanza fra testate più corta);
+  // se non c'è, dall'altro gruppo; solo alla fine si allenta
+  const pick = (first: Story[], second: Story[]) => {
+    const strict = (s: Story) => underCap(s) && varied(s);
+    const loose = (s: Story) => underCap(s) && varied(s, 2);
+    for (const [pool, test] of [[first, strict], [first, loose], [second, strict], [first, underCap], [second, underCap]] as const) {
+      const i = pool.findIndex(test);
+      if (i >= 0) return pool.splice(i, 1)[0];
+    }
+    return (first.length ? first : second).shift()!;
+  };
+  while (out.length < limit && (mine.length || other.length)) {
+    const wantMine = mine.length > 0 && (other.length === 0 || taken < share * (out.length + 1));
+    const s = wantMine ? pick(mine, other) : pick(other, mine);
+    if (isMine(s, interests)) taken++;
+    perTheme.set(s.category, (perTheme.get(s.category) ?? 0) + 1);
+    out.push(s);
+  }
+  return out;
 }
 
 export function findStory(stories: Story[], id: string | null) {
@@ -360,16 +420,26 @@ export function frontPageScore(story: Story, now: number) {
   return W_OUTLET * Math.min(outletCount(story), MAX_OUTLETS) + W_FRESH * fresh + (story.image ? W_PHOTO : 0);
 }
 
-/** Prima pagina: solo le ultime 24 ore, ordinate per punteggio, una sola storia per evento;
- *  rispetta il filtro Italia / Mondo. */
-export function frontPage(stories: Story[], area: AreaFilter, now: number) {
+const FRONT_PAGE_POOL = 45; // si sceglie fra le 45 storie più importanti, così anche quelle dei tuoi temi sono rilevanti
+const FRONT_PAGE_MAX_THEME = 3; // al massimo 3 storie dello stesso tema
+
+/** Prima pagina: ultime 24 ore, una sola storia per evento, rispetta il filtro Italia / Mondo.
+ *  Fra le più importanti: circa 7 su 10 dei tuoi temi (se li hai scelti), al massimo 3 per tema, testate varie;
+ *  quelle che hai già letto passano dietro le altre. */
+export function frontPage(stories: Story[], area: AreaFilter, now: number, interests: string[] = [], read: Set<string> = new Set()) {
   const seen = new Set<string>();
-  return byArea(stories, area)
+  const chosen = new Set(interests);
+  const all = byArea(stories, area)
     .filter((s) => hoursAgo(s.updated, now) <= FRONT_PAGE_HOURS)
     .map((s) => ({ story: s, score: frontPageScore(s, now) }))
     .sort((a, b) => b.score - a.score || b.story.updated.localeCompare(a.story.updated))
     .filter(({ story }) => (seen.has(story.event) ? false : (seen.add(story.event), true)))
-    .slice(0, FRONT_PAGE_SIZE);
+    .map(({ story }) => story);
+  // le più importanti in generale + le migliori dei tuoi temi (anche se raccontate da meno testate), con foto se possibile
+  const mineBest = all.filter((s) => isMine(s, chosen)).sort((a, b) => Number(Boolean(b.image)) - Number(Boolean(a.image))).slice(0, FRONT_PAGE_SIZE);
+  const pool = [...new Set([...all.slice(0, FRONT_PAGE_POOL), ...mineBest])];
+  const ordered = [...pool.filter((s) => !read.has(s.id)), ...pool.filter((s) => read.has(s.id))];
+  return mix(ordered, { interests: chosen, limit: FRONT_PAGE_SIZE, maxPerTheme: FRONT_PAGE_MAX_THEME });
 }
 
 /** Relevanza per l'elenco filtrato per tema (stesso punteggio della prima pagina, senza limite di 24 ore). */

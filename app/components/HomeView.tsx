@@ -13,6 +13,7 @@ import {
   categoryLabel,
   frontPage,
   hoursAgo,
+  mix,
   outletCount,
   outletNames,
   outletsShort,
@@ -51,12 +52,14 @@ export default function HomeView() {
   const ref = now ?? (generated ? Date.parse(generated) : 0);
 
   const visible = byArea(stories, data.area);
-  const top = ref ? frontPage(stories, data.area, ref) : [];
-  const topIds = new Set(top.map((t) => t.story.id));
+  const read = new Set(Object.entries(data.stories).filter(([, a]) => a.readAt).map(([id]) => id));
+  const top = ref ? frontPage(stories, data.area, ref, data.interests, read) : [];
+  const topIds = new Set(top.map((s) => s.id));
+  // "Ultime notizie": le più recenti, con i tuoi interessi in proporzione e testate e temi vari (vedi mix in stories.ts)
   const list =
     theme === "tutti"
-      ? byRecency(visible.filter((s) => !topIds.has(s.id)))
-      : byRelevance(visible.filter((s) => s.category === theme), ref); // solo la categoria principale: i temi secondari sono meno affidabili
+      ? mix(byRecency(visible.filter((s) => !topIds.has(s.id))), { interests: new Set(data.interests) })
+      : mix(byRelevance(visible.filter((s) => s.category === theme), ref), { interests: new Set(), share: 0 }); // solo la categoria principale: i temi secondari sono meno affidabili
   const outlets = new Set(visible.flatMap(outletNames)).size;
   // dati vecchi di oltre STALE_HOURS ore: la raccolta è in ritardo
   const late = Boolean(now && generated && hoursAgo(generated, now) > STALE_HOURS);
@@ -104,7 +107,7 @@ export default function HomeView() {
                 <h2 id="front-title" className="text-section">Prima pagina</h2>
                 <span className="text-label text-muted">{top.length} storie</span>
               </div>
-              <FrontPage items={top.map((t) => t.story)} now={now} />
+              <FrontPage items={top} now={now} />
             </section>
           )}
 

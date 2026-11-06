@@ -54,6 +54,11 @@ Se il lavoro si interrompe, si riparte dalla prima fase non spuntata.
   - Corretto anche: nel Confronto il nome di una testata ("… - EFE") compariva come dettaglio "solo in alcune testate" (nuovo autotest).
   - Tolte da sito, codice e documenti tutte le citazioni del progetto di riferimento (decisione di Filippo).
 
+### Correzioni del 6/11 (dopo la prova di Filippo sul sito)
+- **Home piena di design di una sola testata:** It's Nice That mette nel feed date nel futuro (9/11) e la raccolta le trasformava in "adesso" a ogni giro, così i suoi 20 articoli erano sempre i più recenti. Ora una data nel futuro vale come la prima volta che Eddy ha visto l'articolo (fissa). In più ogni testata ha al massimo 6 storie "raccontate solo da lei" fra le 300.
+- **Interessi che non servivano:** nuova miscela (`mix` in `app/lib/stories.ts`) per Prima pagina, Ultime notizie e Feed: circa 7 storie su 10 dei temi scelti, le altre di temi diversi; stessa testata mai entro 4 storie, stesso tema al massimo 2 volte di fila (3 per i temi scelti). Prima pagina: al massimo 3 storie per tema non scelto, le migliori dei temi scelti anche se raccontate da meno testate, storie già lette in fondo.
+- **"Aggiornato 9 ore fa" sul telefono** (i dati su GitHub erano freschi): ogni scaricamento si interrompe dopo 15 secondi, uno rimasto appeso non blocca più i successivi, e i dati si ricontrollano anche quando la pagina torna dalla memoria del telefono, quando la finestra torna attiva o quando torna la connessione.
+
 ### Idee future
 - **Email per le rimozioni** in `app/data/contact.ts` (Filippo la sceglie il 6/11).
 - **Licenze:** leggere le condizioni delle 22 fonti in `docs/licenze-da-controllare.md` e scrivere alle testate principali prima di far conoscere Eddy.
