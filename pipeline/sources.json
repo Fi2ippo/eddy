@@ -1,0 +1,1919 @@
+[
+ {
+  "o": "ansa",
+  "name": "ANSA",
+  "short": "AN",
+  "color": "#1F4E79",
+  "kind": "Agenzia di stampa",
+  "lang": "it",
+  "site": "https://www.ansa.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.ansa.it/sito/ansait_rss.xml"
+   },
+   {
+    "u": "https://www.ansa.it/sito/notizie/mondo/mondo_rss.xml",
+    "h": "mondo"
+   },
+   {
+    "u": "https://www.ansa.it/sito/notizie/economia/economia_rss.xml",
+    "h": "economia"
+   },
+   {
+    "u": "https://www.ansa.it/canale_scienza_tecnica/notizie/scienzaetecnica_rss.xml",
+    "h": "scienza"
+   },
+   {
+    "u": "https://www.ansa.it/canale_saluteebenessere/notizie/saluteebenessere_rss.xml",
+    "h": "salute"
+   },
+   {
+    "u": "https://www.ansa.it/canale_motori/notizie/motori_rss.xml",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "agi",
+  "name": "AGI",
+  "short": "AGI",
+  "color": "#1D4F91",
+  "kind": "Agenzia di stampa",
+  "lang": "it",
+  "site": "https://www.agi.it",
+  "sec": "it",
+  "feeds": []
+ },
+ {
+  "o": "adnkronos",
+  "name": "Adnkronos",
+  "short": "AK",
+  "color": "#9A5B13",
+  "kind": "Agenzia di stampa",
+  "lang": "it",
+  "site": "https://www.adnkronos.com",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.adnkronos.com/RSS_PrimaPagina.xml"
+   }
+  ]
+ },
+ {
+  "o": "ilpost",
+  "name": "Il Post",
+  "short": "IP",
+  "color": "#2E6B4F",
+  "kind": "Quotidiano online",
+  "lang": "it",
+  "site": "https://www.ilpost.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.ilpost.it/feed/"
+   }
+  ]
+ },
+ {
+  "o": "corriere",
+  "name": "Corriere della Sera",
+  "short": "CS",
+  "color": "#3B6E2E",
+  "kind": "Quotidiano",
+  "lang": "it",
+  "site": "https://www.corriere.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.corriere.it/dynamic-feed/rss/section/esteri.xml",
+    "h": "mondo"
+   },
+   {
+    "u": "https://www.corriere.it/dynamic-feed/rss/section/politica.xml"
+   },
+   {
+    "u": "https://www.corriere.it/dynamic-feed/rss/section/cronache.xml"
+   },
+   {
+    "u": "https://www.corriere.it/dynamic-feed/rss/section/economia.xml",
+    "h": "economia"
+   },
+   {
+    "u": "https://www.corriere.it/dynamic-feed/rss/section/formula-1.xml",
+    "h": "motori"
+   },
+   {
+    "u": "https://www.corriere.it/dynamic-feed/rss/section/motomondiale.xml",
+    "h": "motori"
+   },
+   {
+    "u": "https://roma.corriere.it/rss/homepage.xml",
+    "h": "roma"
+   }
+  ]
+ },
+ {
+  "o": "repubblica",
+  "name": "la Repubblica",
+  "short": "RE",
+  "color": "#9C2F4A",
+  "kind": "Quotidiano",
+  "lang": "it",
+  "site": "https://www.repubblica.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.repubblica.it/rss/homepage/rss2.0.xml"
+   },
+   {
+    "u": "https://www.repubblica.it/rss/motori/rss2.0.xml",
+    "h": "motori"
+   },
+   {
+    "u": "https://roma.repubblica.it/rss/cronaca/rss2.0.xml",
+    "h": "roma"
+   }
+  ]
+ },
+ {
+  "o": "lastampa",
+  "name": "La Stampa",
+  "short": "LS",
+  "color": "#264653",
+  "kind": "Quotidiano",
+  "lang": "it",
+  "site": "https://www.lastampa.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.lastampa.it/rss/copertina.xml"
+   },
+   {
+    "u": "https://www.lastampa.it/rss/motori.xml",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "sole24ore",
+  "name": "Il Sole 24 Ore",
+  "short": "24",
+  "color": "#B5651D",
+  "kind": "Quotidiano economico",
+  "lang": "it",
+  "site": "https://www.ilsole24ore.com",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.ilsole24ore.com/rss/italia.xml"
+   },
+   {
+    "u": "https://www.ilsole24ore.com/rss/mondo.xml",
+    "h": "mondo"
+   },
+   {
+    "u": "https://www.ilsole24ore.com/rss/economia.xml",
+    "h": "economia"
+   }
+  ]
+ },
+ {
+  "o": "ilfatto",
+  "name": "Il Fatto Quotidiano",
+  "short": "FQ",
+  "color": "#8C3B1F",
+  "kind": "Quotidiano",
+  "lang": "it",
+  "site": "https://www.ilfattoquotidiano.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.ilfattoquotidiano.it/feed/"
+   }
+  ]
+ },
+ {
+  "o": "ilmessaggero",
+  "name": "Il Messaggero",
+  "short": "IM",
+  "color": "#6A4C93",
+  "kind": "Quotidiano",
+  "lang": "it",
+  "site": "https://www.ilmessaggero.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.ilmessaggero.it/rss/home.xml"
+   },
+   {
+    "u": "https://www.ilmessaggero.it/rss/motori.xml",
+    "h": "motori"
+   },
+   {
+    "u": "https://www.ilmessaggero.it/rss/roma.xml",
+    "h": "roma"
+   }
+  ]
+ },
+ {
+  "o": "ilgiornale",
+  "name": "il Giornale",
+  "short": "IG",
+  "color": "#1C3F6E",
+  "kind": "Quotidiano",
+  "lang": "it",
+  "site": "https://www.ilgiornale.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.ilgiornale.it/feed.xml"
+   }
+  ]
+ },
+ {
+  "o": "avvenire",
+  "name": "Avvenire",
+  "short": "AVV",
+  "color": "#7A1F2B",
+  "kind": "Quotidiano",
+  "lang": "it",
+  "site": "https://www.avvenire.it",
+  "sec": "it",
+  "feeds": []
+ },
+ {
+  "o": "ilfoglio",
+  "name": "Il Foglio",
+  "short": "FO",
+  "color": "#3A3A3A",
+  "kind": "Quotidiano",
+  "lang": "it",
+  "site": "https://www.ilfoglio.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://naxos.ilfoglio.it/api/v5/rss/stories/latest"
+   }
+  ]
+ },
+ {
+  "o": "domani",
+  "name": "Domani",
+  "short": "DO",
+  "color": "#5B3A8C",
+  "kind": "Quotidiano",
+  "lang": "it",
+  "site": "https://www.editorialedomani.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.editorialedomani.it/rss"
+   }
+  ]
+ },
+ {
+  "o": "ilmanifesto",
+  "name": "il manifesto",
+  "short": "MA",
+  "color": "#B3261E",
+  "kind": "Quotidiano",
+  "lang": "it",
+  "site": "https://ilmanifesto.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://ilmanifesto.it/feed"
+   }
+  ]
+ },
+ {
+  "o": "rainews",
+  "name": "RaiNews",
+  "short": "RN",
+  "color": "#2B5F8A",
+  "kind": "Televisione all news",
+  "lang": "it",
+  "site": "https://www.rainews.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.rainews.it/rss/tutti"
+   }
+  ]
+ },
+ {
+  "o": "skytg24",
+  "name": "Sky TG24",
+  "short": "S24",
+  "color": "#24527A",
+  "kind": "Televisione all news",
+  "lang": "it",
+  "site": "https://tg24.sky.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://tg24.sky.it/rss/tg24.xml"
+   }
+  ],
+  "rome_local": true
+ },
+ {
+  "o": "tgcom24",
+  "name": "TGCom24",
+  "short": "TG",
+  "color": "#3D4A5C",
+  "kind": "Televisione all news",
+  "lang": "it",
+  "site": "https://www.tgcom24.mediaset.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.tgcom24.mediaset.it/rss/homepage.xml"
+   },
+   {
+    "u": "https://www.tgcom24.mediaset.it/rss/motori.xml",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "open",
+  "name": "Open",
+  "short": "OP",
+  "color": "#8B2E2E",
+  "kind": "Quotidiano online",
+  "lang": "it",
+  "site": "https://www.open.online",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.open.online/feed/"
+   }
+  ]
+ },
+ {
+  "o": "fanpage",
+  "name": "Fanpage",
+  "short": "FP",
+  "color": "#6B3FA0",
+  "kind": "Quotidiano online",
+  "lang": "it",
+  "site": "https://www.fanpage.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.fanpage.it/feed/"
+   }
+  ]
+ },
+ {
+  "o": "today",
+  "name": "Today",
+  "short": "TD",
+  "color": "#C0392B",
+  "kind": "Quotidiano online",
+  "lang": "it",
+  "site": "https://www.today.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.today.it/rss"
+   }
+  ]
+ },
+ {
+  "o": "huffpost",
+  "name": "HuffPost Italia",
+  "short": "HP",
+  "color": "#0B6B57",
+  "kind": "Quotidiano online",
+  "lang": "it",
+  "site": "https://www.huffingtonpost.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.huffingtonpost.it/rss/homepage/rss2.0.xml"
+   },
+   {
+    "u": "https://www.huffingtonpost.it/feeds/index.xml"
+   }
+  ]
+ },
+ {
+  "o": "linkiesta",
+  "name": "Linkiesta",
+  "short": "LK",
+  "color": "#C2461D",
+  "kind": "Quotidiano online",
+  "lang": "it",
+  "site": "https://www.linkiesta.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.linkiesta.it/feed/"
+   }
+  ]
+ },
+ {
+  "o": "internazionale",
+  "name": "Internazionale",
+  "short": "IN",
+  "color": "#8A4B2A",
+  "kind": "Settimanale",
+  "lang": "it",
+  "site": "https://www.internazionale.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.internazionale.it/sitemaps/rss.xml"
+   }
+  ]
+ },
+ {
+  "o": "valigiablu",
+  "name": "Valigia Blu",
+  "short": "VB",
+  "color": "#1F5FA0",
+  "kind": "Giornalismo indipendente",
+  "lang": "it",
+  "site": "https://www.valigiablu.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.valigiablu.it/feed/"
+   }
+  ]
+ },
+ {
+  "o": "lavoce",
+  "name": "lavoce.info",
+  "short": "LV",
+  "color": "#2F5D50",
+  "kind": "Analisi economica",
+  "lang": "it",
+  "site": "https://lavoce.info",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://lavoce.info/feed/",
+    "h": "economia"
+   }
+  ]
+ },
+ {
+  "o": "gazzetta",
+  "name": "La Gazzetta dello Sport",
+  "short": "GZ",
+  "color": "#C2185B",
+  "kind": "Quotidiano sportivo",
+  "lang": "it",
+  "site": "https://www.gazzetta.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.gazzetta.it/dynamic-feed/rss/section/last.xml"
+   },
+   {
+    "u": "https://www.gazzetta.it/rss/home.xml"
+   },
+   {
+    "u": "https://www.gazzetta.it/rss/formula-1.xml",
+    "h": "motori"
+   },
+   {
+    "u": "https://www.gazzetta.it/rss/motogp.xml",
+    "h": "motori"
+   },
+   {
+    "u": "https://www.gazzetta.it/rss/motori.xml",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "wired",
+  "name": "Wired Italia",
+  "short": "WI",
+  "color": "#1B1B1B",
+  "kind": "Magazine di tecnologia",
+  "lang": "it",
+  "site": "https://www.wired.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.wired.it/feed/rss",
+    "h": "tech"
+   }
+  ]
+ },
+ {
+  "o": "puntoinformatico",
+  "name": "Punto Informatico",
+  "short": "PI",
+  "color": "#1565C0",
+  "kind": "Magazine di tecnologia",
+  "lang": "it",
+  "site": "https://www.punto-informatico.it",
+  "sec": "it",
+  "feeds": [
+   {
+    "u": "https://www.punto-informatico.it/feed/",
+    "h": "tech"
+   }
+  ]
+ },
+ {
+  "o": "lescienze",
+  "name": "Le Scienze",
+  "short": "LSC",
+  "color": "#0D5C63",
+  "kind": "Rivista scientifica",
+  "lang": "it",
+  "site": "https://www.lescienze.it",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://www.lescienze.it/rss/all/rss2.0.xml",
+    "h": "scienza"
+   }
+  ]
+ },
+ {
+  "o": "mediainaf",
+  "name": "Media Inaf",
+  "short": "INAF",
+  "color": "#16325C",
+  "kind": "Astrofisica",
+  "lang": "it",
+  "site": "https://www.media.inaf.it",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://www.media.inaf.it/feed/",
+    "h": "scienza"
+   }
+  ]
+ },
+ {
+  "o": "quotidianosanita",
+  "name": "Quotidiano Sanità",
+  "short": "QS",
+  "color": "#0E6E6E",
+  "kind": "Quotidiano di sanità",
+  "lang": "it",
+  "site": "https://www.quotidianosanita.it",
+  "sec": "scienza",
+  "feeds": []
+ },
+ {
+  "o": "nature",
+  "name": "Nature",
+  "short": "NA",
+  "color": "#A33E6B",
+  "kind": "Rivista scientifica",
+  "lang": "en",
+  "site": "https://www.nature.com",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://www.nature.com/nature.rss",
+    "h": "scienza"
+   }
+  ]
+ },
+ {
+  "o": "science",
+  "name": "Science",
+  "short": "SCI",
+  "color": "#8E1B1B",
+  "kind": "Rivista scientifica",
+  "lang": "en",
+  "site": "https://www.science.org",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://www.science.org/rss/news_current.xml",
+    "h": "scienza"
+   }
+  ]
+ },
+ {
+  "o": "newscientist",
+  "name": "New Scientist",
+  "short": "NS",
+  "color": "#1A1A1A",
+  "kind": "Settimanale scientifico",
+  "lang": "en",
+  "site": "https://www.newscientist.com",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://www.newscientist.com/feed/home/",
+    "h": "scienza"
+   }
+  ]
+ },
+ {
+  "o": "sciam",
+  "name": "Scientific American",
+  "short": "SA",
+  "color": "#9B1C1C",
+  "kind": "Rivista scientifica",
+  "lang": "en",
+  "site": "https://www.scientificamerican.com",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://www.scientificamerican.com/platform/syndication/rss/",
+    "h": "scienza"
+   }
+  ]
+ },
+ {
+  "o": "sciencedaily",
+  "name": "ScienceDaily",
+  "short": "SD",
+  "color": "#5C6B1F",
+  "kind": "Divulgazione scientifica",
+  "lang": "en",
+  "site": "https://www.sciencedaily.com",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://www.sciencedaily.com/rss/top/science.xml",
+    "h": "scienza"
+   },
+   {
+    "u": "https://www.sciencedaily.com/rss/health_medicine.xml",
+    "h": "salute"
+   },
+   {
+    "u": "https://www.sciencedaily.com/rss/mind_brain.xml",
+    "h": "salute"
+   }
+  ]
+ },
+ {
+  "o": "physorg",
+  "name": "Phys.org",
+  "short": "PH",
+  "color": "#1E5A8C",
+  "kind": "Divulgazione scientifica",
+  "lang": "en",
+  "site": "https://phys.org",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://phys.org/rss-feed/",
+    "h": "scienza"
+   }
+  ]
+ },
+ {
+  "o": "medicalxpress",
+  "name": "Medical Xpress",
+  "short": "MX",
+  "color": "#2F7A8C",
+  "kind": "Divulgazione medica",
+  "lang": "en",
+  "site": "https://medicalxpress.com",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://medicalxpress.com/rss-feed/",
+    "h": "salute"
+   }
+  ]
+ },
+ {
+  "o": "statnews",
+  "name": "STAT",
+  "short": "STAT",
+  "color": "#1D3C6E",
+  "kind": "Giornalismo sanitario",
+  "lang": "en",
+  "site": "https://www.statnews.com",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://www.statnews.com/feed/",
+    "h": "salute"
+   }
+  ]
+ },
+ {
+  "o": "bjsm",
+  "name": "BJSM Blog",
+  "short": "BJSM",
+  "color": "#2C5F8A",
+  "kind": "Medicina dello sport",
+  "lang": "en",
+  "site": "https://blogs.bmj.com/bjsm",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://blogs.bmj.com/bjsm/feed/",
+    "h": "salute"
+   }
+  ],
+  "gn": false
+ },
+ {
+  "o": "theconversation",
+  "name": "The Conversation",
+  "short": "CV",
+  "color": "#D8352A",
+  "kind": "Analisi accademica",
+  "lang": "en",
+  "site": "https://theconversation.com",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://theconversation.com/global/articles.atom"
+   }
+  ]
+ },
+ {
+  "o": "nasa",
+  "name": "NASA",
+  "short": "NASA",
+  "color": "#0B3D91",
+  "kind": "Agenzia spaziale",
+  "lang": "en",
+  "site": "https://www.nasa.gov",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://www.nasa.gov/news-release/feed/",
+    "h": "scienza"
+   }
+  ]
+ },
+ {
+  "o": "esa",
+  "name": "ESA",
+  "short": "ESA",
+  "color": "#003247",
+  "kind": "Agenzia spaziale",
+  "lang": "en",
+  "site": "https://www.esa.int",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://www.esa.int/rssfeed/Our_Activities/Space_News",
+    "h": "scienza"
+   }
+  ]
+ },
+ {
+  "o": "carbonbrief",
+  "name": "Carbon Brief",
+  "short": "CB",
+  "color": "#2E7D32",
+  "kind": "Clima ed energia",
+  "lang": "en",
+  "site": "https://www.carbonbrief.org",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://www.carbonbrief.org/feed/",
+    "h": "clima"
+   }
+  ]
+ },
+ {
+  "o": "arstechnica",
+  "name": "Ars Technica",
+  "short": "ARS",
+  "color": "#8A6A12",
+  "kind": "Magazine di tecnologia",
+  "lang": "en",
+  "site": "https://arstechnica.com",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://feeds.arstechnica.com/arstechnica/index",
+    "h": "tech"
+   }
+  ]
+ },
+ {
+  "o": "theverge",
+  "name": "The Verge",
+  "short": "VG",
+  "color": "#5200FF",
+  "kind": "Magazine di tecnologia",
+  "lang": "en",
+  "site": "https://www.theverge.com",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://www.theverge.com/rss/index.xml",
+    "h": "tech"
+   }
+  ]
+ },
+ {
+  "o": "techcrunch",
+  "name": "TechCrunch",
+  "short": "TC",
+  "color": "#0A8A3A",
+  "kind": "Magazine di tecnologia",
+  "lang": "en",
+  "site": "https://techcrunch.com",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://techcrunch.com/feed/",
+    "h": "tech"
+   }
+  ]
+ },
+ {
+  "o": "motor1",
+  "name": "Motor1 Italia",
+  "short": "M1",
+  "color": "#D0021B",
+  "kind": "Magazine di motori",
+  "lang": "it",
+  "site": "https://it.motor1.com",
+  "sec": "motori",
+  "feeds": [
+   {
+    "u": "https://it.motor1.com/rss/articles/all/",
+    "h": "motori"
+   },
+   {
+    "u": "https://it.motor1.com/rss/news/all/",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "insideevs",
+  "name": "InsideEVs Italia",
+  "short": "IEV",
+  "color": "#0F7B3F",
+  "kind": "Auto elettriche",
+  "lang": "it",
+  "site": "https://insideevs.it",
+  "sec": "motori",
+  "feeds": [
+   {
+    "u": "https://insideevs.it/rss/news/all/",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "quattroruote",
+  "name": "Quattroruote",
+  "short": "4R",
+  "color": "#C8102E",
+  "kind": "Mensile di motori",
+  "lang": "it",
+  "site": "https://www.quattroruote.it",
+  "sec": "motori",
+  "feeds": []
+ },
+ {
+  "o": "alvolante",
+  "name": "alVolante",
+  "short": "AL",
+  "color": "#E30613",
+  "kind": "Magazine di motori",
+  "lang": "it",
+  "site": "https://www.alvolante.it",
+  "sec": "motori",
+  "feeds": []
+ },
+ {
+  "o": "motorbox",
+  "name": "Motorbox",
+  "short": "MB",
+  "color": "#1E1E1E",
+  "kind": "Magazine di motori",
+  "lang": "it",
+  "site": "https://www.motorbox.com",
+  "sec": "motori",
+  "feeds": []
+ },
+ {
+  "o": "hdmotori",
+  "name": "HDmotori",
+  "short": "HDM",
+  "color": "#0A4DA2",
+  "kind": "Magazine di motori",
+  "lang": "it",
+  "site": "https://www.hdmotori.it",
+  "sec": "motori",
+  "feeds": [
+   {
+    "u": "https://www.hdmotori.it/feed/",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "formulapassion",
+  "name": "FormulaPassion",
+  "short": "FPA",
+  "color": "#B71C1C",
+  "kind": "Motorsport",
+  "lang": "it",
+  "site": "https://www.formulapassion.it",
+  "sec": "motori",
+  "feeds": [
+   {
+    "u": "https://www.formulapassion.it/feed",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "motorsport",
+  "name": "Motorsport.com Italia",
+  "short": "MS",
+  "color": "#E10600",
+  "kind": "Motorsport",
+  "lang": "it",
+  "site": "https://it.motorsport.com",
+  "sec": "motori",
+  "feeds": [
+   {
+    "u": "https://it.motorsport.com/rss/all/news/",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "gpone",
+  "name": "GPOne",
+  "short": "GP1",
+  "color": "#D32F2F",
+  "kind": "Motomondiale",
+  "lang": "it",
+  "site": "https://www.gpone.com",
+  "sec": "motori",
+  "feeds": []
+ },
+ {
+  "o": "motoit",
+  "name": "Moto.it",
+  "short": "MIT",
+  "color": "#E53935",
+  "kind": "Magazine di moto",
+  "lang": "it",
+  "site": "https://www.moto.it",
+  "sec": "motori",
+  "feeds": [
+   {
+    "u": "https://www.moto.it/rss/news.xml",
+    "h": "motori"
+   },
+   {
+    "u": "https://www.moto.it/rss/news-sport.xml",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "therace",
+  "name": "The Race",
+  "short": "TRC",
+  "color": "#111111",
+  "kind": "Motorsport",
+  "lang": "en",
+  "site": "https://www.the-race.com",
+  "sec": "motori",
+  "feeds": [
+   {
+    "u": "https://www.the-race.com/feed/",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "autocar",
+  "name": "Autocar",
+  "short": "AC",
+  "color": "#D71920",
+  "kind": "Settimanale di motori",
+  "lang": "en",
+  "site": "https://www.autocar.co.uk",
+  "sec": "motori",
+  "feeds": [
+   {
+    "u": "https://www.autocar.co.uk/rss",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "electrek",
+  "name": "Electrek",
+  "short": "EK",
+  "color": "#2E7D32",
+  "kind": "Mobilità elettrica",
+  "lang": "en",
+  "site": "https://electrek.co",
+  "sec": "motori",
+  "feeds": [
+   {
+    "u": "https://electrek.co/feed/",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "carscoops",
+  "name": "Carscoops",
+  "short": "CSC",
+  "color": "#263238",
+  "kind": "Magazine di motori",
+  "lang": "en",
+  "site": "https://www.carscoops.com",
+  "sec": "motori",
+  "feeds": [
+   {
+    "u": "https://www.carscoops.com/feed/",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "bbc",
+  "name": "BBC News",
+  "short": "BBC",
+  "color": "#8B1A1A",
+  "kind": "Servizio pubblico britannico",
+  "lang": "en",
+  "site": "https://www.bbc.com/news",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://feeds.bbci.co.uk/news/world/rss.xml"
+   },
+   {
+    "u": "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml",
+    "h": "scienza"
+   },
+   {
+    "u": "https://feeds.bbci.co.uk/news/technology/rss.xml",
+    "h": "tech"
+   },
+   {
+    "u": "https://feeds.bbci.co.uk/news/business/rss.xml",
+    "h": "economia"
+   }
+  ],
+  "gn": "bbc.com"
+ },
+ {
+  "o": "guardian",
+  "name": "The Guardian",
+  "short": "GU",
+  "color": "#052962",
+  "kind": "Quotidiano britannico",
+  "lang": "en",
+  "site": "https://www.theguardian.com",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://www.theguardian.com/world/rss"
+   },
+   {
+    "u": "https://www.theguardian.com/science/rss",
+    "h": "scienza"
+   },
+   {
+    "u": "https://www.theguardian.com/environment/rss",
+    "h": "clima"
+   }
+  ]
+ },
+ {
+  "o": "independent",
+  "name": "The Independent",
+  "short": "IND",
+  "color": "#C8102E",
+  "kind": "Quotidiano britannico",
+  "lang": "en",
+  "site": "https://www.independent.co.uk",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://www.independent.co.uk/news/world/rss"
+   }
+  ]
+ },
+ {
+  "o": "ft",
+  "name": "Financial Times",
+  "short": "FT",
+  "color": "#990F3D",
+  "kind": "Quotidiano economico",
+  "lang": "en",
+  "site": "https://www.ft.com",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://www.ft.com/world?format=rss"
+   }
+  ]
+ },
+ {
+  "o": "economist",
+  "name": "The Economist",
+  "short": "ECO",
+  "color": "#C0161D",
+  "kind": "Settimanale",
+  "lang": "en",
+  "site": "https://www.economist.com",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://www.economist.com/international/rss.xml"
+   },
+   {
+    "u": "https://www.economist.com/science-and-technology/rss.xml",
+    "h": "scienza"
+   }
+  ]
+ },
+ {
+  "o": "nyt",
+  "name": "The New York Times",
+  "short": "NYT",
+  "color": "#222222",
+  "kind": "Quotidiano statunitense",
+  "lang": "en",
+  "site": "https://www.nytimes.com",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://rss.nytimes.com/services/xml/rss/nyt/World.xml"
+   },
+   {
+    "u": "https://rss.nytimes.com/services/xml/rss/nyt/Science.xml",
+    "h": "scienza"
+   },
+   {
+    "u": "https://rss.nytimes.com/services/xml/rss/nyt/Health.xml",
+    "h": "salute"
+   }
+  ]
+ },
+ {
+  "o": "washingtonpost",
+  "name": "The Washington Post",
+  "short": "WP",
+  "color": "#111111",
+  "kind": "Quotidiano statunitense",
+  "lang": "en",
+  "site": "https://www.washingtonpost.com",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://feeds.washingtonpost.com/rss/world"
+   }
+  ]
+ },
+ {
+  "o": "wsj",
+  "name": "The Wall Street Journal",
+  "short": "WSJ",
+  "color": "#0274B6",
+  "kind": "Quotidiano economico",
+  "lang": "en",
+  "site": "https://www.wsj.com",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://feeds.content.dowjones.io/public/rss/RSSWorldNews"
+   },
+   {
+    "u": "https://feeds.content.dowjones.io/public/rss/RSSMarketsMain",
+    "h": "economia"
+   }
+  ]
+ },
+ {
+  "o": "npr",
+  "name": "NPR",
+  "short": "NPR",
+  "color": "#1E4E79",
+  "kind": "Radio pubblica statunitense",
+  "lang": "en",
+  "site": "https://www.npr.org",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://feeds.npr.org/1001/rss.xml"
+   }
+  ]
+ },
+ {
+  "o": "atlantic",
+  "name": "The Atlantic",
+  "short": "ATL",
+  "color": "#1A1A1A",
+  "kind": "Mensile statunitense",
+  "lang": "en",
+  "site": "https://www.theatlantic.com",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://www.theatlantic.com/feed/all/"
+   }
+  ]
+ },
+ {
+  "o": "politico",
+  "name": "Politico Europe",
+  "short": "PO",
+  "color": "#B31B1B",
+  "kind": "Politica europea",
+  "lang": "en",
+  "site": "https://www.politico.eu",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://www.politico.eu/feed/"
+   }
+  ]
+ },
+ {
+  "o": "euronews",
+  "name": "Euronews",
+  "short": "EN",
+  "color": "#4A5A1E",
+  "kind": "Televisione europea",
+  "lang": "en",
+  "site": "https://www.euronews.com",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://www.euronews.com/rss?level=theme&name=news"
+   }
+  ]
+ },
+ {
+  "o": "dw",
+  "name": "DW",
+  "short": "DW",
+  "color": "#1E6B5C",
+  "kind": "Servizio pubblico tedesco",
+  "lang": "en",
+  "site": "https://www.dw.com",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://rss.dw.com/rdf/rss-en-all"
+   }
+  ]
+ },
+ {
+  "o": "france24",
+  "name": "France 24",
+  "short": "F24",
+  "color": "#2E4A8C",
+  "kind": "Televisione internazionale",
+  "lang": "en",
+  "site": "https://www.france24.com",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://www.france24.com/en/rss"
+   }
+  ]
+ },
+ {
+  "o": "lemonde",
+  "name": "Le Monde",
+  "short": "LM",
+  "color": "#1A1A1A",
+  "kind": "Quotidiano francese",
+  "lang": "fr",
+  "site": "https://www.lemonde.fr",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://www.lemonde.fr/rss/une.xml"
+   },
+   {
+    "u": "https://www.lemonde.fr/international/rss_full.xml"
+   }
+  ]
+ },
+ {
+  "o": "lefigaro",
+  "name": "Le Figaro",
+  "short": "FIG",
+  "color": "#163860",
+  "kind": "Quotidiano francese",
+  "lang": "fr",
+  "site": "https://www.lefigaro.fr",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://www.lefigaro.fr/rss/figaro_actualites.xml"
+   }
+  ]
+ },
+ {
+  "o": "rfi",
+  "name": "RFI",
+  "short": "RFI",
+  "color": "#D0021B",
+  "kind": "Radio pubblica francese",
+  "lang": "fr",
+  "site": "https://www.rfi.fr",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://www.rfi.fr/fr/rss"
+   }
+  ]
+ },
+ {
+  "o": "elpais",
+  "name": "El País",
+  "short": "EP",
+  "color": "#0F2A4A",
+  "kind": "Quotidiano spagnolo",
+  "lang": "es",
+  "site": "https://elpais.com",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada"
+   },
+   {
+    "u": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/internacional/portada"
+   }
+  ]
+ },
+ {
+  "o": "elmundo",
+  "name": "El Mundo",
+  "short": "EM",
+  "color": "#1D4E89",
+  "kind": "Quotidiano spagnolo",
+  "lang": "es",
+  "site": "https://www.elmundo.es",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://e00-elmundo.uecdn.es/elmundo/rss/portada.xml"
+   }
+  ]
+ },
+ {
+  "o": "spiegel",
+  "name": "Der Spiegel",
+  "short": "SP",
+  "color": "#E64415",
+  "kind": "Settimanale tedesco",
+  "lang": "de",
+  "site": "https://www.spiegel.de",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://www.spiegel.de/schlagzeilen/index.rss"
+   }
+  ]
+ },
+ {
+  "o": "faz",
+  "name": "Frankfurter Allgemeine",
+  "short": "FAZ",
+  "color": "#1A1A1A",
+  "kind": "Quotidiano tedesco",
+  "lang": "de",
+  "site": "https://www.faz.net",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://www.faz.net/rss/aktuell/"
+   }
+  ]
+ },
+ {
+  "o": "zeit",
+  "name": "Die Zeit",
+  "short": "ZE",
+  "color": "#2B2B2B",
+  "kind": "Settimanale tedesco",
+  "lang": "de",
+  "site": "https://www.zeit.de",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://newsfeed.zeit.de/index"
+   }
+  ]
+ },
+ {
+  "o": "aljazeera",
+  "name": "Al Jazeera",
+  "short": "AJ",
+  "color": "#0F6A7A",
+  "kind": "Televisione internazionale",
+  "lang": "en",
+  "site": "https://www.aljazeera.com",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://www.aljazeera.com/xml/rss/all.xml"
+   }
+  ]
+ },
+ {
+  "o": "timesofisrael",
+  "name": "The Times of Israel",
+  "short": "TOI",
+  "color": "#1F4E8C",
+  "kind": "Quotidiano israeliano",
+  "lang": "en",
+  "site": "https://www.timesofisrael.com",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://www.timesofisrael.com/feed/"
+   }
+  ]
+ },
+ {
+  "o": "kyivindependent",
+  "name": "The Kyiv Independent",
+  "short": "KI",
+  "color": "#2B2B2B",
+  "kind": "Quotidiano ucraino",
+  "lang": "en",
+  "site": "https://kyivindependent.com",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://kyivindependent.com/news-archive/rss/"
+   }
+  ]
+ },
+ {
+  "o": "scmp",
+  "name": "South China Morning Post",
+  "short": "SCMP",
+  "color": "#FFB400",
+  "kind": "Quotidiano di Hong Kong",
+  "lang": "en",
+  "site": "https://www.scmp.com",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://www.scmp.com/rss/91/feed"
+   }
+  ]
+ },
+ {
+  "o": "japantimes",
+  "name": "The Japan Times",
+  "short": "JT",
+  "color": "#B71C1C",
+  "kind": "Quotidiano giapponese",
+  "lang": "en",
+  "site": "https://www.japantimes.co.jp",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://www.japantimes.co.jp/feed/"
+   }
+  ]
+ },
+ {
+  "o": "cbc",
+  "name": "CBC News",
+  "short": "CBC",
+  "color": "#D52B1E",
+  "kind": "Servizio pubblico canadese",
+  "lang": "en",
+  "site": "https://www.cbc.ca/news",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://www.cbc.ca/webfeed/rss/rss-world"
+   }
+  ],
+  "gn": "cbc.ca"
+ },
+ {
+  "o": "abcau",
+  "name": "ABC News Australia",
+  "short": "ABC",
+  "color": "#1A1A1A",
+  "kind": "Servizio pubblico australiano",
+  "lang": "en",
+  "site": "https://www.abc.net.au/news",
+  "sec": "mondo",
+  "feeds": [
+   {
+    "u": "https://www.abc.net.au/news/feed/51120/rss.xml"
+   }
+  ],
+  "gn": "abc.net.au"
+ },
+ {
+  "o": "barcheamotore",
+  "name": "Barche a Motore",
+  "short": "BM",
+  "color": "#0B5394",
+  "kind": "Magazine di barche a motore e yacht",
+  "lang": "it",
+  "site": "https://www.barcheamotore.com",
+  "sec": "motori",
+  "feeds": [
+   {
+    "u": "https://www.barcheamotore.com/feed/",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "nautica",
+  "name": "Nautica",
+  "short": "NA",
+  "color": "#1C4E80",
+  "kind": "Mensile di nautica da diporto",
+  "lang": "it",
+  "site": "https://www.nautica.it",
+  "sec": "motori",
+  "feeds": [
+   {
+    "u": "https://www.nautica.it/feed/",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "barchemagazine",
+  "name": "Barche Magazine",
+  "short": "BA",
+  "color": "#0E6BA8",
+  "kind": "Magazine di yacht e cantieri",
+  "lang": "it",
+  "site": "https://www.barchemagazine.com",
+  "sec": "motori",
+  "feeds": [
+   {
+    "u": "https://www.barchemagazine.com/feed/",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "farevela",
+  "name": "Fare Vela",
+  "short": "FV",
+  "color": "#2E86C1",
+  "kind": "Magazine di vela e regate",
+  "lang": "it",
+  "site": "https://www.farevela.net",
+  "sec": "motori",
+  "feeds": [
+   {
+    "u": "https://www.farevela.net/feed/",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "mby",
+  "name": "Motor Boat & Yachting",
+  "short": "MB",
+  "color": "#003B5C",
+  "kind": "Rivista britannica di barche a motore",
+  "lang": "en",
+  "site": "https://www.mby.com",
+  "sec": "motori",
+  "feeds": [
+   {
+    "u": "https://www.mby.com/feed",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "yachtingworld",
+  "name": "Yachting World",
+  "short": "YW",
+  "color": "#00467F",
+  "kind": "Rivista britannica di vela d’altura",
+  "lang": "en",
+  "site": "https://www.yachtingworld.com",
+  "sec": "motori",
+  "feeds": [
+   {
+    "u": "https://www.yachtingworld.com/feed",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "powermotoryacht",
+  "name": "Power & Motoryacht",
+  "short": "PM",
+  "color": "#1B3A5C",
+  "kind": "Rivista statunitense di motoryacht",
+  "lang": "en",
+  "site": "https://www.powerandmotoryacht.com",
+  "sec": "motori",
+  "feeds": [
+   {
+    "u": "https://www.powerandmotoryacht.com/feed/",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "megayachtnews",
+  "name": "Megayacht News",
+  "short": "MY",
+  "color": "#0A2342",
+  "kind": "Notizie su superyacht",
+  "lang": "en",
+  "site": "https://megayachtnews.com",
+  "sec": "motori",
+  "feeds": [
+   {
+    "u": "https://megayachtnews.com/feed/",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "boatingindustry",
+  "name": "Boating Industry",
+  "short": "BI",
+  "color": "#C0392B",
+  "kind": "Industria nautica",
+  "lang": "en",
+  "site": "https://www.boatingindustry.com",
+  "sec": "motori",
+  "feeds": [
+   {
+    "u": "https://www.boatingindustry.com/feed/",
+    "h": "motori"
+   }
+  ]
+ },
+ {
+  "o": "romatoday",
+  "name": "RomaToday",
+  "short": "RT",
+  "color": "#C8102E",
+  "kind": "Cronaca di Roma e provincia",
+  "lang": "it",
+  "site": "https://www.romatoday.it",
+  "sec": "roma",
+  "zona": "citta",
+  "feeds": [
+   {
+    "u": "https://www.romatoday.it/rss",
+    "h": "roma"
+   }
+  ]
+ },
+ {
+  "o": "iltempo",
+  "name": "Il Tempo",
+  "short": "TE",
+  "color": "#1B3A6B",
+  "kind": "Quotidiano di Roma",
+  "lang": "it",
+  "site": "https://www.iltempo.it",
+  "sec": "roma",
+  "zona": "citta",
+  "feeds": [],
+  "mista": true,
+  "gnq": "Roma"
+ },
+ {
+  "o": "abitarearoma",
+  "name": "Abitare a Roma",
+  "short": "AR",
+  "color": "#2E7D32",
+  "kind": "Quartieri e municipi di Roma",
+  "lang": "it",
+  "site": "https://www.abitarearoma.it",
+  "sec": "roma",
+  "zona": "citta",
+  "feeds": [
+   {
+    "u": "https://www.abitarearoma.it/feed/",
+    "h": "roma"
+   }
+  ]
+ },
+ {
+  "o": "diarioromano",
+  "name": "DiarioRomano",
+  "short": "DR",
+  "color": "#5D4037",
+  "kind": "Inchieste civiche su Roma",
+  "lang": "it",
+  "site": "https://www.diarioromano.it",
+  "sec": "roma",
+  "zona": "citta",
+  "feeds": [
+   {
+    "u": "https://www.diarioromano.it/feed/",
+    "h": "roma"
+   }
+  ]
+ },
+ {
+  "o": "vignaclarablog",
+  "name": "VignaClaraBlog",
+  "short": "VC",
+  "color": "#00695C",
+  "kind": "Roma nord",
+  "lang": "it",
+  "site": "https://www.vignaclarablog.it",
+  "sec": "roma",
+  "zona": "citta",
+  "feeds": [
+   {
+    "u": "https://www.vignaclarablog.it/feed/",
+    "h": "roma"
+   }
+  ]
+ },
+ {
+  "o": "ilmamilio",
+  "name": "Il Mamilio",
+  "short": "MA",
+  "color": "#8E1B3A",
+  "kind": "Castelli Romani",
+  "lang": "it",
+  "site": "https://www.ilmamilio.it",
+  "sec": "roma",
+  "zona": "castelli",
+  "feeds": []
+ },
+ {
+  "o": "castellinotizie",
+  "name": "Castelli Notizie",
+  "short": "CN",
+  "color": "#1565C0",
+  "kind": "Castelli Romani",
+  "lang": "it",
+  "site": "https://www.castellinotizie.it",
+  "sec": "roma",
+  "zona": "castelli",
+  "feeds": [
+   {
+    "u": "https://www.castellinotizie.it/feed/",
+    "h": "roma"
+   }
+  ]
+ },
+ {
+  "o": "ilcaffe",
+  "name": "Il Caffè",
+  "short": "CF",
+  "color": "#6D4C41",
+  "kind": "Inchieste su Castelli e litorale",
+  "lang": "it",
+  "site": "https://www.ilcaffe.tv",
+  "sec": "roma",
+  "zona": "castelli",
+  "feeds": [
+   {
+    "u": "https://www.ilcaffe.tv/feed/",
+    "h": "roma"
+   }
+  ]
+ },
+ {
+  "o": "metamagazine",
+  "name": "Meta Magazine",
+  "short": "ME",
+  "color": "#AD1457",
+  "kind": "Castelli Romani e litorale",
+  "lang": "it",
+  "site": "https://www.metamagazine.it",
+  "sec": "roma",
+  "zona": "castelli",
+  "feeds": [
+   {
+    "u": "https://www.metamagazine.it/feed/",
+    "h": "roma"
+   }
+  ]
+ },
+ {
+  "o": "infocastelli",
+  "name": "Giornale Info Castelli Romani",
+  "short": "GC",
+  "color": "#283593",
+  "kind": "Castelli Romani",
+  "lang": "it",
+  "site": "https://www.giornaleinfocastelliromani.it",
+  "sec": "roma",
+  "zona": "castelli",
+  "feeds": [
+   {
+    "u": "https://www.giornaleinfocastelliromani.it/feed/",
+    "h": "roma"
+   }
+  ],
+  "rilancia": true
+ },
+ {
+  "o": "ilfaroonline",
+  "name": "Il Faro Online",
+  "short": "FO",
+  "color": "#0277BD",
+  "kind": "Litorale romano",
+  "lang": "it",
+  "site": "https://www.ilfaroonline.it",
+  "sec": "roma",
+  "zona": "litorale",
+  "feeds": [
+   {
+    "u": "https://www.ilfaroonline.it/feed/",
+    "h": "roma"
+   }
+  ],
+  "mista": true
+ },
+ {
+  "o": "ilclandestino",
+  "name": "Il Clandestino",
+  "short": "CL",
+  "color": "#37474F",
+  "kind": "Anzio, Nettuno e litorale sud",
+  "lang": "it",
+  "site": "https://ilclandestinogiornale.radioroma.it",
+  "sec": "roma",
+  "zona": "litorale",
+  "feeds": [
+   {
+    "u": "https://ilclandestinogiornale.radioroma.it/feed/",
+    "h": "roma"
+   }
+  ],
+  "rilancia": true
+ },
+ {
+  "o": "terzobinario",
+  "name": "TerzoBinario",
+  "short": "T3",
+  "color": "#EF6C00",
+  "kind": "Litorale nord e lago di Bracciano",
+  "lang": "it",
+  "site": "https://www.terzobinario.it",
+  "sec": "roma",
+  "zona": "nord",
+  "feeds": [
+   {
+    "u": "https://www.terzobinario.it/feed/",
+    "h": "roma"
+   }
+  ]
+ },
+ {
+  "o": "baraondanews",
+  "name": "BaraondaNews",
+  "short": "BA",
+  "color": "#6A1B9A",
+  "kind": "Litorale nord e lago di Bracciano",
+  "lang": "it",
+  "site": "https://www.baraondanews.it",
+  "sec": "roma",
+  "zona": "nord",
+  "feeds": [
+   {
+    "u": "https://www.baraondanews.it/feed/",
+    "h": "roma"
+   }
+  ]
+ },
+ {
+  "o": "tiburno",
+  "name": "Tiburno",
+  "short": "TI",
+  "color": "#00838F",
+  "kind": "Tivoli, Guidonia e Valle dell’Aniene",
+  "lang": "it",
+  "site": "https://www.tiburno.tv",
+  "sec": "roma",
+  "zona": "est",
+  "feeds": [
+   {
+    "u": "https://www.tiburno.tv/feed/",
+    "h": "roma"
+   }
+  ]
+ }
+]

@@ -1,213 +1,347 @@
-"""Traduzione automatica offline verso l'italiano, gratuita e senza servizi esterni, con CTranslate2 + SentencePiece.
+"""Traduzione automatica offline per Eddy: modelli OPUS-MT (Università di Helsinki) eseguiti con
+CTranslate2, senza servizi esterni e senza costi.
 
-Motori, dal migliore:
-1. OPUS-MT "tc-big" inglese→italiano (Università di Helsinki), nella conversione per CTranslate2 pubblicata su
-   Hugging Face (ooeoeo/opus-mt-tc-big-en-it-ct2-float16, licenza Apache 2.0), scaricata a una versione fissa.
-   Nelle prove su 30 titoli veri è nettamente migliore di Argos.
-2. Argos Translate inglese→italiano (più piccolo): riserva se il primo non si scarica.
-I modelli si scaricano una volta e si conservano (sul Mac in .cache/, su GitHub Actions nella cache del workflow).
-Ogni testo tradotto finisce nella cache dello stato e non si traduce più; al massimo MAX_NEW_SENTENCES frasi nuove
-per giro, così un giro resta sotto i 10 minuti anche quando si cambia motore (le frasi non ancora ritradotte usano
-la traduzione precedente).
+  python translate.py need MODELS       esce con 0 se c'è da convertire qualche modello
+  python translate.py setup MODELS      converte i modelli mancanti (serve torch+transformers, una volta)
+  python translate.py test MODELS       traduce qualche frase di prova
 
-Le traduzioni si riparano o si scartano se hanno lettere sconosciute, ripetizioni o una lunghezza strana.
+Nel codice: Translator(MODELS).to_italian(['...'], 'en') -> lista di traduzioni (None se non disponibile).
+Le lingue senza modello diretto verso l'italiano passano dall'inglese.
 """
-from __future__ import annotations
-
-import io
+import json
+import os
 import re
 import shutil
-import zipfile
-from pathlib import Path
+import subprocess
+import sys
+import time
 
-from common import NOW, fetch, log, short_hash
-
-ENGINES = {
-    "en": [
-        {"tag": "tcbig", "kind": "hf", "repo": "ooeoeo/opus-mt-tc-big-en-it-ct2-float16",
-         "rev": "ad98d533b469ecc4b266412eaa2c3d84d636675e",
-         "files": ["config.json", "model.bin", "shared_vocabulary.json", "source.spm", "target.spm"]},
-        {"tag": "argos", "kind": "argos", "url": "https://argos-net.com/v1/translate-en_it-1_0.argosmodel"},
-    ],
+# candidati in ordine di preferenza; il primo che si converte vince
+PAIRS = {
+    'en-it': ['Helsinki-NLP/opus-mt-tc-big-en-it', 'Helsinki-NLP/opus-mt-en-it'],
+    'fr-it': ['Helsinki-NLP/opus-mt-fr-it'],
+    'de-it': ['Helsinki-NLP/opus-mt-de-it'],
+    'es-it': ['Helsinki-NLP/opus-mt-es-it'],
+    'fr-en': ['Helsinki-NLP/opus-mt-fr-en'],
+    'de-en': ['Helsinki-NLP/opus-mt-de-en'],
+    'es-en': ['Helsinki-NLP/opus-mt-es-en'],
+    'nl-en': ['Helsinki-NLP/opus-mt-nl-en'],
+    'pt-en': ['Helsinki-NLP/opus-mt-ROMANCE-en'],
 }
-LANG_NAMES = {"en": "inglese", "fr": "francese", "es": "spagnolo", "de": "tedesco", "pt": "portoghese", "nl": "olandese"}
-CACHE_DAYS = 10  # una traduzione non più usata da 10 giorni esce dalla cache
-MAX_NEW_SENTENCES = 1200
+# le coppie verso l'inglese servono solo se manca quella diretta verso l'italiano
+PIVOT_FOR = {'fr-en': 'fr-it', 'de-en': 'de-it', 'es-en': 'es-it'}
+MANIFEST = 'manifest.json'
+RETRY_DAYS = 20
 
-_SENT = re.compile(r"(?<=[.!?…])\s+(?=[«\"“A-ZÀ-Ý0-9])")
-_PIPE = re.compile(r"\s+\|\s+")  # "Titolo | Autore": le parti si traducono separatamente
-_EMOJI = re.compile("[\U0001F000-\U0001FAFF☀-➿⬀-⯿️‍⃣]+")
-_REPEAT = re.compile(r"\b(\w+(?:\s+\w+){0,3})(?:\s+\1\b){2,}", re.I)
-_EN_STOP = set("the and of with for is are was were from after that this will has have says its their about into over".split())
-_IT_STOP = set("il lo gli di del della dei degli che per con non una sono nel nella alla alle dopo anche più come".split())
+
+def _log(*a):
+    print('[traduzione]', *a, flush=True)
+
+
+# ------------------------------------------------------------------ preparazione dei modelli
+def setup(root):
+    os.makedirs(root, exist_ok=True)
+    mpath = os.path.join(root, MANIFEST)
+    man = {}
+    if os.path.exists(mpath):
+        try:
+            man = json.load(open(mpath))
+        except Exception:  # noqa: BLE001
+            man = {}
+    changed = False
+    for pair, repos in PAIRS.items():
+        direct = PIVOT_FOR.get(pair)
+        if direct and (man.get(direct) or {}).get('ok') and os.path.exists(os.path.join(root, direct, 'model.bin')):
+            continue
+        cur = man.get(pair) or {}
+        if cur.get('ok') and os.path.exists(os.path.join(root, pair, 'model.bin')):
+            continue
+        if cur.get('failedAt') and time.time() - cur['failedAt'] < RETRY_DAYS * 86400:
+            continue
+        done = False
+        for repo in repos:
+            if _convert(repo, os.path.join(root, pair)):
+                man[pair] = {'ok': True, 'repo': repo, 'at': int(time.time())}
+                done = True
+                break
+        if not done:
+            man[pair] = {'ok': False, 'failedAt': int(time.time()), 'tried': repos}
+        changed = True
+    with open(mpath, 'w') as fh:
+        json.dump(man, fh, indent=1)
+    _log('modelli:', ', '.join(f"{p}={'ok' if v.get('ok') else 'no'}" for p, v in sorted(man.items())))
+    return changed
+
+
+def _convert(repo, out):
+    tmp = out + '.tmp'
+    shutil.rmtree(tmp, ignore_errors=True)
+    try:
+        r = subprocess.run(['ct2-transformers-converter', '--model', repo, '--output_dir', tmp, '--quantization', 'int8', '--force'],
+                           capture_output=True, text=True, timeout=1500)
+        if r.returncode != 0:
+            _log('conversione fallita', repo, (r.stderr or r.stdout)[-400:])
+            shutil.rmtree(tmp, ignore_errors=True)
+            return False
+        from huggingface_hub import hf_hub_download
+        for f in ('source.spm', 'target.spm'):
+            p = hf_hub_download(repo, f)
+            shutil.copy(p, os.path.join(tmp, f))
+        try:
+            cfg = json.load(open(hf_hub_download(repo, 'config.json')))
+        except Exception:  # noqa: BLE001
+            cfg = {}
+        meta = {'repo': repo, 'max': int(cfg.get('max_position_embeddings') or 512)}
+        with open(os.path.join(tmp, 'eddy.json'), 'w') as fh:
+            json.dump(meta, fh)
+        shutil.rmtree(out, ignore_errors=True)
+        os.rename(tmp, out)
+        _log('convertito', repo)
+        return True
+    except Exception as ex:  # noqa: BLE001
+        _log('errore', repo, str(ex)[:300])
+        shutil.rmtree(tmp, ignore_errors=True)
+        return False
+
+
+def need(root):
+    """True se manca almeno un modello da (ri)provare a convertire."""
+    try:
+        man = json.load(open(os.path.join(root, MANIFEST)))
+    except Exception:  # noqa: BLE001
+        return True
+    for pair in PAIRS:
+        cur = man.get(pair) or {}
+        if cur.get('ok') and os.path.exists(os.path.join(root, pair, 'model.bin')):
+            continue
+        direct = PIVOT_FOR.get(pair)
+        if direct and (man.get(direct) or {}).get('ok'):
+            continue
+        if cur.get('failedAt') and time.time() - cur['failedAt'] < RETRY_DAYS * 86400:
+            continue
+        return True
+    return False
+
+
+# ------------------------------------------------------------------ traduzione
+SENT = re.compile(r'(?<=[.!?…])\s+(?=[«"“A-ZÀ-ÖØ-Þ0-9])')
+# emoji e simboli che i modelli non conoscono (diventerebbero «⁇»)
+EMOJI = re.compile('[\U0001F000-\U0001FAFF\u2600-\u27BF\u2B00-\u2BFF\uFE0F\u200D\u20E3\u2190-\u21FF\u25A0-\u25FF]+')
+UNK = re.compile(r'(\w*)\s?⁇\s?(\w*)')
+WORDS = re.compile(r"[a-zà-öø-ÿ]+")
+# parole vuote per riconoscere una traduzione rimasta nella lingua d'origine (senza quelle comuni all'italiano)
+STOPL = {
+    'it': set('il lo gli di del della dei degli che per con non una sono nel nella alla alle dopo anche più come sulla questo'.split()),
+    'en': set('the and of with for is are was were from after that this will has have says its their about into over'.split()),
+    'de': set('der die das und mit für nicht ist ein eine den dem des auf sich im zum zur bei nach über wird werden'.split()),
+    'fr': set('les des du et pour dans sur est au aux qui pas une ces leur sont avec été'.split()),
+    'es': set('el los las y por para que es una del al sus como más fue han este esta'.split()),
+    'pt': set('os não para uma com do em ao pela pelo são foi mais seu sua'.split()),
+    'nl': set('het een en van voor met niet zijn dat op ook naar bij wordt'.split()),
+}
+
+
+def clean_src(t):
+    t = EMOJI.sub(' ', t or '')
+    return re.sub(r'\s{2,}', ' ', t).strip(' |·-–—')
+
+
+def fix_unk(out, src):
+    """Rimette le lettere che il modello non sa scrivere (ñ, ö, É, ğ…) prendendole dall'originale."""
+    if '⁇' not in (out or ''):
+        return out
+
+    def find(pre, post):
+        if not pre and not post:
+            return None
+        rx = (r'\b' if pre else r'(?<![\w])') + re.escape(pre) + r'[^\W\d_]{1,3}' + re.escape(post) + (r'\b' if post else r'(?![\w])')
+        f = re.search(rx, src or '') or re.search(rx, src or '', re.I)
+        return f.group(0) if f else None
+
+    def sub(m):
+        pre, post = m.group(1), m.group(2)
+        w = find(pre, post)
+        if w:
+            return w
+        w = find('', post) if post else None
+        if w:
+            return (pre + ' ' if pre else '') + w
+        w = find(pre, '') if pre else None
+        if w:
+            return w + (' ' + post if post else '')
+        return ' '.join(x for x in (pre, post) if x) or ' '
+    out = UNK.sub(sub, out)
+    return re.sub(r'\s{2,}', ' ', out.replace('⁇', '')).strip()
+
+
+def italian_enough(out, lang):
+    w = WORDS.findall((out or '').lower())
+    if len(w) < 6 or lang == 'it':
+        return True
+    it = sum(1 for x in w if x in STOPL['it'])
+    fo = sum(1 for x in w if x in STOPL.get(lang, ()))
+    return not (fo >= 2 and fo > it)
+
+
+def repair(src, out, lang):
+    """Ripara una traduzione (anche presa dalla cache); None se è da rifare o da scartare."""
+    if not out:
+        return None
+    out = tidy(fix_unk(out, src))
+    if not out or not good(src, out) or not italian_enough(out, lang):
+        return None
+    return out
+REPEAT = re.compile(r'\b(\w+(?:\s+\w+){0,3})(?:\s+\1\b){2,}', re.I)
 
 
 class Translator:
-    def __init__(self, models_dir: Path, cache: dict, enabled: bool = True):
-        self.dir = Path(models_dir)
-        self.cache = cache  # {chiave: [traduzione, "AAAA-MM-GG ultimo uso"]}
-        self.enabled = enabled
-        self.models: dict = {}
-        self.new = 0
-        self.failed = 0
-        self.sentences = 0
-        self.engine_used: dict = {}
-
-    # ------------------------------------------------------------ modelli
-    def _download(self, eng: dict) -> Path | None:
-        d = self.dir / eng["tag"]
-        ready = d / ("model.bin" if eng["kind"] == "hf" else "model/model.bin")
-        if ready.exists():
-            return d
-        if not self.enabled:
-            return None
+    def __init__(self, root, threads=None):
+        self.root = root
+        self.models = {}
+        self.ok = False
         try:
-            log(f"scarico il modello di traduzione {eng['tag']} (una volta sola)…")
-            tmp = self.dir / (eng["tag"] + ".tmp")
-            shutil.rmtree(tmp, ignore_errors=True)
-            tmp.mkdir(parents=True)
-            if eng["kind"] == "hf":
-                for f in eng["files"]:
-                    _, data = fetch(f"https://huggingface.co/{eng['repo']}/resolve/{eng['rev']}/{f}", timeout=600, max_bytes=900_000_000)
-                    (tmp / f).write_bytes(data)
-                target = tmp
-            else:
-                _, data = fetch(eng["url"], timeout=300, max_bytes=400_000_000)
-                with zipfile.ZipFile(io.BytesIO(data)) as zf:
-                    zf.extractall(tmp)
-                target = next(p for p in tmp.iterdir() if p.is_dir())  # il pacchetto Argos contiene una cartella
-            shutil.rmtree(d, ignore_errors=True)
-            shutil.move(str(target), str(d))
-            shutil.rmtree(tmp, ignore_errors=True)
-            return d
+            import ctranslate2  # noqa: F401
+            import sentencepiece  # noqa: F401
+            self.ok = True
         except Exception as ex:  # noqa: BLE001
-            log("modello di traduzione non disponibile:", eng["tag"], ex)
-            return None
+            _log('librerie assenti:', ex)
+        self.threads = threads or max(1, os.cpu_count() or 1)
+        try:
+            self.manifest = json.load(open(os.path.join(root, MANIFEST)))
+        except Exception:  # noqa: BLE001
+            self.manifest = {}
 
-    def _load(self, lang: str):
-        """Primo motore disponibile per la lingua: (tag, traduttore, spm sorgente, spm destinazione, fine frase?)."""
-        if lang in self.models:
-            return self.models[lang]
+    def has(self, pair):
+        return self.ok and os.path.exists(os.path.join(self.root, pair, 'model.bin'))
+
+    def _load(self, pair):
+        if pair in self.models:
+            return self.models[pair]
         m = None
-        for eng in ENGINES.get(lang, []):
-            d = self._download(eng)
-            if not d:
-                continue
+        if self.has(pair):
             try:
                 import ctranslate2
                 import sentencepiece as spm
-                if eng["kind"] == "hf":
-                    m = (eng["tag"], ctranslate2.Translator(str(d), device="cpu", compute_type="int8"),
-                         spm.SentencePieceProcessor(model_file=str(d / "source.spm")),
-                         spm.SentencePieceProcessor(model_file=str(d / "target.spm")), True)
-                else:
-                    sp = spm.SentencePieceProcessor(model_file=str(d / "sentencepiece.model"))
-                    m = (eng["tag"], ctranslate2.Translator(str(d / "model"), device="cpu", compute_type="int8"), sp, sp, False)
-                break
+                d = os.path.join(self.root, pair)
+                tr = ctranslate2.Translator(d, device='cpu', inter_threads=1, intra_threads=self.threads, compute_type='int8')
+                src = spm.SentencePieceProcessor(model_file=os.path.join(d, 'source.spm'))
+                tgt = spm.SentencePieceProcessor(model_file=os.path.join(d, 'target.spm'))
+                m = (tr, src, tgt)
             except Exception as ex:  # noqa: BLE001
-                log("modello di traduzione non caricato:", eng["tag"], ex)
-        self.models[lang] = m
+                _log('modello non caricato', pair, ex)
+                m = None
+        self.models[pair] = m
         return m
 
-    def can(self, lang: str) -> bool:
-        return lang == "it" or lang in ENGINES
+    def route(self, lang):
+        if lang == 'it':
+            return []
+        if self.has(f'{lang}-it'):
+            return [f'{lang}-it']
+        if lang == 'en':
+            return None
+        if self.has(f'{lang}-en') and self.has('en-it'):
+            return [f'{lang}-en', 'en-it']
+        return None
 
-    # ------------------------------------------------------------ traduzione
-    def to_italian(self, texts: list[str], lang: str) -> list[str | None]:
-        """Traduce una lista di testi; None dove non riesce (si userà l'originale)."""
-        today = NOW.strftime("%Y-%m-%d")
-        out: list[str | None] = [None] * len(texts)
-        model = self._load(lang) if self.enabled else None
-        tag = model[0] if model else None
-        todo = []
-        for i, t in enumerate(texts):
-            if not t:
+    def available(self):
+        return {lang: bool(self.route(lang)) for lang in ('en', 'fr', 'de', 'es', 'pt', 'nl')}
+
+    def _run(self, pair, texts):
+        m = self._load(pair)
+        if not m:
+            return [None] * len(texts)
+        tr, src, tgt = m
+        out = [None] * len(texts)
+        live = [i for i, t in enumerate(texts) if t and t.strip()]
+        toks = {i: src.encode(texts[i], out_type=str)[:400] + ['</s>'] for i in live}
+        order = sorted(live, key=lambda i: len(toks[i]))
+        B = 32
+        for s in range(0, len(order), B):
+            idx = order[s:s + B]
+            try:
+                res = tr.translate_batch([toks[i] for i in idx], beam_size=3, max_decoding_length=300,
+                                         repetition_penalty=1.15, no_repeat_ngram_size=4)
+            except Exception as ex:  # noqa: BLE001
+                _log('errore di traduzione', pair, ex)
                 continue
-            hit = self.cache.get(short_hash(f"{lang}|{tag}|{t}", 16)) if tag else None
-            old = self.cache.get(short_hash(lang + "|" + t, 16))  # traduzione del motore precedente (Argos)
-            if hit:
-                hit[1] = today
-                out[i] = hit[0]
-            elif model and self.sentences < MAX_NEW_SENTENCES:
-                todo.append((i, t))
-                self.sentences += len(_pieces(t))
-            elif old:
-                old[1] = today
-                out[i] = old[0]
-        if not todo:
-            return out
-        _, tr, sp_src, sp_tgt, add_eos = model
-        pieces, owner = [], []
-        for n, (_, t) in enumerate(todo):
-            for p in _pieces(t):
-                pieces.append(p)
-                owner.append(n)
-        try:
-            res = tr.translate_batch([sp_src.encode(p, out_type=str)[:300] + (["</s>"] if add_eos else []) for p in pieces],
-                                     beam_size=3 if add_eos else 2, max_batch_size=16, max_decoding_length=300,
-                                     repetition_penalty=1.1)
-            trans = [sp_tgt.decode([w for w in r.hypotheses[0] if w not in ("</s>", "<pad>", "<s>")]) for r in res]
-        except Exception as ex:  # noqa: BLE001
-            log("errore di traduzione:", ex)
-            return out
-        joined: list[list[tuple[str, str]]] = [[] for _ in todo]
-        for n, p, t in zip(owner, pieces, trans):
-            joined[n].append((p, t))
-        for n, (i, src) in enumerate(todo):
-            parts = joined[n]
-            fixed = _repair(src, _rejoin(src, parts))
-            if fixed:
-                out[i] = fixed
-                self.cache[short_hash(f"{lang}|{tag}|{src}", 16)] = [fixed, today]
-                self.new += 1
-                self.engine_used[tag] = self.engine_used.get(tag, 0) + 1
-            else:
-                self.failed += 1
-                old = self.cache.get(short_hash(lang + "|" + src, 16))
-                if old:
-                    out[i] = old[0]
+            for i, r in zip(idx, res):
+                hyp = [t for t in r.hypotheses[0] if t not in ('</s>', '<pad>')]
+                out[i] = tgt.decode(hyp)
         return out
 
-
-def _pieces(text: str) -> list[str]:
-    """Frase per frase (il modello perde le frasi dopo la prima se gliele si dà insieme); "|" separa le parti."""
-    out = []
-    for part in _PIPE.split(_EMOJI.sub(" ", text).strip()):
-        out += [p.strip() for p in _SENT.split(part) if p.strip()]
-    return out
-
-
-def _rejoin(src: str, parts: list[tuple[str, str]]) -> str:
-    """Rimette insieme le frasi tradotte, con " | " dove il testo originale aveva le sue parti."""
-    if not _PIPE.search(src):
-        return " ".join(t for _, t in parts)
-    out, k = [], 0
-    for part in _PIPE.split(_EMOJI.sub(" ", src).strip()):
-        n = len([p for p in _SENT.split(part) if p.strip()])
-        out.append(" ".join(t for _, t in parts[k:k + n]))
-        k += n
-    return " | ".join(x for x in out if x)
-
-
-def _repair(src: str, out: str) -> str | None:
-    out = re.sub(r"\s+([,.;:!?»”])", r"\1", (out or "").replace("⁇", " "))
-    out = re.sub(r"\s{2,}", " ", out).strip()
-    if not out or _REPEAT.search(out):
-        return None
-    ratio = len(out) / max(1, len(src))
-    if not 0.4 <= ratio <= 2.5:
-        return None
-    w = re.findall(r"[a-zà-ÿ]+", out.lower())
-    if len(w) >= 6 and sum(x in _EN_STOP for x in w) >= 2 and sum(x in _EN_STOP for x in w) > sum(x in _IT_STOP for x in w):
-        return None  # è rimasta in inglese
-    if src[:1].isupper():
-        out = out[:1].upper() + out[1:]
-    return out
+    def to_italian(self, texts, lang):
+        """Traduce in italiano; frase per frase per i testi lunghi. None dove non riesce."""
+        route = self.route(lang)
+        if not route:
+            return [None] * len(texts)
+        pieces, owner = [], []
+        for i, t in enumerate(texts):
+            t = (t or '').strip()
+            if not t:
+                continue
+            t = clean_src(t)
+            if not t:
+                continue
+            parts = [p for p in SENT.split(t) if p.strip()] if len(t) > 220 else [t]
+            for p in parts:
+                pieces.append(p)
+                owner.append(i)
+        cur = pieces
+        for pair in route:
+            cur = self._run(pair, cur)
+        joined = [[] for _ in texts]
+        for i, c in zip(owner, cur):
+            joined[i].append(c)
+        result = []
+        for i, t in enumerate(texts):
+            parts = joined[i]
+            if not parts or not all(p and p.strip() for p in parts):
+                result.append(None)
+                continue
+            result.append(repair(t, ' '.join(parts), lang))
+        return result
 
 
-def prune_cache(cache: dict) -> None:
-    """Toglie le traduzioni non usate da CACHE_DAYS giorni."""
-    from datetime import timedelta
-    limit = (NOW - timedelta(days=CACHE_DAYS)).strftime("%Y-%m-%d")
-    for k in [k for k, v in cache.items() if not isinstance(v, list) or len(v) != 2 or v[1] < limit]:
-        cache.pop(k, None)
+def tidy(s):
+    s = re.sub(r'\s+([,.;:!?»”])', r'\1', s)
+    s = re.sub(r'([«“])\s+', r'\1', s)
+    s = re.sub(r"(\w)\s+'\s*(?=\w)", r"\1'", s) if re.search(r"\w\s+'\s*\w", s) else s
+    s = re.sub(r"\b([LlDdNnSsCcMmTtVv]|[Uu]n|[Dd]ell|[Nn]ell|[Ss]ull|[Dd]all|[Aa]ll|[Qq]uest|[Qq]uell|[Cc]om|[Dd]ov)'\s+(?=\w)", r"\1'", s)
+    return re.sub(r'\s{2,}', ' ', s).strip()
+
+
+def good(src, out):
+    if not out or len(out) < 2:
+        return False
+    if REPEAT.search(out):
+        return False
+    r = len(out) / max(1, len(src))
+    return 0.35 <= r <= 2.6
+
+
+def main():
+    if len(sys.argv) < 3:
+        print(__doc__)
+        return
+    cmd, root = sys.argv[1], sys.argv[2]
+    if cmd == 'need':
+        sys.exit(0 if need(root) else 1)
+    if cmd == 'setup':
+        changed = setup(root)
+        go = os.environ.get('GITHUB_OUTPUT')
+        if go:
+            with open(go, 'a') as fh:
+                fh.write(f"changed={'true' if changed else 'false'}\n")
+    elif cmd == 'test':
+        t = Translator(root)
+        print(t.available())
+        for lang, s in [('en', 'Trump says tariffs on China will stay until a deal is reached'),
+                        ('fr', "Le gouvernement français présente son budget pour 2027"),
+                        ('de', 'Die Bundesregierung plant neue Regeln für Elektroautos'),
+                        ('es', 'El Gobierno aprueba la reforma de las pensiones')]:
+            print(lang, '->', t.to_italian([s], lang))
+
+
+if __name__ == '__main__':
+    main()

@@ -29,3 +29,8 @@ next-env.d.ts
 __pycache__/
 /data/debug_articles.json
 /data/debug_junk.json
+
+# App nuova: cartelle create in prova locale (sito costruito, stato della raccolta, modelli di traduzione)
+/site/
+/state/
+/mt/
