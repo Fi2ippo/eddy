@@ -1,0 +1,50 @@
+{
+ "agi": {
+  "u": "https://www.agi.it/rss.xml",
+  "at": "2026-11-06T15:00:24Z"
+ },
+ "ilpost": {
+  "u": "https://www.ilpost.it/feed",
+  "at": "2026-11-06T15:00:24Z"
+ },
+ "quotidianosanita": {
+  "u": "https://www.quotidianosanita.it/feed/",
+  "at": "2026-11-06T15:00:24Z"
+ },
+ "alvolante": {
+  "u": "https://www.alvolante.it/feed/",
+  "at": "2026-11-06T15:00:24Z"
+ },
+ "motorbox": {
+  "u": "https://www.motorbox.com/rss.xml",
+  "at": "2026-11-06T15:00:24Z"
+ },
+ "gpone": {
+  "u": "https://www.gpone.com/it/rss.xml",
+  "at": "2026-11-06T15:00:24Z"
+ },
+ "ilnapolista": {
+  "u": "https://www.ilnapolista.it/rss/",
+  "at": "2026-11-06T15:20:47Z"
+ },
+ "puntoinformatico": {
+  "u": "https://www.punto-informatico.it/feed",
+  "at": "2026-11-07T10:46:52Z"
+ },
+ "france24": {
+  "u": "https://www.france24.com/rss.xml",
+  "at": "2026-11-06T17:43:11Z"
+ },
+ "fotografiaartistica": {
+  "u": "https://fotografiaartistica.it/feed/",
+  "at": "2026-11-06T19:50:49Z"
+ },
+ "nautica": {
+  "u": "https://nautica.it/feed/",
+  "at": "2026-11-06T22:51:28Z"
+ },
+ "finestresullarte": {
+  "u": "https://www.finestresullarte.info/feed",
+  "at": "2026-11-07T13:26:48Z"
+ }
+}

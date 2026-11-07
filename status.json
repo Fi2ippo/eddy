@@ -1,0 +1,2868 @@
+{
+ "generatedAt": "2026-11-07T18:16:07Z",
+ "version": 4,
+ "hours": 36,
+ "items": 2000,
+ "withImage": 1511,
+ "new": 67,
+ "logos": 0,
+ "outlets": {
+  "ansa": {
+   "items": 45,
+   "errors": [],
+   "via": []
+  },
+  "agi": {
+   "items": 20,
+   "errors": [],
+   "via": []
+  },
+  "adnkronos": {
+   "items": 12,
+   "errors": [],
+   "via": []
+  },
+  "ilpost": {
+   "items": 25,
+   "errors": [
+    "https://www.ilpost.it/feed/: HTTP 403"
+   ],
+   "via": []
+  },
+  "corriere": {
+   "items": 45,
+   "errors": [],
+   "via": []
+  },
+  "repubblica": {
+   "items": 45,
+   "errors": [],
+   "via": []
+  },
+  "lastampa": {
+   "items": 25,
+   "errors": [
+    "https://www.lastampa.it/rss/motori.xml: HTTPSConnectionPool(host='feed.lastampa.it', port=443): Max retries exceeded with url: /notizie_principali.rss (Caused by SSLError(SSLError(1, '[SSL: TLSV1_ALER"
+   ],
+   "via": []
+  },
+  "sole24ore": {
+   "items": 34,
+   "errors": [],
+   "via": []
+  },
+  "ilfatto": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "ilmessaggero": {
+   "items": 37,
+   "errors": [],
+   "via": []
+  },
+  "ilgiornale": {
+   "items": 25,
+   "errors": [
+    "https://www.ilgiornale.it/feed.xml: HTTP 404",
+    "https://www.ilgiornale.it/feed/: HTTP 404",
+    "https://www.ilgiornale.it/rss.xml: HTTP 404",
+    "https://www.ilgiornale.it/rss/: HTTP 404",
+    "https://www.ilgiornale.it/feed: HTTP 404"
+   ],
+   "via": [
+    "gn"
+   ]
+  },
+  "avvenire": {
+   "items": 25,
+   "errors": [
+    "https://www.avvenire.it/feed/: HTTP 404",
+    "https://www.avvenire.it/rss.xml: HTTP 404",
+    "https://www.avvenire.it/rss/: HTTP 404",
+    "https://www.avvenire.it/feed: HTTP 404",
+    "https://www.avvenire.it/feed.xml: HTTP 404"
+   ],
+   "via": [
+    "gn"
+   ]
+  },
+  "ilfoglio": {
+   "items": 20,
+   "errors": [],
+   "via": []
+  },
+  "domani": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "ilmanifesto": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "rainews": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "skytg24": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "tgcom24": {
+   "items": 26,
+   "errors": [],
+   "via": []
+  },
+  "open": {
+   "items": 12,
+   "errors": [],
+   "via": []
+  },
+  "fanpage": {
+   "items": 25,
+   "errors": [
+    "https://www.fanpage.it/feed/: HTTP 403",
+    "https://www.fanpage.it/rss.xml: HTTP 403",
+    "https://www.fanpage.it/rss/: HTTP 403",
+    "https://www.fanpage.it/feed: HTTP 403",
+    "https://www.fanpage.it/feed.xml: HTTP 403"
+   ],
+   "via": [
+    "gn"
+   ]
+  },
+  "today": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "huffpost": {
+   "items": 25,
+   "errors": [
+    "https://www.huffingtonpost.it/rss/homepage/rss2.0.xml: HTTP 404",
+    "https://www.huffingtonpost.it/feeds/index.xml: HTTP 404",
+    "https://www.huffingtonpost.it/rss/: HTTP 404",
+    "https://www.huffingtonpost.it/feed/: HTTP 404",
+    "https://www.huffingtonpost.it/rss.xml: HTTP 404",
+    "https://www.huffingtonpost.it/feed: HTTP 404"
+   ],
+   "via": [
+    "gn"
+   ]
+  },
+  "linkiesta": {
+   "items": 12,
+   "errors": [],
+   "via": []
+  },
+  "internazionale": {
+   "items": 9,
+   "errors": [],
+   "via": []
+  },
+  "valigiablu": {
+   "items": 4,
+   "errors": [],
+   "via": []
+  },
+  "lavoce": {
+   "items": 5,
+   "errors": [],
+   "via": []
+  },
+  "gazzetta": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "wired": {
+   "items": 6,
+   "errors": [],
+   "via": [
+    "gn"
+   ]
+  },
+  "puntoinformatico": {
+   "items": 20,
+   "errors": [],
+   "via": []
+  },
+  "lescienze": {
+   "items": 3,
+   "errors": [
+    "https://www.lescienze.it/rss/all/rss2.0.xml: HTTP 404",
+    "https://www.lescienze.it/feed/: HTTP 404",
+    "https://www.lescienze.it/rss.xml: HTTP 404",
+    "https://www.lescienze.it/rss/: HTTP 404",
+    "https://www.lescienze.it/feed: HTTP 404",
+    "https://www.lescienze.it/feed.xml: HTTP 404"
+   ],
+   "via": [
+    "gn"
+   ]
+  },
+  "mediainaf": {
+   "items": 2,
+   "errors": [],
+   "via": []
+  },
+  "quotidianosanita": {
+   "items": 2,
+   "errors": [],
+   "via": []
+  },
+  "nature": {
+   "items": 25,
+   "errors": [],
+   "via": [
+    "gn"
+   ]
+  },
+  "science": {
+   "items": 2,
+   "errors": [],
+   "via": []
+  },
+  "newscientist": {
+   "items": 21,
+   "errors": [
+    "https://www.newscientist.com/feed/home/: HTTP 406",
+    "https://www.newscientist.com/feed/: HTTP 406",
+    "https://www.newscientist.com/rss.xml: HTTP 406",
+    "https://www.newscientist.com/rss/: HTTP 406",
+    "https://www.newscientist.com/feed: HTTP 406",
+    "https://www.newscientist.com/feed.xml: HTTP 406"
+   ],
+   "via": [
+    "gn"
+   ]
+  },
+  "sciam": {
+   "items": 7,
+   "errors": [],
+   "via": []
+  },
+  "sciencedaily": {
+   "items": 13,
+   "errors": [],
+   "via": []
+  },
+  "physorg": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "medicalxpress": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "statnews": {
+   "items": 17,
+   "errors": [],
+   "via": []
+  },
+  "bjsm": {
+   "items": 1,
+   "errors": [],
+   "via": []
+  },
+  "theconversation": {
+   "items": 1,
+   "errors": [],
+   "via": []
+  },
+  "nasa": {
+   "items": 4,
+   "errors": [],
+   "via": []
+  },
+  "esa": {
+   "items": 25,
+   "errors": [
+    "https://www.esa.int/rssfeed/Our_Activities/Space_News: HTTP 404",
+    "https://www.esa.int/feed/: HTTP 404",
+    "https://www.esa.int/rss.xml: HTTP 404",
+    "https://www.esa.int/rss/: HTTP 404",
+    "https://www.esa.int/feed: HTTP 404",
+    "https://www.esa.int/feed.xml: HTTP 404"
+   ],
+   "via": [
+    "gn"
+   ]
+  },
+  "carbonbrief": {
+   "items": 1,
+   "errors": [],
+   "via": []
+  },
+  "arstechnica": {
+   "items": 19,
+   "errors": [],
+   "via": []
+  },
+  "theverge": {
+   "items": 10,
+   "errors": [],
+   "via": []
+  },
+  "techcrunch": {
+   "items": 19,
+   "errors": [],
+   "via": []
+  },
+  "motor1": {
+   "items": 18,
+   "errors": [],
+   "via": []
+  },
+  "insideevs": {
+   "items": 7,
+   "errors": [],
+   "via": []
+  },
+  "quattroruote": {
+   "items": 25,
+   "errors": [
+    "https://www.quattroruote.it/feed/: HTTP 404",
+    "https://www.quattroruote.it/rss.xml: HTTP 404",
+    "https://www.quattroruote.it/rss/: HTTP 404",
+    "https://www.quattroruote.it/feed: HTTP 404",
+    "https://www.quattroruote.it/feed.xml: HTTP 404"
+   ],
+   "via": [
+    "gn"
+   ]
+  },
+  "alvolante": {
+   "items": 8,
+   "errors": [],
+   "via": []
+  },
+  "motorbox": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "hdmotori": {
+   "items": 10,
+   "errors": [],
+   "via": []
+  },
+  "formulapassion": {
+   "items": 20,
+   "errors": [],
+   "via": []
+  },
+  "motorsport": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "gpone": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "motoit": {
+   "items": 16,
+   "errors": [],
+   "via": []
+  },
+  "therace": {
+   "items": 15,
+   "errors": [],
+   "via": []
+  },
+  "autocar": {
+   "items": 12,
+   "errors": [],
+   "via": []
+  },
+  "electrek": {
+   "items": 22,
+   "errors": [],
+   "via": []
+  },
+  "carscoops": {
+   "items": 20,
+   "errors": [],
+   "via": []
+  },
+  "bbc": {
+   "items": 42,
+   "errors": [],
+   "via": []
+  },
+  "guardian": {
+   "items": 39,
+   "errors": [],
+   "via": []
+  },
+  "independent": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "ft": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "economist": {
+   "items": 2,
+   "errors": [],
+   "via": []
+  },
+  "nyt": {
+   "items": 35,
+   "errors": [],
+   "via": []
+  },
+  "washingtonpost": {
+   "items": 9,
+   "errors": [],
+   "via": []
+  },
+  "wsj": {
+   "items": 40,
+   "errors": [],
+   "via": []
+  },
+  "npr": {
+   "items": 10,
+   "errors": [],
+   "via": []
+  },
+  "atlantic": {
+   "items": 22,
+   "errors": [],
+   "via": []
+  },
+  "politico": {
+   "items": 10,
+   "errors": [],
+   "via": []
+  },
+  "euronews": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "dw": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "france24": {
+   "items": 23,
+   "errors": [],
+   "via": []
+  },
+  "lemonde": {
+   "items": 33,
+   "errors": [],
+   "via": []
+  },
+  "lefigaro": {
+   "items": 18,
+   "errors": [],
+   "via": []
+  },
+  "rfi": {
+   "items": 23,
+   "errors": [],
+   "via": []
+  },
+  "elpais": {
+   "items": 38,
+   "errors": [],
+   "via": []
+  },
+  "elmundo": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "spiegel": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "faz": {
+   "items": 25,
+   "errors": [
+    "https://www.faz.net/rss/aktuell/: nessuna voce (text/html)",
+    "https://www.faz.net/feed/: HTTP 404",
+    "https://www.faz.net/rss.xml: HTTP 404",
+    "https://www.faz.net/rss/: nessuna voce (text/html)",
+    "https://www.faz.net/feed: HTTP 404",
+    "https://www.faz.net/feed.xml: HTTP 404"
+   ],
+   "via": [
+    "gn"
+   ]
+  },
+  "zeit": {
+   "items": 14,
+   "errors": [],
+   "via": []
+  },
+  "aljazeera": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "timesofisrael": {
+   "items": 25,
+   "errors": [
+    "https://www.timesofisrael.com/feed/: HTTP 403",
+    "https://www.timesofisrael.com/rss.xml: HTTP 403",
+    "https://www.timesofisrael.com/rss/: HTTP 403",
+    "https://www.timesofisrael.com/feed: HTTP 403",
+    "https://www.timesofisrael.com/feed.xml: HTTP 403"
+   ],
+   "via": [
+    "gn"
+   ]
+  },
+  "kyivindependent": {
+   "items": 15,
+   "errors": [],
+   "via": []
+  },
+  "scmp": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "japantimes": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "cbc": {
+   "items": 19,
+   "errors": [],
+   "via": []
+  },
+  "abcau": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "barcheamotore": {
+   "items": 11,
+   "errors": [
+    "https://www.barcheamotore.com/feed/: HTTPSConnectionPool(host='www.barcheamotore.com', port=443): Read timed out. (read timeout=16)"
+   ],
+   "via": [
+    "gn"
+   ]
+  },
+  "nautica": {
+   "items": 4,
+   "errors": [],
+   "via": []
+  },
+  "barchemagazine": {
+   "items": 0,
+   "errors": [
+    "https://www.barchemagazine.com/feed/: HTTP 520",
+    "https://www.barchemagazine.com/rss.xml: HTTP 403",
+    "https://www.barchemagazine.com/rss/: HTTP 403",
+    "https://www.barchemagazine.com/feed: HTTP 403",
+    "https://www.barchemagazine.com/feed.xml: HTTP 403",
+    "https://news.google.com/rss/search?q=site%3Abarchemagazine.com+when%3A2d&hl=it&gl=IT&ceid=IT:it: nessuna voce (application/xml)"
+   ],
+   "via": []
+  },
+  "farevela": {
+   "items": 4,
+   "errors": [],
+   "via": []
+  },
+  "mby": {
+   "items": 0,
+   "errors": [
+    "https://news.google.com/rss/search?q=site%3Amby.com+when%3A2d&hl=en-US&gl=US&ceid=US:en: nessuna voce (application/xml)"
+   ],
+   "via": []
+  },
+  "yachtingworld": {
+   "items": 0,
+   "errors": [],
+   "via": []
+  },
+  "powermotoryacht": {
+   "items": 0,
+   "errors": [],
+   "via": []
+  },
+  "megayachtnews": {
+   "items": 1,
+   "errors": [],
+   "via": []
+  },
+  "boatingindustry": {
+   "items": 7,
+   "errors": [],
+   "via": []
+  },
+  "abitare": {
+   "items": 0,
+   "errors": [
+    "https://news.google.com/rss/search?q=site%3Aabitare.it+when%3A2d&hl=it&gl=IT&ceid=IT:it: nessuna voce (application/xml)"
+   ],
+   "via": []
+  },
+  "interni": {
+   "items": 1,
+   "errors": [],
+   "via": []
+  },
+  "elledecor": {
+   "items": 16,
+   "errors": [],
+   "via": []
+  },
+  "livingcorriere": {
+   "items": 2,
+   "errors": [],
+   "via": []
+  },
+  "designboom": {
+   "items": 10,
+   "errors": [],
+   "via": []
+  },
+  "dezeen": {
+   "items": 9,
+   "errors": [],
+   "via": []
+  },
+  "itsnicethat": {
+   "items": 10,
+   "errors": [],
+   "via": []
+  },
+  "smashing": {
+   "items": 1,
+   "errors": [],
+   "via": []
+  },
+  "nngroup": {
+   "items": 2,
+   "errors": [],
+   "via": []
+  },
+  "uxcollective": {
+   "items": 1,
+   "errors": [],
+   "via": []
+  },
+  "figmablog": {
+   "items": 1,
+   "errors": [],
+   "via": []
+  },
+  "core77": {
+   "items": 3,
+   "errors": [],
+   "via": []
+  },
+  "yanko": {
+   "items": 16,
+   "errors": [],
+   "via": []
+  },
+  "creativebloq": {
+   "items": 17,
+   "errors": [],
+   "via": []
+  },
+  "creativereview": {
+   "items": 0,
+   "errors": [
+    "https://www.creativereview.co.uk/feed/: HTTP 403",
+    "https://www.creativereview.co.uk/rss.xml: HTTP 403",
+    "https://www.creativereview.co.uk/rss/: HTTP 403",
+    "https://www.creativereview.co.uk/feed: HTTP 403",
+    "https://www.creativereview.co.uk/feed.xml: HTTP 403"
+   ],
+   "via": []
+  },
+  "wallpaper": {
+   "items": 22,
+   "errors": [],
+   "via": []
+  },
+  "fastcodesign": {
+   "items": 7,
+   "errors": [],
+   "via": []
+  },
+  "designmilk": {
+   "items": 4,
+   "errors": [],
+   "via": []
+  },
+  "designwanted": {
+   "items": 1,
+   "errors": [],
+   "via": []
+  },
+  "archdaily": {
+   "items": 15,
+   "errors": [],
+   "via": []
+  },
+  "giornalearchitettura": {
+   "items": 2,
+   "errors": [],
+   "via": []
+  },
+  "artribune": {
+   "items": 10,
+   "errors": [],
+   "via": []
+  },
+  "exibart": {
+   "items": 12,
+   "errors": [],
+   "via": []
+  },
+  "finestresullarte": {
+   "items": 23,
+   "errors": [
+    "https://www.finestresullarte.info/rss: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+   ],
+   "via": []
+  },
+  "artslife": {
+   "items": 10,
+   "errors": [],
+   "via": []
+  },
+  "artnews": {
+   "items": 10,
+   "errors": [],
+   "via": []
+  },
+  "hyperallergic": {
+   "items": 9,
+   "errors": [],
+   "via": []
+  },
+  "artnewspaper": {
+   "items": 9,
+   "errors": [],
+   "via": []
+  },
+  "colossal": {
+   "items": 3,
+   "errors": [],
+   "via": []
+  },
+  "petapixel": {
+   "items": 13,
+   "errors": [],
+   "via": []
+  },
+  "ilfotografo": {
+   "items": 0,
+   "errors": [],
+   "via": []
+  },
+  "fotografiaartistica": {
+   "items": 0,
+   "errors": [
+    "https://news.google.com/rss/search?q=site%3Afotografiaartistica.it+when%3A2d&hl=it&gl=IT&ceid=IT:it: nessuna voce (application/xml)"
+   ],
+   "via": []
+  },
+  "ilmattino": {
+   "items": 31,
+   "errors": [],
+   "via": []
+  },
+  "napolitoday": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "ilroma": {
+   "items": 20,
+   "errors": [],
+   "via": []
+  },
+  "internapoli": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "ilmediano": {
+   "items": 10,
+   "errors": [],
+   "via": []
+  },
+  "metropolis": {
+   "items": 25,
+   "errors": [],
+   "via": []
+  },
+  "vesuviolive": {
+   "items": 12,
+   "errors": [],
+   "via": []
+  },
+  "fattovesuviano": {
+   "items": 20,
+   "errors": [],
+   "via": []
+  },
+  "ilgolfo": {
+   "items": 10,
+   "errors": [],
+   "via": []
+  },
+  "capripress": {
+   "items": 10,
+   "errors": [],
+   "via": []
+  },
+  "sorrentopress": {
+   "items": 10,
+   "errors": [],
+   "via": []
+  },
+  "positanonews": {
+   "items": 10,
+   "errors": [],
+   "via": []
+  },
+  "ilnapolista": {
+   "items": 10,
+   "errors": [],
+   "via": []
+  }
+ },
+ "feeds": [
+  {
+   "o": "ansa",
+   "u": "https://www.ansa.it/sito/ansait_rss.xml",
+   "st": 200,
+   "n": 28,
+   "k": 25
+  },
+  {
+   "o": "ansa",
+   "u": "https://www.ansa.it/sito/notizie/mondo/mondo_rss.xml",
+   "st": 200,
+   "n": 30,
+   "k": 25
+  },
+  {
+   "o": "ansa",
+   "u": "https://www.ansa.it/sito/notizie/economia/economia_rss.xml",
+   "st": 200,
+   "n": 8,
+   "k": 8
+  },
+  {
+   "o": "ansa",
+   "u": "https://www.ansa.it/canale_scienza_tecnica/notizie/scienzaetecnica_rss.xml",
+   "st": 200,
+   "n": 26,
+   "k": 7
+  },
+  {
+   "o": "ansa",
+   "u": "https://www.ansa.it/canale_saluteebenessere/notizie/saluteebenessere_rss.xml",
+   "st": 200,
+   "n": 32,
+   "k": 19
+  },
+  {
+   "o": "ansa",
+   "u": "https://www.ansa.it/canale_motori/notizie/motori_rss.xml",
+   "st": 200,
+   "n": 32,
+   "k": 25
+  },
+  {
+   "o": "agi",
+   "u": "https://www.agi.it/rss.xml",
+   "st": 200,
+   "n": 20,
+   "k": 20
+  },
+  {
+   "o": "adnkronos",
+   "u": "https://www.adnkronos.com/RSS_PrimaPagina.xml",
+   "st": 200,
+   "n": 12,
+   "k": 12
+  },
+  {
+   "o": "ilpost",
+   "u": "https://www.ilpost.it/feed",
+   "st": 200,
+   "n": 79,
+   "k": 25
+  },
+  {
+   "o": "ilpost",
+   "u": "https://www.ilpost.it/feed/",
+   "st": 403,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 403"
+  },
+  {
+   "o": "corriere",
+   "u": "https://www.corriere.it/dynamic-feed/rss/section/esteri.xml",
+   "st": 200,
+   "n": 100,
+   "k": 25
+  },
+  {
+   "o": "corriere",
+   "u": "https://www.corriere.it/dynamic-feed/rss/section/politica.xml",
+   "st": 200,
+   "n": 100,
+   "k": 25
+  },
+  {
+   "o": "corriere",
+   "u": "https://www.corriere.it/dynamic-feed/rss/section/cronache.xml",
+   "st": 200,
+   "n": 100,
+   "k": 5
+  },
+  {
+   "o": "corriere",
+   "u": "https://www.corriere.it/dynamic-feed/rss/section/economia.xml",
+   "st": 200,
+   "n": 100,
+   "k": 25
+  },
+  {
+   "o": "corriere",
+   "u": "https://www.corriere.it/dynamic-feed/rss/section/formula-1.xml",
+   "st": 200,
+   "n": 100,
+   "k": 3
+  },
+  {
+   "o": "corriere",
+   "u": "https://www.corriere.it/dynamic-feed/rss/section/motomondiale.xml",
+   "st": 200,
+   "n": 100,
+   "k": 4
+  },
+  {
+   "o": "repubblica",
+   "u": "https://www.repubblica.it/rss/homepage/rss2.0.xml",
+   "st": 200,
+   "n": 30,
+   "k": 25
+  },
+  {
+   "o": "repubblica",
+   "u": "https://www.repubblica.it/rss/motori/rss2.0.xml",
+   "st": 200,
+   "n": 25,
+   "k": 4
+  },
+  {
+   "o": "repubblica",
+   "u": "https://napoli.repubblica.it/rss/cronaca/rss2.0.xml",
+   "st": 200,
+   "n": 25,
+   "k": 25
+  },
+  {
+   "o": "lastampa",
+   "u": "https://www.lastampa.it/rss/copertina.xml",
+   "st": 200,
+   "n": 60,
+   "k": 25
+  },
+  {
+   "o": "lastampa",
+   "u": "https://www.lastampa.it/rss/motori.xml",
+   "st": null,
+   "n": 0,
+   "k": 0,
+   "err": "HTTPSConnectionPool(host='feed.lastampa.it', port=443): Max retries exceeded with url: /notizie_principali.rss (Caused by SSLError(SSLError(1, '[SSL: TLSV1_ALER"
+  },
+  {
+   "o": "sole24ore",
+   "u": "https://www.ilsole24ore.com/rss/italia.xml",
+   "st": 200,
+   "n": 12,
+   "k": 12
+  },
+  {
+   "o": "sole24ore",
+   "u": "https://www.ilsole24ore.com/rss/mondo.xml",
+   "st": 200,
+   "n": 11,
+   "k": 11
+  },
+  {
+   "o": "sole24ore",
+   "u": "https://www.ilsole24ore.com/rss/economia.xml",
+   "st": 200,
+   "n": 12,
+   "k": 11
+  },
+  {
+   "o": "ilfatto",
+   "u": "https://www.ilfattoquotidiano.it/feed/",
+   "st": 200,
+   "n": 25,
+   "k": 25
+  },
+  {
+   "o": "ilmessaggero",
+   "u": "https://www.ilmessaggero.it/rss/home.xml",
+   "st": 200,
+   "n": 20,
+   "k": 20
+  },
+  {
+   "o": "ilmessaggero",
+   "u": "https://www.ilmessaggero.it/rss/motori.xml",
+   "st": 200,
+   "n": 20,
+   "k": 17
+  },
+  {
+   "o": "ilgiornale",
+   "u": "https://www.ilgiornale.it/feed.xml",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404"
+  },
+  {
+   "o": "ilgiornale",
+   "u": "https://www.ilgiornale.it/feed/",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "ilgiornale",
+   "u": "https://www.ilgiornale.it/rss.xml",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "ilgiornale",
+   "u": "https://www.ilgiornale.it/rss/",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "ilgiornale",
+   "u": "https://www.ilgiornale.it/feed",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "ilgiornale",
+   "u": "https://news.google.com/rss/search?q=site%3Ailgiornale.it+when%3A2d&hl=it&gl=IT&ceid=IT:it",
+   "st": 200,
+   "n": 100,
+   "k": 25,
+   "via": "gn"
+  },
+  {
+   "o": "avvenire",
+   "u": "https://www.avvenire.it/feed/",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "avvenire",
+   "u": "https://www.avvenire.it/rss.xml",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "avvenire",
+   "u": "https://www.avvenire.it/rss/",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "avvenire",
+   "u": "https://www.avvenire.it/feed",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "avvenire",
+   "u": "https://www.avvenire.it/feed.xml",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "avvenire",
+   "u": "https://news.google.com/rss/search?q=site%3Aavvenire.it+when%3A2d&hl=it&gl=IT&ceid=IT:it",
+   "st": 200,
+   "n": 100,
+   "k": 25,
+   "via": "gn"
+  },
+  {
+   "o": "ilfoglio",
+   "u": "https://naxos.ilfoglio.it/api/v5/rss/stories/latest",
+   "st": 200,
+   "n": 20,
+   "k": 20
+  },
+  {
+   "o": "domani",
+   "u": "https://www.editorialedomani.it/rss",
+   "st": 200,
+   "n": 100,
+   "k": 25
+  },
+  {
+   "o": "ilmanifesto",
+   "u": "https://ilmanifesto.it/feed",
+   "st": 200,
+   "n": 50,
+   "k": 25
+  },
+  {
+   "o": "rainews",
+   "u": "https://www.rainews.it/rss/tutti",
+   "st": 200,
+   "n": 40,
+   "k": 25
+  },
+  {
+   "o": "skytg24",
+   "u": "https://tg24.sky.it/rss/tg24.xml",
+   "st": 200,
+   "n": 100,
+   "k": 25
+  },
+  {
+   "o": "tgcom24",
+   "u": "https://www.tgcom24.mediaset.it/rss/homepage.xml",
+   "st": 200,
+   "n": 30,
+   "k": 25
+  },
+  {
+   "o": "tgcom24",
+   "u": "https://www.tgcom24.mediaset.it/rss/motori.xml",
+   "st": 200,
+   "n": 30,
+   "k": 1
+  },
+  {
+   "o": "open",
+   "u": "https://www.open.online/feed/",
+   "st": 200,
+   "n": 12,
+   "k": 12
+  },
+  {
+   "o": "fanpage",
+   "u": "https://www.fanpage.it/feed/",
+   "st": 403,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 403"
+  },
+  {
+   "o": "fanpage",
+   "u": "https://www.fanpage.it/rss.xml",
+   "st": 403,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 403",
+   "via": "scoperto"
+  },
+  {
+   "o": "fanpage",
+   "u": "https://www.fanpage.it/rss/",
+   "st": 403,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 403",
+   "via": "scoperto"
+  },
+  {
+   "o": "fanpage",
+   "u": "https://www.fanpage.it/feed",
+   "st": 403,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 403",
+   "via": "scoperto"
+  },
+  {
+   "o": "fanpage",
+   "u": "https://www.fanpage.it/feed.xml",
+   "st": 403,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 403",
+   "via": "scoperto"
+  },
+  {
+   "o": "fanpage",
+   "u": "https://news.google.com/rss/search?q=site%3Afanpage.it+when%3A2d&hl=it&gl=IT&ceid=IT:it",
+   "st": 200,
+   "n": 100,
+   "k": 25,
+   "via": "gn"
+  },
+  {
+   "o": "today",
+   "u": "https://www.today.it/rss",
+   "st": 200,
+   "n": 25,
+   "k": 25
+  },
+  {
+   "o": "huffpost",
+   "u": "https://www.huffingtonpost.it/rss/homepage/rss2.0.xml",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404"
+  },
+  {
+   "o": "huffpost",
+   "u": "https://www.huffingtonpost.it/feeds/index.xml",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404"
+  },
+  {
+   "o": "huffpost",
+   "u": "https://www.huffingtonpost.it/rss/",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "huffpost",
+   "u": "https://www.huffingtonpost.it/feed/",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "huffpost",
+   "u": "https://www.huffingtonpost.it/rss.xml",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "huffpost",
+   "u": "https://www.huffingtonpost.it/feed",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "huffpost",
+   "u": "https://www.huffingtonpost.it/feed.xml",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "huffpost",
+   "u": "https://news.google.com/rss/search?q=site%3Ahuffingtonpost.it+when%3A2d&hl=it&gl=IT&ceid=IT:it",
+   "st": 200,
+   "n": 76,
+   "k": 25,
+   "via": "gn"
+  },
+  {
+   "o": "linkiesta",
+   "u": "https://www.linkiesta.it/feed/",
+   "st": 200,
+   "n": 12,
+   "k": 12
+  },
+  {
+   "o": "internazionale",
+   "u": "https://www.internazionale.it/sitemaps/rss.xml",
+   "st": 200,
+   "n": 11,
+   "k": 9
+  },
+  {
+   "o": "valigiablu",
+   "u": "https://www.valigiablu.it/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 4
+  },
+  {
+   "o": "lavoce",
+   "u": "https://lavoce.info/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 5
+  },
+  {
+   "o": "gazzetta",
+   "u": "https://www.gazzetta.it/dynamic-feed/rss/section/last.xml",
+   "st": 200,
+   "n": 30,
+   "k": 25
+  },
+  {
+   "o": "gazzetta",
+   "u": "https://www.gazzetta.it/rss/home.xml",
+   "st": 200,
+   "n": 125,
+   "k": 0
+  },
+  {
+   "o": "gazzetta",
+   "u": "https://www.gazzetta.it/rss/formula-1.xml",
+   "st": 200,
+   "n": 100,
+   "k": 0
+  },
+  {
+   "o": "gazzetta",
+   "u": "https://www.gazzetta.it/rss/motogp.xml",
+   "st": 200,
+   "n": 100,
+   "k": 0
+  },
+  {
+   "o": "gazzetta",
+   "u": "https://www.gazzetta.it/rss/motori.xml",
+   "st": 200,
+   "n": 101,
+   "k": 0
+  },
+  {
+   "o": "wired",
+   "u": "https://www.wired.it/feed/rss",
+   "st": 200,
+   "n": 30,
+   "k": 0
+  },
+  {
+   "o": "wired",
+   "u": "https://news.google.com/rss/search?q=site%3Awired.it+when%3A2d&hl=it&gl=IT&ceid=IT:it",
+   "st": 200,
+   "n": 8,
+   "k": 6,
+   "via": "gn"
+  },
+  {
+   "o": "puntoinformatico",
+   "u": "https://www.punto-informatico.it/feed",
+   "st": 200,
+   "n": 20,
+   "k": 20
+  },
+  {
+   "o": "puntoinformatico",
+   "u": "https://www.punto-informatico.it/feed/",
+   "st": 200,
+   "n": 20,
+   "k": 20
+  },
+  {
+   "o": "lescienze",
+   "u": "https://www.lescienze.it/rss/all/rss2.0.xml",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404"
+  },
+  {
+   "o": "lescienze",
+   "u": "https://www.lescienze.it/feed/",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "lescienze",
+   "u": "https://www.lescienze.it/rss.xml",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "lescienze",
+   "u": "https://www.lescienze.it/rss/",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "lescienze",
+   "u": "https://www.lescienze.it/feed",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "lescienze",
+   "u": "https://www.lescienze.it/feed.xml",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "lescienze",
+   "u": "https://news.google.com/rss/search?q=site%3Alescienze.it+when%3A2d&hl=it&gl=IT&ceid=IT:it",
+   "st": 200,
+   "n": 8,
+   "k": 3,
+   "via": "gn"
+  },
+  {
+   "o": "mediainaf",
+   "u": "https://www.media.inaf.it/feed/",
+   "st": 200,
+   "n": 14,
+   "k": 2
+  },
+  {
+   "o": "quotidianosanita",
+   "u": "https://www.quotidianosanita.it/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 2
+  },
+  {
+   "o": "nature",
+   "u": "https://www.nature.com/nature.rss",
+   "st": 200,
+   "n": 75,
+   "k": 0
+  },
+  {
+   "o": "nature",
+   "u": "https://news.google.com/rss/search?q=site%3Anature.com+when%3A2d&hl=en-US&gl=US&ceid=US:en",
+   "st": 200,
+   "n": 100,
+   "k": 25,
+   "via": "gn"
+  },
+  {
+   "o": "science",
+   "u": "https://www.science.org/rss/news_current.xml",
+   "st": 200,
+   "n": 10,
+   "k": 2
+  },
+  {
+   "o": "newscientist",
+   "u": "https://www.newscientist.com/feed/home/",
+   "st": 406,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 406"
+  },
+  {
+   "o": "newscientist",
+   "u": "https://www.newscientist.com/feed/",
+   "st": 406,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 406",
+   "via": "scoperto"
+  },
+  {
+   "o": "newscientist",
+   "u": "https://www.newscientist.com/rss.xml",
+   "st": 406,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 406",
+   "via": "scoperto"
+  },
+  {
+   "o": "newscientist",
+   "u": "https://www.newscientist.com/rss/",
+   "st": 406,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 406",
+   "via": "scoperto"
+  },
+  {
+   "o": "newscientist",
+   "u": "https://www.newscientist.com/feed",
+   "st": 406,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 406",
+   "via": "scoperto"
+  },
+  {
+   "o": "newscientist",
+   "u": "https://www.newscientist.com/feed.xml",
+   "st": 406,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 406",
+   "via": "scoperto"
+  },
+  {
+   "o": "newscientist",
+   "u": "https://news.google.com/rss/search?q=site%3Anewscientist.com+when%3A2d&hl=en-US&gl=US&ceid=US:en",
+   "st": 200,
+   "n": 26,
+   "k": 21,
+   "via": "gn"
+  },
+  {
+   "o": "sciam",
+   "u": "https://www.scientificamerican.com/platform/syndication/rss/",
+   "st": 200,
+   "n": 50,
+   "k": 7
+  },
+  {
+   "o": "sciencedaily",
+   "u": "https://www.sciencedaily.com/rss/top/science.xml",
+   "st": 200,
+   "n": 60,
+   "k": 9
+  },
+  {
+   "o": "sciencedaily",
+   "u": "https://www.sciencedaily.com/rss/health_medicine.xml",
+   "st": 200,
+   "n": 60,
+   "k": 4
+  },
+  {
+   "o": "sciencedaily",
+   "u": "https://www.sciencedaily.com/rss/mind_brain.xml",
+   "st": 200,
+   "n": 60,
+   "k": 2
+  },
+  {
+   "o": "physorg",
+   "u": "https://phys.org/rss-feed/",
+   "st": 200,
+   "n": 30,
+   "k": 25
+  },
+  {
+   "o": "medicalxpress",
+   "u": "https://medicalxpress.com/rss-feed/",
+   "st": 200,
+   "n": 30,
+   "k": 25
+  },
+  {
+   "o": "statnews",
+   "u": "https://www.statnews.com/feed/",
+   "st": 200,
+   "n": 20,
+   "k": 17
+  },
+  {
+   "o": "bjsm",
+   "u": "https://blogs.bmj.com/bjsm/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 1
+  },
+  {
+   "o": "theconversation",
+   "u": "https://theconversation.com/global/articles.atom",
+   "st": 200,
+   "n": 48,
+   "k": 1
+  },
+  {
+   "o": "nasa",
+   "u": "https://www.nasa.gov/news-release/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 4
+  },
+  {
+   "o": "esa",
+   "u": "https://www.esa.int/rssfeed/Our_Activities/Space_News",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404"
+  },
+  {
+   "o": "esa",
+   "u": "https://www.esa.int/feed/",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "esa",
+   "u": "https://www.esa.int/rss.xml",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "esa",
+   "u": "https://www.esa.int/rss/",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "esa",
+   "u": "https://www.esa.int/feed",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "esa",
+   "u": "https://www.esa.int/feed.xml",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "esa",
+   "u": "https://news.google.com/rss/search?q=site%3Aesa.int+when%3A2d&hl=en-US&gl=US&ceid=US:en",
+   "st": 200,
+   "n": 47,
+   "k": 25,
+   "via": "gn"
+  },
+  {
+   "o": "carbonbrief",
+   "u": "https://www.carbonbrief.org/feed/",
+   "st": 200,
+   "n": 12,
+   "k": 1
+  },
+  {
+   "o": "arstechnica",
+   "u": "https://feeds.arstechnica.com/arstechnica/index",
+   "st": 200,
+   "n": 20,
+   "k": 19
+  },
+  {
+   "o": "theverge",
+   "u": "https://www.theverge.com/rss/index.xml",
+   "st": 200,
+   "n": 10,
+   "k": 10
+  },
+  {
+   "o": "techcrunch",
+   "u": "https://techcrunch.com/feed/",
+   "st": 200,
+   "n": 20,
+   "k": 19
+  },
+  {
+   "o": "motor1",
+   "u": "https://it.motor1.com/rss/articles/all/",
+   "st": 200,
+   "n": 20,
+   "k": 18
+  },
+  {
+   "o": "motor1",
+   "u": "https://it.motor1.com/rss/news/all/",
+   "st": 200,
+   "n": 20,
+   "k": 15
+  },
+  {
+   "o": "insideevs",
+   "u": "https://insideevs.it/rss/news/all/",
+   "st": 200,
+   "n": 20,
+   "k": 7
+  },
+  {
+   "o": "quattroruote",
+   "u": "https://www.quattroruote.it/feed/",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "quattroruote",
+   "u": "https://www.quattroruote.it/rss.xml",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "quattroruote",
+   "u": "https://www.quattroruote.it/rss/",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "quattroruote",
+   "u": "https://www.quattroruote.it/feed",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "quattroruote",
+   "u": "https://www.quattroruote.it/feed.xml",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "quattroruote",
+   "u": "https://news.google.com/rss/search?q=site%3Aquattroruote.it+when%3A2d&hl=it&gl=IT&ceid=IT:it",
+   "st": 200,
+   "n": 100,
+   "k": 25,
+   "via": "gn"
+  },
+  {
+   "o": "alvolante",
+   "u": "https://www.alvolante.it/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 8
+  },
+  {
+   "o": "motorbox",
+   "u": "https://www.motorbox.com/rss.xml",
+   "st": 200,
+   "n": 53,
+   "k": 25
+  },
+  {
+   "o": "hdmotori",
+   "u": "https://www.hdmotori.it/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 10
+  },
+  {
+   "o": "formulapassion",
+   "u": "https://www.formulapassion.it/feed",
+   "st": 200,
+   "n": 20,
+   "k": 20
+  },
+  {
+   "o": "motorsport",
+   "u": "https://it.motorsport.com/rss/all/news/",
+   "st": 200,
+   "n": 48,
+   "k": 25
+  },
+  {
+   "o": "gpone",
+   "u": "https://www.gpone.com/it/rss.xml",
+   "st": 200,
+   "n": 50,
+   "k": 25
+  },
+  {
+   "o": "motoit",
+   "u": "https://www.moto.it/rss/news.xml",
+   "st": 200,
+   "n": 10,
+   "k": 10
+  },
+  {
+   "o": "motoit",
+   "u": "https://www.moto.it/rss/news-sport.xml",
+   "st": 200,
+   "n": 10,
+   "k": 10
+  },
+  {
+   "o": "therace",
+   "u": "https://www.the-race.com/feed/",
+   "st": 200,
+   "n": 15,
+   "k": 15
+  },
+  {
+   "o": "autocar",
+   "u": "https://www.autocar.co.uk/rss",
+   "st": 200,
+   "n": 43,
+   "k": 12
+  },
+  {
+   "o": "electrek",
+   "u": "https://electrek.co/feed/",
+   "st": 200,
+   "n": 150,
+   "k": 22
+  },
+  {
+   "o": "carscoops",
+   "u": "https://www.carscoops.com/feed/",
+   "st": 200,
+   "n": 20,
+   "k": 20
+  },
+  {
+   "o": "bbc",
+   "u": "https://feeds.bbci.co.uk/news/world/rss.xml",
+   "st": 200,
+   "n": 23,
+   "k": 22
+  },
+  {
+   "o": "bbc",
+   "u": "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml",
+   "st": 200,
+   "n": 40,
+   "k": 14
+  },
+  {
+   "o": "bbc",
+   "u": "https://feeds.bbci.co.uk/news/technology/rss.xml",
+   "st": 200,
+   "n": 21,
+   "k": 4
+  },
+  {
+   "o": "bbc",
+   "u": "https://feeds.bbci.co.uk/news/business/rss.xml",
+   "st": 200,
+   "n": 54,
+   "k": 12
+  },
+  {
+   "o": "guardian",
+   "u": "https://www.theguardian.com/world/rss",
+   "st": 200,
+   "n": 45,
+   "k": 25
+  },
+  {
+   "o": "guardian",
+   "u": "https://www.theguardian.com/science/rss",
+   "st": 200,
+   "n": 28,
+   "k": 4
+  },
+  {
+   "o": "guardian",
+   "u": "https://www.theguardian.com/environment/rss",
+   "st": 200,
+   "n": 34,
+   "k": 11
+  },
+  {
+   "o": "independent",
+   "u": "https://www.independent.co.uk/news/world/rss",
+   "st": 200,
+   "n": 53,
+   "k": 25
+  },
+  {
+   "o": "ft",
+   "u": "https://www.ft.com/world?format=rss",
+   "st": 200,
+   "n": 25,
+   "k": 25
+  },
+  {
+   "o": "economist",
+   "u": "https://www.economist.com/international/rss.xml",
+   "st": 200,
+   "n": 300,
+   "k": 0
+  },
+  {
+   "o": "economist",
+   "u": "https://www.economist.com/science-and-technology/rss.xml",
+   "st": 200,
+   "n": 300,
+   "k": 2
+  },
+  {
+   "o": "nyt",
+   "u": "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+   "st": 200,
+   "n": 54,
+   "k": 25
+  },
+  {
+   "o": "nyt",
+   "u": "https://rss.nytimes.com/services/xml/rss/nyt/Science.xml",
+   "st": 200,
+   "n": 24,
+   "k": 8
+  },
+  {
+   "o": "nyt",
+   "u": "https://rss.nytimes.com/services/xml/rss/nyt/Health.xml",
+   "st": 200,
+   "n": 20,
+   "k": 6
+  },
+  {
+   "o": "washingtonpost",
+   "u": "https://feeds.washingtonpost.com/rss/world",
+   "st": 200,
+   "n": 15,
+   "k": 9
+  },
+  {
+   "o": "wsj",
+   "u": "https://feeds.content.dowjones.io/public/rss/RSSWorldNews",
+   "st": 200,
+   "n": 71,
+   "k": 15
+  },
+  {
+   "o": "wsj",
+   "u": "https://feeds.content.dowjones.io/public/rss/RSSMarketsMain",
+   "st": 200,
+   "n": 60,
+   "k": 25
+  },
+  {
+   "o": "npr",
+   "u": "https://feeds.npr.org/1001/rss.xml",
+   "st": 200,
+   "n": 10,
+   "k": 10
+  },
+  {
+   "o": "atlantic",
+   "u": "https://www.theatlantic.com/feed/all/",
+   "st": 200,
+   "n": 25,
+   "k": 22
+  },
+  {
+   "o": "politico",
+   "u": "https://www.politico.eu/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 10
+  },
+  {
+   "o": "euronews",
+   "u": "https://www.euronews.com/rss?level=theme&name=news",
+   "st": 200,
+   "n": 50,
+   "k": 25
+  },
+  {
+   "o": "dw",
+   "u": "https://rss.dw.com/rdf/rss-en-all",
+   "st": 200,
+   "n": 120,
+   "k": 25
+  },
+  {
+   "o": "france24",
+   "u": "https://www.france24.com/rss.xml",
+   "st": 200,
+   "n": 24,
+   "k": 24
+  },
+  {
+   "o": "france24",
+   "u": "https://www.france24.com/en/rss",
+   "st": 200,
+   "n": 24,
+   "k": 24
+  },
+  {
+   "o": "lemonde",
+   "u": "https://www.lemonde.fr/rss/une.xml",
+   "st": 200,
+   "n": 16,
+   "k": 16
+  },
+  {
+   "o": "lemonde",
+   "u": "https://www.lemonde.fr/international/rss_full.xml",
+   "st": 200,
+   "n": 20,
+   "k": 20
+  },
+  {
+   "o": "lefigaro",
+   "u": "https://www.lefigaro.fr/rss/figaro_actualites.xml",
+   "st": 200,
+   "n": 19,
+   "k": 18
+  },
+  {
+   "o": "rfi",
+   "u": "https://www.rfi.fr/fr/rss",
+   "st": 200,
+   "n": 23,
+   "k": 23
+  },
+  {
+   "o": "elpais",
+   "u": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada",
+   "st": 200,
+   "n": 143,
+   "k": 25
+  },
+  {
+   "o": "elpais",
+   "u": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/internacional/portada",
+   "st": 200,
+   "n": 24,
+   "k": 18
+  },
+  {
+   "o": "elmundo",
+   "u": "https://e00-elmundo.uecdn.es/elmundo/rss/portada.xml",
+   "st": 200,
+   "n": 27,
+   "k": 25
+  },
+  {
+   "o": "spiegel",
+   "u": "https://www.spiegel.de/schlagzeilen/index.rss",
+   "st": 200,
+   "n": 30,
+   "k": 25
+  },
+  {
+   "o": "faz",
+   "u": "https://www.faz.net/rss/aktuell/",
+   "st": 302,
+   "n": 0,
+   "k": 0,
+   "err": "nessuna voce (text/html)"
+  },
+  {
+   "o": "faz",
+   "u": "https://www.faz.net/feed/",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "faz",
+   "u": "https://www.faz.net/rss.xml",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "faz",
+   "u": "https://www.faz.net/rss/",
+   "st": 302,
+   "n": 0,
+   "k": 0,
+   "err": "nessuna voce (text/html)",
+   "via": "scoperto"
+  },
+  {
+   "o": "faz",
+   "u": "https://www.faz.net/feed",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "faz",
+   "u": "https://www.faz.net/feed.xml",
+   "st": 404,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 404",
+   "via": "scoperto"
+  },
+  {
+   "o": "faz",
+   "u": "https://news.google.com/rss/search?q=site%3Afaz.net+when%3A2d&hl=de&gl=DE&ceid=DE:de",
+   "st": 200,
+   "n": 100,
+   "k": 25,
+   "via": "gn"
+  },
+  {
+   "o": "zeit",
+   "u": "https://newsfeed.zeit.de/index",
+   "st": 200,
+   "n": 15,
+   "k": 15
+  },
+  {
+   "o": "aljazeera",
+   "u": "https://www.aljazeera.com/xml/rss/all.xml",
+   "st": 200,
+   "n": 25,
+   "k": 25
+  },
+  {
+   "o": "timesofisrael",
+   "u": "https://www.timesofisrael.com/feed/",
+   "st": 403,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 403"
+  },
+  {
+   "o": "timesofisrael",
+   "u": "https://www.timesofisrael.com/rss.xml",
+   "st": 403,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 403",
+   "via": "scoperto"
+  },
+  {
+   "o": "timesofisrael",
+   "u": "https://www.timesofisrael.com/rss/",
+   "st": 403,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 403",
+   "via": "scoperto"
+  },
+  {
+   "o": "timesofisrael",
+   "u": "https://www.timesofisrael.com/feed",
+   "st": 403,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 403",
+   "via": "scoperto"
+  },
+  {
+   "o": "timesofisrael",
+   "u": "https://www.timesofisrael.com/feed.xml",
+   "st": 403,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 403",
+   "via": "scoperto"
+  },
+  {
+   "o": "timesofisrael",
+   "u": "https://news.google.com/rss/search?q=site%3Atimesofisrael.com+when%3A2d&hl=en-US&gl=US&ceid=US:en",
+   "st": 200,
+   "n": 100,
+   "k": 25,
+   "via": "gn"
+  },
+  {
+   "o": "kyivindependent",
+   "u": "https://kyivindependent.com/news-archive/rss/",
+   "st": 200,
+   "n": 15,
+   "k": 15
+  },
+  {
+   "o": "scmp",
+   "u": "https://www.scmp.com/rss/91/feed",
+   "st": 200,
+   "n": 50,
+   "k": 25
+  },
+  {
+   "o": "japantimes",
+   "u": "https://www.japantimes.co.jp/feed/",
+   "st": 200,
+   "n": 30,
+   "k": 25
+  },
+  {
+   "o": "cbc",
+   "u": "https://www.cbc.ca/webfeed/rss/rss-world",
+   "st": 200,
+   "n": 20,
+   "k": 19
+  },
+  {
+   "o": "abcau",
+   "u": "https://www.abc.net.au/news/feed/51120/rss.xml",
+   "st": 200,
+   "n": 25,
+   "k": 25
+  },
+  {
+   "o": "barcheamotore",
+   "u": "https://www.barcheamotore.com/feed/",
+   "st": null,
+   "n": 0,
+   "k": 0,
+   "err": "HTTPSConnectionPool(host='www.barcheamotore.com', port=443): Read timed out. (read timeout=16)"
+  },
+  {
+   "o": "barcheamotore",
+   "u": "https://news.google.com/rss/search?q=site%3Abarcheamotore.com+when%3A2d&hl=it&gl=IT&ceid=IT:it",
+   "st": 200,
+   "n": 11,
+   "k": 11,
+   "via": "gn"
+  },
+  {
+   "o": "nautica",
+   "u": "https://nautica.it/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 4
+  },
+  {
+   "o": "nautica",
+   "u": "https://www.nautica.it/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 4
+  },
+  {
+   "o": "barchemagazine",
+   "u": "https://www.barchemagazine.com/feed/",
+   "st": 520,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 520"
+  },
+  {
+   "o": "barchemagazine",
+   "u": "https://www.barchemagazine.com/rss.xml",
+   "st": 403,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 403",
+   "via": "scoperto"
+  },
+  {
+   "o": "barchemagazine",
+   "u": "https://www.barchemagazine.com/rss/",
+   "st": 403,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 403",
+   "via": "scoperto"
+  },
+  {
+   "o": "barchemagazine",
+   "u": "https://www.barchemagazine.com/feed",
+   "st": 403,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 403",
+   "via": "scoperto"
+  },
+  {
+   "o": "barchemagazine",
+   "u": "https://www.barchemagazine.com/feed.xml",
+   "st": 403,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 403",
+   "via": "scoperto"
+  },
+  {
+   "o": "barchemagazine",
+   "u": "https://news.google.com/rss/search?q=site%3Abarchemagazine.com+when%3A2d&hl=it&gl=IT&ceid=IT:it",
+   "st": 200,
+   "n": 0,
+   "k": 0,
+   "err": "nessuna voce (application/xml)",
+   "via": "gn"
+  },
+  {
+   "o": "farevela",
+   "u": "https://www.farevela.net/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 4
+  },
+  {
+   "o": "mby",
+   "u": "https://www.mby.com/feed",
+   "st": 200,
+   "n": 30,
+   "k": 0
+  },
+  {
+   "o": "mby",
+   "u": "https://news.google.com/rss/search?q=site%3Amby.com+when%3A2d&hl=en-US&gl=US&ceid=US:en",
+   "st": 200,
+   "n": 0,
+   "k": 0,
+   "err": "nessuna voce (application/xml)",
+   "via": "gn"
+  },
+  {
+   "o": "yachtingworld",
+   "u": "https://www.yachtingworld.com/feed",
+   "st": 200,
+   "n": 30,
+   "k": 0
+  },
+  {
+   "o": "yachtingworld",
+   "u": "https://news.google.com/rss/search?q=site%3Ayachtingworld.com+when%3A2d&hl=en-US&gl=US&ceid=US:en",
+   "st": 200,
+   "n": 1,
+   "k": 0,
+   "via": "gn"
+  },
+  {
+   "o": "powermotoryacht",
+   "u": "https://www.powerandmotoryacht.com/feed/",
+   "st": 200,
+   "n": 20,
+   "k": 0
+  },
+  {
+   "o": "powermotoryacht",
+   "u": "https://news.google.com/rss/search?q=site%3Apowerandmotoryacht.com+when%3A2d&hl=en-US&gl=US&ceid=US:en",
+   "st": 200,
+   "n": 1,
+   "k": 0,
+   "via": "gn"
+  },
+  {
+   "o": "megayachtnews",
+   "u": "https://megayachtnews.com/feed/",
+   "st": 200,
+   "n": 5,
+   "k": 1
+  },
+  {
+   "o": "boatingindustry",
+   "u": "https://www.boatingindustry.com/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 7
+  },
+  {
+   "o": "abitare",
+   "u": "https://www.abitare.it/it/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 0
+  },
+  {
+   "o": "abitare",
+   "u": "https://news.google.com/rss/search?q=site%3Aabitare.it+when%3A2d&hl=it&gl=IT&ceid=IT:it",
+   "st": 200,
+   "n": 0,
+   "k": 0,
+   "err": "nessuna voce (application/xml)",
+   "via": "gn"
+  },
+  {
+   "o": "interni",
+   "u": "https://www.internimagazine.it/feed/",
+   "st": 200,
+   "n": 30,
+   "k": 1
+  },
+  {
+   "o": "elledecor",
+   "u": "https://www.elledecor.com/it/rss/all.xml/",
+   "st": 200,
+   "n": 50,
+   "k": 16
+  },
+  {
+   "o": "livingcorriere",
+   "u": "https://living.corriere.it/rss/",
+   "st": 200,
+   "n": 20,
+   "k": 2
+  },
+  {
+   "o": "designboom",
+   "u": "https://www.designboom.com/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 10
+  },
+  {
+   "o": "dezeen",
+   "u": "https://www.dezeen.com/design/feed/",
+   "st": 200,
+   "n": 50,
+   "k": 1
+  },
+  {
+   "o": "dezeen",
+   "u": "https://www.dezeen.com/architecture/feed/",
+   "st": 200,
+   "n": 50,
+   "k": 7
+  },
+  {
+   "o": "dezeen",
+   "u": "https://www.dezeen.com/interiors/feed/",
+   "st": 200,
+   "n": 50,
+   "k": 1
+  },
+  {
+   "o": "itsnicethat",
+   "u": "http://feeds2.feedburner.com/itsnicethat/SlXC",
+   "st": 200,
+   "n": 20,
+   "k": 10
+  },
+  {
+   "o": "smashing",
+   "u": "https://www.smashingmagazine.com/feed/",
+   "st": 200,
+   "n": 40,
+   "k": 1
+  },
+  {
+   "o": "nngroup",
+   "u": "https://www.nngroup.com/feed/rss/",
+   "st": 200,
+   "n": 20,
+   "k": 2
+  },
+  {
+   "o": "uxcollective",
+   "u": "https://uxdesign.cc/feed",
+   "st": 200,
+   "n": 10,
+   "k": 1
+  },
+  {
+   "o": "figmablog",
+   "u": "https://www.figma.com/blog/feed/atom.xml",
+   "st": 200,
+   "n": 774,
+   "k": 1
+  },
+  {
+   "o": "core77",
+   "u": "http://feeds.feedburner.com/core77/blog",
+   "st": 200,
+   "n": 15,
+   "k": 3
+  },
+  {
+   "o": "yanko",
+   "u": "https://www.yankodesign.com/feed/",
+   "st": 200,
+   "n": 16,
+   "k": 16
+  },
+  {
+   "o": "creativebloq",
+   "u": "https://www.creativebloq.com/feeds/all",
+   "st": 200,
+   "n": 25,
+   "k": 17
+  },
+  {
+   "o": "creativereview",
+   "u": "https://www.creativereview.co.uk/feed/",
+   "st": 403,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 403"
+  },
+  {
+   "o": "creativereview",
+   "u": "https://www.creativereview.co.uk/rss.xml",
+   "st": 403,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 403",
+   "via": "scoperto"
+  },
+  {
+   "o": "creativereview",
+   "u": "https://www.creativereview.co.uk/rss/",
+   "st": 403,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 403",
+   "via": "scoperto"
+  },
+  {
+   "o": "creativereview",
+   "u": "https://www.creativereview.co.uk/feed",
+   "st": 403,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 403",
+   "via": "scoperto"
+  },
+  {
+   "o": "creativereview",
+   "u": "https://www.creativereview.co.uk/feed.xml",
+   "st": 403,
+   "n": 0,
+   "k": 0,
+   "err": "HTTP 403",
+   "via": "scoperto"
+  },
+  {
+   "o": "creativereview",
+   "u": "https://news.google.com/rss/search?q=site%3Acreativereview.co.uk+when%3A2d&hl=en-US&gl=US&ceid=US:en",
+   "st": 200,
+   "n": 1,
+   "k": 0,
+   "via": "gn"
+  },
+  {
+   "o": "wallpaper",
+   "u": "https://www.wallpaper.com/feeds/all",
+   "st": 200,
+   "n": 50,
+   "k": 22
+  },
+  {
+   "o": "fastcodesign",
+   "u": "https://www.fastcompany.com/co-design/rss",
+   "st": 200,
+   "n": 20,
+   "k": 7
+  },
+  {
+   "o": "designmilk",
+   "u": "https://design-milk.com/feed/",
+   "st": 200,
+   "n": 12,
+   "k": 4
+  },
+  {
+   "o": "designwanted",
+   "u": "https://designwanted.com/feed/",
+   "st": 200,
+   "n": 15,
+   "k": 1
+  },
+  {
+   "o": "archdaily",
+   "u": "https://www.archdaily.com/feed",
+   "st": 200,
+   "n": 24,
+   "k": 15
+  },
+  {
+   "o": "giornalearchitettura",
+   "u": "https://ilgiornaledellarchitettura.com/feed/",
+   "st": 200,
+   "n": 3,
+   "k": 2
+  },
+  {
+   "o": "artribune",
+   "u": "https://www.artribune.com/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 10
+  },
+  {
+   "o": "exibart",
+   "u": "https://www.exibart.com/feed/",
+   "st": 200,
+   "n": 12,
+   "k": 12
+  },
+  {
+   "o": "finestresullarte",
+   "u": "https://www.finestresullarte.info/feed",
+   "st": 200,
+   "n": 150,
+   "k": 23
+  },
+  {
+   "o": "finestresullarte",
+   "u": "https://www.finestresullarte.info/rss",
+   "st": null,
+   "n": 0,
+   "k": 0,
+   "err": "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+  },
+  {
+   "o": "artslife",
+   "u": "https://artslife.com/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 10
+  },
+  {
+   "o": "artnews",
+   "u": "https://www.artnews.com/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 10
+  },
+  {
+   "o": "hyperallergic",
+   "u": "https://hyperallergic.com/feed/",
+   "st": 200,
+   "n": 15,
+   "k": 9
+  },
+  {
+   "o": "artnewspaper",
+   "u": "https://www.theartnewspaper.com/rss.xml",
+   "st": 200,
+   "n": 61,
+   "k": 9
+  },
+  {
+   "o": "colossal",
+   "u": "https://www.thisiscolossal.com/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 3
+  },
+  {
+   "o": "petapixel",
+   "u": "https://petapixel.com/feed/",
+   "st": 200,
+   "n": 20,
+   "k": 13
+  },
+  {
+   "o": "ilfotografo",
+   "u": "https://www.ilfotografo.it/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 0
+  },
+  {
+   "o": "ilfotografo",
+   "u": "https://news.google.com/rss/search?q=site%3Ailfotografo.it+when%3A2d&hl=it&gl=IT&ceid=IT:it",
+   "st": 200,
+   "n": 1,
+   "k": 0,
+   "via": "gn"
+  },
+  {
+   "o": "fotografiaartistica",
+   "u": "https://fotografiaartistica.it/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 0
+  },
+  {
+   "o": "fotografiaartistica",
+   "u": "https://www.fotografiaartistica.it/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 0
+  },
+  {
+   "o": "fotografiaartistica",
+   "u": "https://news.google.com/rss/search?q=site%3Afotografiaartistica.it+when%3A2d&hl=it&gl=IT&ceid=IT:it",
+   "st": 200,
+   "n": 0,
+   "k": 0,
+   "err": "nessuna voce (application/xml)",
+   "via": "gn"
+  },
+  {
+   "o": "ilmattino",
+   "u": "https://www.ilmattino.it/rss/home.xml",
+   "st": 200,
+   "n": 20,
+   "k": 20
+  },
+  {
+   "o": "ilmattino",
+   "u": "https://www.ilmattino.it/rss/napoli.xml",
+   "st": 200,
+   "n": 20,
+   "k": 17
+  },
+  {
+   "o": "napolitoday",
+   "u": "https://www.napolitoday.it/rss",
+   "st": 200,
+   "n": 25,
+   "k": 25
+  },
+  {
+   "o": "ilroma",
+   "u": "https://www.ilroma.net/rss.xml",
+   "st": 200,
+   "n": 20,
+   "k": 20
+  },
+  {
+   "o": "internapoli",
+   "u": "https://www.internapoli.it/feed/",
+   "st": 200,
+   "n": 30,
+   "k": 25
+  },
+  {
+   "o": "ilmediano",
+   "u": "https://www.ilmediano.com/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 10
+  },
+  {
+   "o": "metropolis",
+   "u": "https://www.metropolisweb.it/feed/",
+   "st": 200,
+   "n": 67,
+   "k": 25
+  },
+  {
+   "o": "vesuviolive",
+   "u": "https://www.vesuviolive.it/feed/",
+   "st": 200,
+   "n": 50,
+   "k": 12
+  },
+  {
+   "o": "fattovesuviano",
+   "u": "https://www.ilfattovesuviano.it/feed/",
+   "st": 200,
+   "n": 20,
+   "k": 20
+  },
+  {
+   "o": "ilgolfo",
+   "u": "https://www.ilgolfo24.it/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 10
+  },
+  {
+   "o": "capripress",
+   "u": "https://www.capripress.com/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 10
+  },
+  {
+   "o": "sorrentopress",
+   "u": "https://www.sorrentopress.it/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 10
+  },
+  {
+   "o": "positanonews",
+   "u": "https://www.positanonews.it/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 10
+  },
+  {
+   "o": "ilnapolista",
+   "u": "https://www.ilnapolista.it/rss/",
+   "st": 200,
+   "n": 10,
+   "k": 10
+  },
+  {
+   "o": "ilnapolista",
+   "u": "https://www.ilnapolista.it/feed/",
+   "st": 200,
+   "n": 10,
+   "k": 10
+  }
+ ]
+}
