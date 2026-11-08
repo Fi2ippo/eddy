@@ -294,8 +294,8 @@ document.addEventListener('error', e => {
   if (!t || t.tagName !== 'IMG' || !t.classList.contains('ph')) return;
   const s = getStory(t.dataset.sid) || {id:t.dataset.sid, topic:'mondo'};
   const holder = t.parentNode;
-  const cov = holder && holder.closest && holder.closest('.scover'); if (cov) { const cr = cov.querySelector('.credit'); if (cr) cr.remove(); }
   t.remove();
+  if (holder) holder.querySelectorAll('.pcred').forEach(c => c.remove());
   if (holder) holder.insertAdjacentHTML('beforeend', fallbackVisual(Object.assign({}, s, {img:null}), t.dataset.kind || 'thumb'));
 }, true);
 
@@ -623,50 +623,39 @@ function compareBlock(srcs){
   if (quote.length && quote.length < N) frame.push(quote.length * 2 <= N ? `<b>Aprono con una dichiarazione</b> ${names(quote)}` : `<b>Aprono con una dichiarazione</b> ${quote.length} su ${N}; non lo fanno ${names(rest(quote))}`);
   if (ask.length && ask.length < N) frame.push(ask.length * 2 <= N ? `<b>In forma di domanda</b> ${names(ask)}` : `<b>In forma di domanda</b> ${ask.length} su ${N}; in forma affermativa ${names(rest(ask))}`);
   if (!common.length && !shownU.length && !frame.length) return '';
-  return `<div class="blk cmp"><h3>Confronto tra le testate</h3>
+  const sub = shownU.length ? `${shownU.length} ${shownU.length === 1 ? 'dettaglio compare' : 'dettagli compaiono'} solo in alcune testate` : common.length ? `In comune nei titoli: ${common.slice(0, 3).map(([st]) => surf.get(st)).join(', ')}` : 'Come le testate impostano il titolo';
+  return {sub, n:N, html:`
     ${common.length ? `<div class="cmpg"><small>In comune nei titoli</small><div class="cmpc">${common.map(([st, c]) => `<span>${esc(surf.get(st))}<em>${c}/${N}</em></span>`).join('')}</div></div>` : ''}
     ${shownU.length ? `<div class="cmpg"><small>Solo in alcune testate</small><ul class="cmpu">${shownU.map(e => `<li><span class="cw">${esc(e.d.s)}</span><span class="co">${[...e.os.entries()].map(([o, x]) => `<a href="${esc(x.u)}" target="_blank" rel="noopener">${esc(outlet(o).name)}</a>`).join(', ')}</span></li>`).join('')}</ul></div>` : ''}
     ${frame.length ? `<div class="cmpg"><small>Come impostano il titolo</small>${frame.map(f => `<p>${f}</p>`).join('')}</div>` : ''}
-    <p class="note">Confronto automatico dei titoli di ${N} testate: mostra cosa ripetono quasi tutti e cosa compare solo in alcune, non stabilisce chi ha ragione.</p>
-  </div>`;
+    <p class="note">Confronto automatico dei titoli di ${N} testate: mostra cosa ripetono quasi tutti e cosa compare solo in alcune, non stabilisce chi ha ragione.</p>`};
 }
 
-/* cronologia: prima notizia, articoli con nomi o numeri nuovi, rettifiche, ultimo aggiornamento */
-const RETTX = /\b(rettific|smentit|smentisc|precisazion|correzion|retract|correction|denies|denied)/;
-function timelineBlock(srcs){
-  if (srcs.length < 3) return '';
-  const t0 = ts(srcs[0].d), t1 = ts(srcs[srcs.length - 1].d); if (!t0 || !t1 || t1 - t0 < 90 * 60000) return '';
-  const seenW = new Set(), seenI = new Set(), ev = [];
-  srcs.forEach((x, i) => {
-    const t = titleIt(x) || x.t;
-    const ws = new Set(wordsOf(t).map(stemOf).filter(w => w.length > 3 && !CSTOP.has(w)));
-    const inf = new Set(detailsOf(t).filter(d => d.k !== 'q').map(d => norm(d.s)));
-    let kind = 'rip';
-    if (!i) kind = 'first';
-    else if (RETTX.test(norm(t))) kind = 'rett';
-    else if ([...inf].some(w => !seenI.has(w)) && [...ws].filter(w => !seenW.has(w)).length >= 3) kind = 'new';
-    ws.forEach(w => seenW.add(w)); inf.forEach(w => seenI.add(w));
-    ev.push({x, t, kind});
-  });
-  let shown = ev.filter(e => e.kind !== 'rip');
-  if (shown.length > 8) shown = [shown[0]].concat(shown.slice(-7));
-  const last = ev[ev.length - 1];
-  if (shown[shown.length - 1] !== last) shown.push(Object.assign({}, last, {kind:'last'}));
-  if (shown.length < 2) return '';
-  const nrip = ev.length - shown.length;
-  const LBL = {first:'Prima notizia', new:'Nuovi elementi', rett:'Rettifica o smentita', last:'Ultimo aggiornamento'};
-  return `<div class="blk tl"><h3>Come si è sviluppata</h3><ol class="tline">${shown.map(e => `<li class="${e.kind}"><div class="tlh"><time>${esc(fmtDMHM.format(new Date(e.x.d)))}</time><span class="tk">${LBL[e.kind]}</span></div><a href="${esc(e.x.u)}" target="_blank" rel="noopener"><b>${esc(outlet(e.x.o).name)}</b> ${esc(e.t)}</a></li>`).join('')}</ol>
-    <p class="note">Ricostruita dai titoli delle testate in ordine di pubblicazione${nrip > 0 ? `; altri ${nrip} ${nrip === 1 ? 'articolo riprende' : 'articoli riprendono'} quanto già noto` : ''}. «Nuovi elementi» indica un titolo con nomi o numeri che i precedenti non avevano.</p></div>`;
+/* cronologia: gli articoli delle testate dal più recente; in vista gli ultimi 3, poi "Tutta la cronologia · N" */
+function crTime(v){ const t = ts(v); if (!t) return ''; const d = new Date(t); return fmtKey.format(d) === fmtKey.format(new Date()) ? fmtHM.format(d) : fmtKey.format(d) === fmtKey.format(new Date(Date.now() - 86400000)) ? 'ieri ' + fmtHM.format(d) : fmtDMHM.format(d); }
+function cronoBlock(srcs, all){
+  const seen = new Set();
+  const ev = srcs.slice().sort((a, b) => ts(b.d) - ts(a.d)).filter(x => { const k = x.o + '|' + norm(titleIt(x) || x.t); if (seen.has(k)) return false; seen.add(k); return true; });
+  if (!ev.length) return '';
+  const shown = all ? ev : ev.slice(0, 3);
+  return `<p class="lab">Cronologia · ultimi aggiornamenti</p><div class="box crono">${shown.map(x => `<a class="cr2" href="${esc(x.u)}" target="_blank" rel="noopener"><span><time>${esc(crTime(x.d))}</time><br>${esc(outlet(x.o).name)}</span><span class="crt">${esc(titleIt(x) || x.t)}${langOf(x) !== 'it' && titleIt(x) ? ' <em>· tradotto</em>' : ''}</span></a>`).join('')}
+    ${ev.length > 3 ? `<button class="fo" data-act="crono-all" aria-expanded="${!!all}">${all ? 'Solo gli ultimi aggiornamenti' : 'Tutta la cronologia · ' + ev.length}<span>${CHEV}</span></button>` : ''}</div>`;
 }
 
 /* sintesi: ogni passaggio con la sua fonte, le citazioni in evidenza */
-function fmtPara(p){
-  let h = esc(p), cite = '';
-  const m = h.match(/\s\(([^()]{2,80})\)\s*$/); if (m) { cite = m[1]; h = h.slice(0, m.index); }
-  h = h.replace(/«([^»]{3,300})»/g, '<span class="qt">«$1»</span>').replace(/“([^”]{3,300})”/g, '<span class="qt">“$1”</span>').replace(/&quot;([^&]{3,300}?)&quot;/g, '<span class="qt">“$1”</span>');
-  return `<p>${h}${cite ? ` <cite>${cite}</cite>` : ''}</p>`;
+const OBYNAME = {ref:null, m:{}};
+function outletByName(n){
+  if (OBYNAME.ref !== S.outlets) { OBYNAME.ref = S.outlets; OBYNAME.m = {}; Object.values(S.outlets).forEach(o => { OBYNAME.m[norm(o.name)] = o; }); }
+  return OBYNAME.m[norm(n)] || null;
 }
-function fmtPoint(p){ const m = String(p).match(/^([^:]{2,40}):\s+([\s\S]*)$/); return m ? `<b>${esc(m[1])}</b> ${esc(m[2])}` : esc(p); }
+function fmtPara(p){
+  let t = String(p), cite = '';
+  const m = t.match(/\s\(([^()]{2,80})\)\s*$/); if (m) { cite = m[1]; t = t.slice(0, m.index); }
+  const o = cite ? outletByName(cite) : null;
+  const tr = o && o.lang && o.lang !== 'it';
+  return `<p class="p">${esc(t.trim())}${cite ? `<small>${esc(cite)}${tr ? ' · tradotto' : ''}</small>` : ''}</p>`;
+}
+function fmtPoint(p){ const m = String(p).match(/^([^:]{2,40}):\s+([\s\S]*)$/); return m ? `${esc(m[2])}<small>${esc(m[1])}</small>` : esc(p); }
 
 /* segnalazioni: effetto subito su questo telefono, poi una issue su GitHub che la redazione legge al giro dopo */
 function repoPath(){
@@ -1188,6 +1177,7 @@ function openStory(id, opts){
   if (opts.ctx) S.storyCtx = opts.ctx.slice();
   else if (!opts.keepCtx) S.storyCtx = (S.flow ? S.flow.ids : S.ctx).slice();
   const wasOpen = !!S.story;
+  if (S.story !== id) { S.openCh = new Set(); S.cronoAll = false; }
   S.story = id;
   addHistory(s);
   const sh = $('#sheet');
@@ -1205,11 +1195,15 @@ function closeStory(fromPop){
   if (!S.flow) document.body.classList.remove('locked');
   if (!fromPop) { try { if (history.state && history.state.story) history.back(); else history.replaceState(null, '', '#' + S.tab); } catch (e) {} }
 }
-function nextOf(id){
-  const ctx = S.storyCtx || [];
-  const i = ctx.indexOf(id);
-  for (let j = i + 1; j < ctx.length; j++) { const n = getStory(ctx[j]); if (n) return n; }
-  return null;
+const CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
+const SBI = {
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>',
+  save:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 21l-6-4-6 4V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2z"/></svg>',
+  share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v13M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>'
+};
+S.openCh = new Set();
+function chapter(key, title, sub, body){
+  return `<details class="chd" data-ch="${key}"${S.openCh.has(key) ? ' open' : ''}><summary class="ch"><span><b>${esc(title)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</span>${CHEV}</summary><div class="chb">${body}</div></details>`;
 }
 function renderSheet(keepScroll){
   const s = getStory(S.story); const sh = $('#sheet');
@@ -1217,64 +1211,57 @@ function renderSheet(keepScroll){
   const st = keepScroll ? sh.scrollTop : 0;
   const srcs = srcOf(s).slice().sort((a, b) => ts(a.d) - ts(b.d));
   const ids = outletsOf(s);
+  const t = tcol(s);
   const paras = String(s.summary || '').split(/\n{2,}/).filter(Boolean);
   const sumOff = !!(s.sumOff || SUMOFF[s.id]);
-  const d = s.dossier ? S.dossiers[s.dossier] : null;
-  const rel = s.dossier ? visible(S.stories).filter(x => x.dossier === s.dossier && x.id !== s.id).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt)).slice(0, 3) : [];
-  const nx = nextOf(s.id);
   const saved = isSaved(s.id);
-  sh.innerHTML = `<div class="prog" id="prog"></div>
-  <div class="sbar" id="sbar"><div class="wrap">
-    <button class="iconbtn" data-act="close" aria-label="Chiudi la notizia">${ICON.back}</button><span class="grow"></span>
-    ${srcs.length ? `<button class="iconbtn" data-act="copy" data-url="${esc(srcs[srcs.length - 1].u)}" aria-label="Copia il link della fonte">${ICON.copy}</button>` : ''}
-  </div></div>
-  <div class="scover">${visual(s, 'wide', false)}${hasImg(s) ? `<span class="credit">Foto: ${esc(outlet(s.img.o).name)}</span>` : ''}</div>
-  <div class="sin"><div class="wrap">
-    <div class="coverage-head"><small>Riportata da</small>${coverage(ids.length, s.id)}</div>
-    <div class="ostrip">${ids.map(id => { const x = srcs.filter(y => y.o === id).slice(-1)[0]; return `<a class="ochip" href="${esc(x ? x.u : '#')}" target="_blank" rel="noopener">${mono(id)}${esc(outlet(id).name)}</a>`; }).join('')}</div>
-    ${agencyLine(srcs)}
-    <div class="s-top">${topicTag(s)}<span>${esc(s.updatedAt ? 'Aggiornata ' + ago(s.updatedAt) : '')}</span>${d ? `<button class="tog" data-act="dossier" data-id="${esc(d.id)}">Dossier · ${esc(d.title)}</button>` : ''}</div>
-    <h1 class="s-hl">${esc(s.headline)}</h1>
-    ${s.dek ? `<p class="s-dek">${esc(s.dek)}</p>` : ''}
-    ${sumOff ? '<p class="s-off">La sintesi automatica di questa storia è stata ritirata dopo una segnalazione: restano i titoli originali delle testate.</p>' : paras.length ? `<div class="s-body"><div class="s-lbl">Cosa riportano le testate<span>Sintesi automatica fatta di frasi delle fonti: ogni passaggio indica da quale testata viene</span></div>${paras.map(fmtPara).join('')}</div>` : ''}
-    ${!sumOff && (s.points || []).length ? `<div class="blk"><h3>Punti chiave</h3><ol class="kp">${s.points.map(p => `<li><span>${fmtPoint(p)}</span></li>`).join('')}</ol></div>` : ''}
-    ${s.why ? `<div class="blk"><h3>Perché è in evidenza</h3><div class="why"><span class="wi"><svg class="i" viewBox="0 0 24 24"><path d="M11 3.5l1.9 5.1L18 10.5l-5.1 1.9L11 17.5l-1.9-5.1L4 10.5l5.1-1.9z"/><path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg></span><p>${esc(s.why)}</p></div></div>` : ''}
-    ${hasPlace(s) && hasImg(s) ? `<div class="blk"><h3>Dove</h3><div class="mapbox">${mapSvg(s.place, 'wide')}</div></div>` : ''}
-    ${compareBlock(srcs)}
-    ${timelineBlock(srcs)}
-    <div class="blk" id="srcBlk"><h3>Come la raccontano</h3><div class="src" id="srcList">${srcs.map(x => srow(x, ids.length > 1)).join('')}</div>${!sumOff && paras.length ? `<button class="flagsum" data-act="flag-sum" data-id="${esc(s.id)}">La sintesi non rappresenta le fonti? Segnalalo</button>` : ''}</div>
-    ${rel.length ? `<div class="blk"><h3>Nello stesso dossier</h3><div class="feed">${rel.map(row).join('')}</div></div>` : ''}
-    ${nx ? `<button class="nextcard press" data-act="open-next" data-id="${esc(nx.id)}"><span><small>Prossima storia</small><strong>${esc(nx.headline)}</strong></span><span class="nth">${visual(nx, 'thumb')}</span></button>` : ''}
-  </div></div>
-  <div class="sdock" role="toolbar" aria-label="Azioni sulla storia">
-    ${hasTTS() ? `<button class="dk main" data-act="listen" data-id="${esc(s.id)}">${ICON.listen}<span>Ascolta</span></button>` : srcs.length ? `<a class="dk main" href="${esc(srcs[srcs.length - 1].u)}" target="_blank" rel="noopener">${ICON.ext}<span>Leggi su ${esc(outlet(srcs[srcs.length - 1].o).name)}</span></a>` : ''}
-    ${navigator.share || window.EddyAndroid ? `<button class="dk" data-act="share" data-id="${esc(s.id)}" aria-label="Condividi">${ICON.share}</button>` : ''}
-    <button class="dk savebtn" data-act="save" data-id="${esc(s.id)}" aria-pressed="${saved}" aria-label="${saved ? 'Rimuovi dai salvati' : 'Salva'}">${ICON.save}</button>
-  </div>`;
+  const names = ids.slice(0, 3).map(id => `<b>${esc(outlet(id).name)}</b>`).join(', ');
+  const more = ids.length - Math.min(3, ids.length);
+  let brief = '';
+  if (sumOff) brief = '<p class="s-off">La sintesi automatica di questa storia è stata ritirata dopo una segnalazione: restano i titoli originali delle testate.</p>';
+  else if (paras.length) brief = paras.map(fmtPara).join('');
+  else if (s.dek) brief = `<p class="p">${esc(s.dek)}</p>`;
+  else {
+    const seen = new Set(); brief = srcs.slice().reverse().filter(x => !seen.has(x.o) && seen.add(x.o)).slice(0, 2).map(x => `<p class="p">${esc(titleIt(x) || x.t)}<small>${esc(outlet(x.o).name)}${langOf(x) !== 'it' && titleIt(x) ? ' · tradotto' : ''}</small></p>`).join('');
+  }
+  const cmp = compareBlock(srcs);
+  const pts = !sumOff ? (s.points || []) : [];
+  const first = srcs[0], last = srcs[srcs.length - 1];
+  let chapters = '';
+  if (pts.length) chapters += chapter('punti', 'Punti chiave', pts.length + ' · ' + String(pts[0]).replace(/^[^:]{2,40}:\s+/, ''), `<ul class="pts" style="--tg:${t.c}">${pts.map(p => `<li class="pt"><span>${fmtPoint(p)}</span></li>`).join('')}</ul>`);
+  if (cmp) chapters += chapter('confronto', 'Confronto tra le testate', cmp.sub, cmp.html);
+  if (srcs.length) chapters += chapter('fonti', 'Le fonti', ids.length > 1 ? `${covText(ids.length)}, da ${outlet(first.o).name} a ${outlet(last.o).name}` : `${outlet(first.o).name}`,
+    `${agencyLine(srcs)}<div class="vos" id="srcList">${srcs.slice().reverse().map(x => srow(x, ids.length > 1)).join('')}</div>${!sumOff && paras.length ? `<button class="flagsum" data-act="flag-sum" data-id="${esc(s.id)}">La sintesi non rappresenta le fonti? Segnalalo</button>` : ''}`);
+  sh.innerHTML = `<div class="sbar" id="sbar" style="--tg:${t.c}">
+    <button class="ib" data-act="close" aria-label="Indietro">${SBI.back}</button><span class="grow"></span>
+    <button class="ib savebtn" data-act="save" data-id="${esc(s.id)}" aria-pressed="${saved}" aria-label="${saved ? 'Rimuovi dai salvati' : 'Salva'}">${SBI.save}</button>
+    <button class="ib" data-act="share" data-id="${esc(s.id)}" aria-label="Condividi">${SBI.share}</button>
+  </div>
+  <article class="story">
+    <div class="swrap"><span class="k" style="color:${t.tx}">${esc(kickName(s))}</span><h1 class="tt">${esc(s.headline)}</h1>
+    <p class="by">${ids.length ? `Raccontata da ${names}${more > 0 ? ` e ${more === 1 ? 'un\'altra' : 'altre ' + more}` : ''} · ` : ''}aggiornata ${esc(ago(s.updatedAt))}</p></div>
+    <div class="sph">${visual(s, 'wide')}</div>
+    <div class="swrap">
+      ${brief ? `<p class="lab">In breve</p>${brief}` : ''}
+      ${cronoBlock(srcs, S.cronoAll)}
+      ${chapters ? `<p class="lab">Approfondisci</p><div class="box chs">${chapters}</div>` : ''}
+    </div>
+  </article>`;
   sh.scrollTop = st;
-  onSheetScroll();
 }
 function cleanAuthor(a, o){
   let t = String(a || '').replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, ' ').replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim();
   if (!t || /redazione|staff|agenzi|newsroom|editor|reporters?$/i.test(t) || norm(t) === norm(o.name)) return '';
   return t.replace(/^(di|by|par|por|von)\s+/i, '');
 }
+function initials(o){ const w = String(o.short || o.name || '?').replace(/[^\p{L}\p{N} ]/gu, ' ').trim().split(/\s+/); return (o.short ? o.short : w.length > 1 ? w[0][0] + w[1][0] : w[0].slice(0, 2)).slice(0, 3).toUpperCase(); }
 function srow(x, canFlag){
   const o = outlet(x.o), l = langOf(x), ti = titleIt(x);
   const foreign = l !== 'it';
-  return `<div class="srow">${mono(x.o, 'md')}<div><div class="who">${esc(o.name)}${foreign ? ` <span class="lang">${esc(l.toUpperCase())}</span>` : ''}${x.ag ? `<span class="agb">${x.ag === x.o ? 'agenzia' : 'testo ' + esc(agName(x.ag))}</span>` : ''}<time>${esc(x.d ? fmtDMHM.format(new Date(x.d)) : '')}</time></div>
-    <q${foreign && !ti ? ` lang="${esc(l)}"` : ''}>${esc(ti || x.t)}</q>
-    ${foreign && ti ? `<div class="orig"><span>${ICON.translate}Originale in ${esc(LANGN[l] || l)}</span><q lang="${esc(l)}">${esc(x.t)}</q></div>` : ''}
-    ${cleanAuthor(x.a, o) ? `<div class="by">di ${esc(cleanAuthor(x.a, o))}</div>` : ''}<div class="sact"><a href="${esc(x.u)}" target="_blank" rel="noopener">Leggi su ${esc(o.name)} ${ICON.ext}</a>${canFlag ? `<button class="flag" data-act="flag-src" data-u="${esc(x.u)}">Non c'entra?</button>` : ''}</div></div></div>`;
-}
-function onSheetScroll(){
-  const sh = $('#sheet'); const pr = $('#prog'); const bar = $('#sbar'); if (!pr || !bar) return;
-  const max = sh.scrollHeight - sh.clientHeight;
-  pr.style.transform = `scaleX(${max > 0 ? Math.min(1, sh.scrollTop / max) : 0})`;
-  const cov = $('.scover', sh); bar.classList.toggle('solid', !!cov && sh.scrollTop > cov.offsetHeight - 80);
-  const dock = $('.sdock', sh), y = sh.scrollTop, py = sh._py || 0;
-  if (dock) { if (y > 220 && y > py + 8 && y < max - 160) dock.classList.add('away'); else if (y < py - 8 || y <= 220 || y >= max - 160) dock.classList.remove('away'); }
-  if (Math.abs(y - py) > 8) sh._py = y;
+  return `<div class="vo"><span class="bo" aria-hidden="true">${esc(initials(o))}</span><div><b>${esc(o.name)}<time>${esc(crTime(x.d))}</time></b>
+    <p${foreign && !ti ? ` lang="${esc(l)}"` : ''}>${esc(ti || x.t)}</p>
+    ${foreign && ti ? `<p class="orig"><span>Originale in ${esc(LANGN[l] || l)} · traduzione automatica</span><q lang="${esc(l)}">${esc(x.t)}</q></p>` : ''}
+    ${cleanAuthor(x.a, o) ? `<small class="aut">di ${esc(cleanAuthor(x.a, o))}</small>` : ''}<div class="sact"><a href="${esc(x.u)}" target="_blank" rel="noopener">Leggi su ${esc(o.name)} ${ICON.ext}</a>${canFlag ? `<button class="flag" data-act="flag-src" data-u="${esc(x.u)}">Non c'entra?</button>` : ''}</div></div></div>`;
 }
 const QSTOP = new Set('il lo la i gli le un uno una di a da in con su per tra fra e o ma che chi cosa come dove quando perche perché quale quali quanto quanti quante è e sono era stato sta stanno ha hanno ho del dello della dei degli delle al allo alla ai agli alle dal dalla dai nel nella nei sul sulla sui si ci ne non piu più mi ti me te lui lei loro questo questa questi queste quello quella sapere dimmi spiega spiegami cosa è successo succede oggi notizia storia'.split(' '));
 /* ---------- sfoglia ---------- */
@@ -1509,7 +1496,7 @@ document.addEventListener('click', e => {
     case 'alerts': S.prefs.alerts = el.dataset.v === '1'; persist('prefs'); render(); break;
     case 'unhide': HID = {}; SUMOFF = {}; LS.set('hid', HID); LS.set('sumoff', SUMOFF); toast('Correzioni locali annullate'); render(); break;
     case 'open': if (Date.now() < deckSuppress) break; openStory(id); break;
-    case 'open-next': openStory(id, {keepCtx:true}); break;
+    case 'crono-all': S.cronoAll = !S.cronoAll; renderSheet(true); break;
     case 'close': closeStory(); break;
     case 'zona': S.zona = id || null; render(); break;
     case 'napoli-all': S.napAll = !S.napAll; render(); break;
@@ -1567,7 +1554,8 @@ document.addEventListener('click', e => {
       const st = getStory(id); if (!st) break;
       const url = location.href.split('#')[0] + '#s-' + id;
       if (window.EddyAndroid && EddyAndroid.share) EddyAndroid.share(st.headline + '\n' + url);
-      else if (navigator.share) navigator.share({title:st.headline, text:st.dek || st.headline, url}).catch(() => {});
+      else if (navigator.share) navigator.share({title:st.headline, url}).catch(() => {});
+      else { try { navigator.clipboard.writeText(url).then(() => toast('Link copiato'), () => toast(url)); } catch (err) { toast(url); } }
       break;
     }
     case 'export': exportData(); break;
@@ -1585,10 +1573,13 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { if (!$('#onb').hidden && S.prefs.onboarded) closeOnb(); else if (S.story) closeStory(); else if (S.flow) closeFlow(); }
   if (S.flow && !S.story && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) { e.preventDefault(); const tr = $('#ftrack'); tr.scrollBy({top:(e.key === 'ArrowDown' ? 1 : -1) * tr.clientHeight, behavior:'smooth'}); }
 });
+document.addEventListener('toggle', e => {
+  const d = e.target; if (!d || !d.matches || !d.matches('details.chd')) return;
+  if (d.open) S.openCh.add(d.dataset.ch); else S.openCh.delete(d.dataset.ch);
+}, true);
 document.addEventListener('input', e => {
   if (e.target.id === 'q') { S.query = e.target.value; const r = $('#results'); if (r) { r.innerHTML = searchResults(); observeMore(); } }
 });
-$('#sheet').addEventListener('scroll', onSheetScroll, {passive:true});
 
 /* ---------- dati: file statici pubblicati dalla redazione automatica ---------- */
 const DL = {loading:false, last:0, feed:null, archive:[], archAt:''};
