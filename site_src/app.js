@@ -42,7 +42,7 @@ const TICON = {
   arte:'<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 16l5-5 4 4 3-3 5 5"/><circle cx="15.5" cy="9" r="1.6"/>'
 };
 const PALETTE = ['#1F4E79','#8B2E2E','#2E6B4F','#6B3FA0','#9A5B13','#0F6A7A','#A33E6B','#3D4A5C','#5C6B1F','#7A2E5C','#24527A','#8A4B2A'];
-const TABS = ['oggi','perte','esplora','salvati','profilo'];
+const TABS = ['oggi','perte','sfoglia','salvati','profilo'];
 const ICON = {
   save:'<svg class="i" viewBox="0 0 24 24"><path d="M7 4h10v16l-5-3.6L7 20z"/></svg>',
   back:'<svg class="i" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
@@ -425,7 +425,8 @@ function pushCtx(id){ if (collecting && !CTX.includes(id)) CTX.push(id); }
 
 function render(animate){
   applyLight();
-  document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-current', b.dataset.tab === S.tab ? 'page' : 'false'));
+  document.querySelectorAll('.tabs button').forEach(b => { if (b.dataset.tab === S.tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  document.body.classList.toggle('sf-on', S.tab === 'sfoglia');
   renderEdPill();
   const v = $('#view');
   const carScroll = $('#car') ? $('#car').scrollLeft : 0;
@@ -435,6 +436,7 @@ function render(animate){
   let html = '';
   if (S.tab === 'oggi') html = viewOggi();
   else if (S.tab === 'perte') html = viewPerTe();
+  else if (S.tab === 'sfoglia') html = viewSfoglia();
   else if (S.tab === 'esplora') html = viewEsplora();
   else if (S.tab === 'salvati') html = viewSalvati();
   else html = viewProfilo();
@@ -1252,6 +1254,12 @@ function onSheetScroll(){
 }
 const QSTOP = new Set('il lo la i gli le un uno una di a da in con su per tra fra e o ma che chi cosa come dove quando perche perché quale quali quanto quanti quante è e sono era stato sta stanno ha hanno ho del dello della dei degli delle al allo alla ai agli alle dal dalla dai nel nella nei sul sulla sui si ci ne non piu più mi ti me te lui lei loro questo questa questi queste quello quella sapere dimmi spiega spiegami cosa è successo succede oggi notizia storia'.split(' '));
 /* ---------- sfoglia ---------- */
+function sfogliaList(){ return oggiLists().all; }
+function viewSfoglia(){
+  const st = feedState(false); if (st) return st;
+  const list = sfogliaList();
+  return `<div class="sfv" id="sfv">${list.map((s, i) => { pushCtx(s.id); return slide(s, i); }).join('')}</div>`;
+}
 function openFlow(ids, start){
   ids = ids.filter(id => getStory(id));
   if (!ids.length) return;
@@ -1491,7 +1499,7 @@ document.addEventListener('click', e => {
       break;
     }
     case 'ofilter': S.outletF = id || null; S.topic = 'tutti'; render(); break;
-    case 'flow': openFlow(el.dataset.src === 'perte' ? perTeList().map(s => s.id) : oggiLists().all.map(s => s.id), 0); break;
+    case 'flow': setTab('sfoglia'); break;
     case 'flow-close': closeFlow(); break;
     case 'brief': { const top = oggiLists().top; play((top.length ? top : visible(S.stories)).slice(0, 6), 'Prima pagina'); break; }
     case 'listen': { const s = getStory(id); if (s) play([s], 'In ascolto'); break; }
