@@ -4,7 +4,7 @@
   python build_site.py OUT [BUILD_ID]
 
 Scrive OUT/index.html (app, stile e mappe in un solo file), OUT/sw.js, OUT/manifest.webmanifest,
-OUT/icons/. I dati (OUT/data) e i loghi (OUT/logos) li aggiunge il workflow.
+OUT/icons/, OUT/fonts/. I dati (OUT/data) e i loghi (OUT/logos) li aggiunge il workflow.
 """
 import json
 import os
@@ -34,9 +34,9 @@ HEAD = f"""<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="{DESC}">
-<meta name="theme-color" content="#F2F4F1" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0B0F0E" media="(prefers-color-scheme: dark)">
-<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F4F5F7">
+<meta name="color-scheme" content="light">
+<link rel="preload" href="fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Eddy">
@@ -64,7 +64,7 @@ json.dump({'b': build}, open(os.path.join(out, 'version.json'), 'w', encoding='u
 manifest = {
     'name': 'Eddy — le notizie a più voci', 'short_name': 'Eddy', 'description': DESC, 'lang': 'it', 'dir': 'ltr',
     'id': './', 'start_url': './#oggi', 'scope': './', 'display': 'standalone', 'orientation': 'portrait',
-    'background_color': '#F2F4F1', 'theme_color': '#F2F4F1', 'categories': ['news'],
+    'background_color': '#F4F5F7', 'theme_color': '#F4F5F7', 'categories': ['news'],
     'icons': [
         {'src': 'icons/icon-192.png', 'sizes': '192x192', 'type': 'image/png', 'purpose': 'any'},
         {'src': 'icons/icon-512.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'any'},
@@ -82,5 +82,7 @@ else:
     sys.path.insert(0, HERE)
     import make_icons
     make_icons.main(os.path.join(out, 'icons'))
+# carattere Schibsted Grotesk (licenza OFL, in site_src/fonts con il testo della licenza): servito dal sito stesso
+shutil.copytree(os.path.join(SRC, 'fonts'), os.path.join(out, 'fonts'), dirs_exist_ok=True)
 open(os.path.join(out, '.nojekyll'), 'w').close()
 print('sito pronto in', out, '-', len(html) // 1024, 'KB')

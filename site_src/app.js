@@ -2,23 +2,25 @@
 'use strict';
 
 /* ---------- costanti ---------- */
+// Colori dei temi "Famiglie Solare": c = tono pieno (righe, cartelle, quadratini, barre), tx = tono scritta (testo colorato).
+// Il testo bianco non va mai sul tono pieno: le etichette piene usano tx come fondo.
 const TOPICS = [
-  {id:'napoli',    name:'Napoli',     long:'Napoli e provincia',  c:'#0A86BF'},
-  {id:'italia',    name:'Politica',   long:'Politica italiana',   c:'#D0553A'},
-  {id:'mondo',     name:'Mondo',      long:'Esteri e geopolitica',c:'#2F6FD0'},
-  {id:'economia',  name:'Economia',   long:'Economia e lavoro',   c:'#B7861C'},
-  {id:'cronaca',   name:'Cronaca',    long:'Cronaca',             c:'#7A5AC7'},
-  {id:'scienza',   name:'Scienza',    long:'Scienza e scoperte',  c:'#0E9F8E'},
-  {id:'salute',    name:'Salute',     long:'Salute e medicina',   c:'#D94F86'},
-  {id:'tech',      name:'Tecnologia', long:'Tecnologia e IA',     c:'#4B5BD6'},
-  {id:'clima',     name:'Clima',      long:'Clima e ambiente',    c:'#3E9B4F'},
-  {id:'cultura',   name:'Cultura',    long:'Cultura e società',   c:'#A0692F'},
-  {id:'sport',     name:'Sport',      long:'Sport',               c:'#E07B1F'},
-  {id:'motori',    name:'Motori',     long:'Motori e nautica',    c:'#C8283E'},
-  {id:'spettacoli',name:'Spettacoli', long:'Spettacoli e costume',c:'#B04BB8'},
-  {id:'design',    name:'Design',     long:'Design, grafica e UX', c:'#5F7A12'},
-  {id:'architettura',name:'Architettura',long:'Architettura e città',c:'#56677A'},
-  {id:'arte',      name:'Arte',       long:'Arte e fotografia',   c:'#9B2242'}
+  {id:'cronaca',     name:'Cronaca',            long:'Cronaca',              c:'#D0021B', tx:'#D0021B', fam:'Attualità'},
+  {id:'italia',      name:'Politica',           long:'Politica italiana',    c:'#C2185B', tx:'#C2185B', fam:'Attualità'},
+  {id:'salute',      name:'Salute',             long:'Salute e medicina',    c:'#F06B8B', tx:'#E31748', fam:'Attualità'},
+  {id:'mondo',       name:'Mondo',              long:'Esteri e geopolitica', c:'#3D5FC4', tx:'#3D5FC4', fam:'Luoghi'},
+  {id:'napoli',      name:'Napoli e provincia', long:'Napoli e provincia',   c:'#3FB0F0', tx:'#0E79B6', fam:'Luoghi'},
+  {id:'economia',    name:'Economia',           long:'Economia e lavoro',    c:'#2BAE66', tx:'#21854E', fam:'Sapere'},
+  {id:'scienza',     name:'Scienza',            long:'Scienza e scoperte',   c:'#17B3B0', tx:'#11817F', fam:'Sapere'},
+  {id:'clima',       name:'Clima',              long:'Clima e ambiente',     c:'#A3C736', tx:'#657B21', fam:'Sapere'},
+  {id:'tech',        name:'Tecnologia',         long:'Tecnologia e IA',      c:'#1E8A96', tx:'#1B7E89', fam:'Sapere'},
+  {id:'cultura',     name:'Cultura',            long:'Cultura e società',    c:'#C25400', tx:'#C25400', fam:'Cultura'},
+  {id:'design',      name:'Design',             long:'Design, grafica e UX', c:'#F2B32B', tx:'#996C09', fam:'Cultura'},
+  {id:'arte',        name:'Arte e fotografia',  long:'Arte e fotografia',    c:'#F08A4B', tx:'#C05310', fam:'Cultura'},
+  {id:'architettura',name:'Architettura',       long:'Architettura e città', c:'#C4A57A', tx:'#8F6D3F', fam:'Cultura'},
+  {id:'spettacoli',  name:'Spettacoli',         long:'Spettacoli e costume', c:'#D25BB4', tx:'#C837A4', fam:'Tempo libero'},
+  {id:'sport',       name:'Sport',              long:'Sport',                c:'#8E6CF0', tx:'#7C55EE', fam:'Tempo libero'},
+  {id:'motori',      name:'Motori',             long:'Motori e nautica',     c:'#5E6272', tx:'#5E6272', fam:'Tempo libero'}
 ];
 const TMAP = Object.fromEntries(TOPICS.map(t => [t.id, t]));
 const TICON = {
@@ -77,7 +79,8 @@ const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLow
 const hash = s => { let h = 2166136261; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h; };
 const TZ = 'Europe/Rome';
 const fmtDay = new Intl.DateTimeFormat('it-IT', {weekday:'long', day:'numeric', month:'long', timeZone:TZ});
-const fmtHM = new Intl.DateTimeFormat('it-IT', {hour:'2-digit', minute:'2-digit', timeZone:TZ});
+const fmtHM = new Intl.DateTimeFormat('it-IT', {hour:'numeric', minute:'2-digit', timeZone:TZ});
+const fmtWD = new Intl.DateTimeFormat('it-IT', {weekday:'short', day:'numeric', month:'long', timeZone:TZ});
 const fmtDM = new Intl.DateTimeFormat('it-IT', {day:'numeric', month:'short', timeZone:TZ});
 const fmtDMHM = new Intl.DateTimeFormat('it-IT', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit', timeZone:TZ});
 const fmtKey = new Intl.DateTimeFormat('it-IT', {day:'2-digit', month:'2-digit', year:'numeric', timeZone:TZ});
@@ -94,7 +97,13 @@ function ago(v){
   return fmtDM.format(new Date(t));
 }
 function hoursAgo(v){ const t = ts(v); return t ? Math.max(0, (Date.now() - t) / 3600000) : 999; }
-function greeting(){ const h = Number(new Intl.DateTimeFormat('it-IT', {hour:'numeric', hour12:false, timeZone:TZ}).format(new Date())); return h < 12 ? 'Buongiorno' : h < 18 ? 'Buon pomeriggio' : 'Buonasera'; }
+/* la luce che cambia con l'ora: saluto, sfondo della pagina e colore del nome (5–12, 12–18, 18–5) */
+function hourNow(){ return Number(new Intl.DateTimeFormat('it-IT', {hour:'numeric', hourCycle:'h23', timeZone:TZ}).format(new Date())) % 24; }
+function light(){ const h = hourNow(); return h >= 5 && h < 12 ? 'mattino' : h >= 12 && h < 18 ? 'pomeriggio' : 'sera'; }
+function greeting(){ const l = light(); return l === 'mattino' ? 'Buongiorno' : l === 'pomeriggio' ? 'Buon pomeriggio' : 'Buonasera'; }
+function applyLight(){ const l = light(); if (document.documentElement.dataset.light !== l) document.documentElement.dataset.light = l; }
+function dayLabel(){ return cap(fmtWD.format(new Date()).replace(/\.(?=\s)/, '')); }
+const LOGO = '<span class="logo" role="img" aria-label="Eddy"><svg viewBox="0 0 70 50" aria-hidden="true"><rect x="0" y="0" width="50" height="12" rx="6" fill="#D0021B"/><rect x="10" y="19" width="50" height="12" rx="6" fill="#3D5FC4"/><rect x="20" y="38" width="50" height="12" rx="6" fill="#C25400"/></svg><span aria-hidden="true">eddy</span></span>';
 const LS = {
   get(k){ try { const v = localStorage.getItem('eddy:' + k); return v ? JSON.parse(v) : null; } catch (e) { return null; } },
   set(k, v){ try { localStorage.setItem('eddy:' + k, JSON.stringify(v)); } catch (e) {} }
@@ -415,6 +424,7 @@ function scheduleRender(){ if (raf) return; raf = requestAnimationFrame(() => { 
 function pushCtx(id){ if (collecting && !CTX.includes(id)) CTX.push(id); }
 
 function render(animate){
+  applyLight();
   document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-current', b.dataset.tab === S.tab ? 'page' : 'false'));
   renderEdPill();
   const v = $('#view');
@@ -446,10 +456,8 @@ function onCarScroll(){
 }
 function renderEdPill(){
   updateRefreshUI();
-  const pill = $('#edPill');
-  if (!pill || !S.meta || !S.meta.runAt) return;
-  $('#edPillTxt').textContent = 'Aggiornato ' + whenText(freshAt()) + (staleMin() > lateLimit() ? ' · in ritardo' : '');
-  pill.classList.toggle('late', staleMin() > lateLimit());
+  const t = $('#edPillTxt');
+  if (t && S.meta && S.meta.runAt) t.textContent = 'Aggiornato ' + whenText(freshAt()) + (staleMin() > lateLimit() ? ' · in ritardo' : '');
 }
 function skeleton(n, hero){
   let h = hero ? '<div class="skhero" aria-hidden="true"></div>' : '';
@@ -801,10 +809,9 @@ function viewOggi(){
   const vis = visible(S.stories);
   const nOut = new Set(); vis.forEach(s => outletsOf(s).forEach(o => nOut.add(o)));
   const sub = m && m.runAt ? `Notizie raccolte ${esc(whenText(freshAt()))} · ${vis.length} storie da ${nOut.size} testate` : '';
-  const lead = vis.filter(s => s.top).sort((a, b) => (b.rank || 0) - (a.rank || 0))[0];
-  const amb = lead && TMAP[lead.topic] ? TMAP[lead.topic].c : '';
   const late = !!(m && m.runAt && staleMin() > lateLimit());
-  let h = `<div class="head home"${amb ? ` style="--amb:${amb}"` : ''}><span class="kicker">${esc(cap(fmtDay.format(new Date())))}</span><h1>${greeting()}${S.firstName ? ', ' + esc(S.firstName) : ''}</h1>${m && m.runAt ? `<div class="hchips" title="${esc(sub.replace(/<[^>]*>/g, ''))}"><span class="hchip ed${late ? ' late' : ''}" id="edPill"><i class="live"></i><span id="edPillTxt">${esc('Aggiornato ' + whenText(freshAt()) + (late ? ' · in ritardo' : ''))}</span></span><span class="hchip">${vis.length} storie · ${nOut.size} testate</span></div>` : ''}</div>`;
+  let h = `<header class="ohead">${LOGO}<h1 class="greet">${greeting()}${S.firstName ? `, <em>${esc(S.firstName)}</em>` : ''}</h1>
+    <span class="osub" title="${esc(sub.replace(/<[^>]*>/g, ''))}">${esc(dayLabel())}${m && m.runAt ? ` · <b id="edPillTxt">Aggiornato ${esc(whenText(freshAt()))}${late ? ' · in ritardo' : ''}</b>` : ''}<button class="rb" id="refreshBtn" data-act="refresh" aria-label="Aggiorna le notizie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button></span></header>`;
   h += `<div id="rfb">${bannerInner(refreshInfo())}</div>`;
   if (m && m.runAt && staleMin() > 2 * lateLimit()) h += `<div class="latebar"><strong>Raccolta in ritardo</strong><span>Le ultime notizie sono state raccolte ${esc(whenText(freshAt()))}. La raccolta gira su GitHub, che nelle ore di traffico rinvia o salta alcuni giri programmati: riparte da sola.</span></div>`;
   const st = feedState(true);
@@ -1475,12 +1482,12 @@ document.addEventListener('click', e => {
     case 'zona': S.zona = id || null; render(); break;
     case 'napoli-all': {
       S.topic = 'napoli'; S.zona = null; render();
-      const cb = $('.chipbar'); if (cb) window.scrollTo({top:cb.getBoundingClientRect().top + window.scrollY - (document.querySelector('.top').offsetHeight || 56), behavior:'smooth'});
+      const cb = $('.chipbar'); if (cb) window.scrollTo({top:cb.getBoundingClientRect().top + window.scrollY - 0, behavior:'smooth'});
       break;
     }
     case 'topic': {
       S.topic = el.dataset.topic; S.zona = null; render();
-      const cb = $('.chipbar'); if (cb) { const y = cb.getBoundingClientRect().top + window.scrollY - (document.querySelector('.top').offsetHeight || 56); if (window.scrollY > y) window.scrollTo(0, y); }
+      const cb = $('.chipbar'); if (cb) { const y = cb.getBoundingClientRect().top + window.scrollY - 0; if (window.scrollY > y) window.scrollTo(0, y); }
       break;
     }
     case 'ofilter': S.outletF = id || null; S.topic = 'tutti'; render(); break;
@@ -1520,7 +1527,7 @@ document.addEventListener('click', e => {
     case 'refresh-hide': S.rfbHidden = Number(el.dataset.v) || 0; updateRefreshUI(); break;
     case 'refresh-see': {
       if (S.tab !== 'oggi' || S.topic !== 'tutti' || S.outletF) { S.topic = 'tutti'; S.outletF = null; if (S.tab !== 'oggi') setTab('oggi'); else render(); }
-      const sec = $('#latest'); if (sec) window.scrollTo({top:sec.getBoundingClientRect().top + window.scrollY - (document.querySelector('.top').offsetHeight || 56) - 50, behavior:'smooth'});
+      const sec = $('#latest'); if (sec) window.scrollTo({top:sec.getBoundingClientRect().top + window.scrollY - 0 - 50, behavior:'smooth'});
       break;
     }
     case 'clear-history': S.history = []; persist('history', 0); render(); toast('Cronologia svuotata'); break;
@@ -1709,14 +1716,6 @@ document.addEventListener('input', e => {
   };
   document.addEventListener('touchend', end, {passive:true});
   document.addEventListener('touchcancel', () => { y0 = null; reset(); }, {passive:true});
-})();
-
-/* testata: vetro solo quando la pagina scorre */
-(function(){
-  const top = document.querySelector('.top'); if (!top) return;
-  let on = null;
-  const f = () => { const v = window.scrollY > 4; if (v !== on) { on = v; top.classList.toggle('scrolled', v); } };
-  window.addEventListener('scroll', f, {passive:true}); f();
 })();
 
 /* ---------- avvio ---------- */

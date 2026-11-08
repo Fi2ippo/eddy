@@ -2,7 +2,7 @@
 const V = 'eddy-app-__BUILD__';
 const DATA = 'eddy-data';
 const LOGOS = 'eddy-logos';
-const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/logo-l.png', './icons/logo-d.png', './icons/icon-192.png', './icons/icon-512.png'];
+const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './fonts/schibsted-grotesk-latin.woff2', './fonts/schibsted-grotesk-latin-ext.woff2'];
 
 self.addEventListener('install', e => {
   // cache: 'reload' scavalca la cache HTTP del browser (10 minuti su GitHub Pages): il guscio nuovo è davvero nuovo
@@ -83,10 +83,9 @@ self.addEventListener('fetch', e => {
       return;
     }
     if (u.pathname.includes('/logos/')) { e.respondWith(cacheFirst(req, LOGOS, 160)); return; }
-    if (u.pathname.includes('/icons/')) { e.respondWith(cacheFirst(req, V)); return; }
+    if (u.pathname.includes('/icons/') || u.pathname.includes('/fonts/')) { e.respondWith(cacheFirst(req, V)); return; }
     if (u.pathname.endsWith('.apk')) return;
     e.respondWith(staleWhileRevalidate(req, V));
     return;
   }
-  if (u.hostname === 'fonts.googleapis.com' || u.hostname === 'fonts.gstatic.com') { e.respondWith(staleWhileRevalidate(req, V)); return; }
 });
