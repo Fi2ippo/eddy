@@ -441,6 +441,7 @@ function render(animate){
   else html = viewProfilo();
   collecting = false; S.ctx = CTX;
   v.innerHTML = html;
+  const sfv = $('#sfv'); if (sfv && S.sfIdx) sfv.scrollTop = S.sfIdx * sfv.clientHeight;
   if (animate) { v.classList.remove('fade'); void v.offsetWidth; v.classList.add('fade'); }
   layoutDeck();
   if (!animate) { const or = $('.orail'); if (or) or.scrollLeft = railScroll; const cr = $('#view .rail'); if (cr) cr.scrollLeft = chipScroll; }
@@ -750,7 +751,7 @@ function showAlert(s, why, more){
   alertT = setTimeout(hideAlert, 12000);
 }
 function checkAlerts(before){
-  if (S.prefs.alerts === false || S.story || S.flow) return;
+  if (S.prefs.alerts === false || S.story) return;
   const p = S.prefs, seen = LS.get('alerted') || {}, now = Date.now(), cands = [];
   visible(S.stories).forEach(s => {
     const b = before.get(s.id), isNewS = b === undefined, changed = !isNewS && b !== (s.changedAt || s.updatedAt);
@@ -1175,7 +1176,7 @@ function openStory(id, opts){
   opts = opts || {};
   const s = getStory(id); if (!s) return;
   if (opts.ctx) S.storyCtx = opts.ctx.slice();
-  else if (!opts.keepCtx) S.storyCtx = (S.flow ? S.flow.ids : S.ctx).slice();
+  else if (!opts.keepCtx) S.storyCtx = S.ctx.slice();
   const wasOpen = !!S.story;
   if (S.story !== id) { S.openCh = new Set(); S.cronoAll = false; }
   S.story = id;
@@ -1192,7 +1193,7 @@ function closeStory(fromPop){
   if (!S.story) return;
   S.story = null;
   $('#sheet').hidden = true; $('#sheet').innerHTML = '';
-  if (!S.flow) document.body.classList.remove('locked');
+  document.body.classList.remove('locked');
   if (!fromPop) { try { if (history.state && history.state.story) history.back(); else history.replaceState(null, '', '#' + S.tab); } catch (e) {} }
 }
 const CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
@@ -1264,58 +1265,57 @@ function srow(x, canFlag){
     ${cleanAuthor(x.a, o) ? `<small class="aut">di ${esc(cleanAuthor(x.a, o))}</small>` : ''}<div class="sact"><a href="${esc(x.u)}" target="_blank" rel="noopener">Leggi su ${esc(o.name)} ${ICON.ext}</a>${canFlag ? `<button class="flag" data-act="flag-src" data-u="${esc(x.u)}">Non c'entra?</button>` : ''}</div></div></div>`;
 }
 const QSTOP = new Set('il lo la i gli le un uno una di a da in con su per tra fra e o ma che chi cosa come dove quando perche perché quale quali quanto quanti quante è e sono era stato sta stanno ha hanno ho del dello della dei degli delle al allo alla ai agli alle dal dalla dai nel nella nei sul sulla sui si ci ne non piu più mi ti me te lui lei loro questo questa questi queste quello quella sapere dimmi spiega spiegami cosa è successo succede oggi notizia storia'.split(' '));
-/* ---------- sfoglia ---------- */
+/* ---------- sfoglia: una notizia per schermata ---------- */
 function sfogliaList(){ return oggiLists().all; }
+// una frase di una testata: il primo passaggio della sintesi (che porta il nome) o, in mancanza, il titolo di un'altra testata
+function phraseOf(s){
+  const p = String(s.summary || '').split(/\n{2,}/).find(x => /\s\(([^()]{2,80})\)\s*$/.test(x));
+  if (p && !(s.sumOff || SUMOFF[s.id])) { const m = p.match(/\s\(([^()]{2,80})\)\s*$/); return {t:p.slice(0, m.index).trim(), o:m[1]}; }
+  const hl = norm(s.headline);
+  const x = srcOf(s).slice().sort((a, b) => ts(b.d) - ts(a.d)).find(y => norm(titleIt(y) || y.t) !== hl);
+  return x ? {t:titleIt(x) || x.t, o:outlet(x.o).name, tr:langOf(x) !== 'it' && !!titleIt(x)} : null;
+}
+const SF_STEP = 25;
+function sfSlide(s){
+  pushCtx(s.id);
+  const t = tcol(s), n = outletsOf(s).length, ph = phraseOf(s);
+  const q = ph ? String(ph.t).replace(/^[«"“]+|[»"”]+$/g, '') : '';
+  return `<article class="sf" data-act="open" data-id="${esc(s.id)}" tabindex="0" style="--tg:${t.c}" aria-label="${esc(s.headline)}">
+    <div class="sfph">${visual(s, 'wide')}</div>
+    <div class="sftx"><p class="m2"><span style="color:${t.tx}">${esc(kickName(s))}</span> · ${covText(n)} · ${esc(ago(s.updatedAt))}</p>
+      <h2>${esc(s.headline)}</h2>
+      ${q ? `<p class="q"><span class="qt">«${esc(q)}»</span><span class="qo">${esc(ph.o)}${ph.tr ? ' · tradotto' : ''}${n > 1 ? ` · e ${n === 2 ? 'un\'altra testata' : 'altre ' + (n - 1) + ' testate'}` : ''}</span></p>` : ''}</div>
+  </article>`;
+}
 function viewSfoglia(){
   const st = feedState(false); if (st) return st;
   const list = sfogliaList();
-  return `<div class="sfv" id="sfv">${list.map((s, i) => { pushCtx(s.id); return slide(s, i); }).join('')}</div>`;
+  if (!list.length) return `<div class="state"><h3>Niente da sfogliare, per ora</h3><p>Appena la redazione automatica pubblica le notizie, qui le trovi una per schermata.</p></div>`;
+  S.sfN = Math.min(list.length, Math.max(S.sfN || 0, SF_STEP, (S.sfIdx || 0) + 5));
+  return `<div class="sfv" id="sfv" role="feed" aria-label="Sfoglia: una notizia per schermata">${list.slice(0, S.sfN).map(sfSlide).join('')}</div>`;
 }
-function openFlow(ids, start){
-  ids = ids.filter(id => getStory(id));
-  if (!ids.length) return;
-  S.flow = {ids, idx:start || 0};
-  const el = $('#flow');
-  el.innerHTML = `<div class="fx"><span id="fcount">1 / ${ids.length}</span><button data-act="flow-close" aria-label="Chiudi">${ICON.close}</button></div>
-    <div class="track" id="ftrack">${ids.map((id, i) => slide(getStory(id), i)).join('')}</div>`;
-  el.hidden = false;
-  document.body.classList.add('locked', 'flow-on');
-  const tr = $('#ftrack');
-  tr.addEventListener('scroll', onFlowScroll, {passive:true});
-  if (start) tr.scrollTop = start * tr.clientHeight;
-  try { history.pushState({flow:1}, '', '#sfoglia'); } catch (e) {}
+function sfMore(){
+  const el = $('#sfv'); if (!el) return;
+  const list = sfogliaList(); if (S.sfN >= list.length) return;
+  const n1 = Math.min(list.length, S.sfN + SF_STEP);
+  const was = collecting; collecting = true; CTX = S.ctx || [];
+  el.insertAdjacentHTML('beforeend', list.slice(S.sfN, n1).map(sfSlide).join(''));
+  S.ctx = CTX; collecting = was; S.sfN = n1;
 }
-function slide(s, i){
-  const t = TMAP[s.topic] || {name:'', c:'#888'};
-  const first = String(s.summary || '').split(/\n{2,}/)[0] || s.dek || '';
-  const on = isSaved(s.id);
-  return `<section class="slide" data-id="${esc(s.id)}" style="--tc:${t.c}" aria-label="${esc(s.headline)}">
-    <div class="vtop">${stack(s, 5)}<span class="vn">${vnames(s, 2)}</span></div>
-    <div class="scv">${visual(s, 'wide')}<span class="tag">${ticon(s.topic)}${esc(t.name)}</span></div>
-    <div class="meta">${outletsOf(s).length} testate · aggiornata ${esc(ago(s.updatedAt))}</div>
-    <h2>${esc(s.headline)}</h2>
-    <p class="sd">${esc(first)}</p>
-    <div class="acts"><button class="btn" data-act="open" data-id="${esc(s.id)}">Leggi la storia ${ICON.send}</button>
-      ${hasTTS() ? `<button class="rbtn" data-act="listen" data-id="${esc(s.id)}" aria-label="Ascolta">${ICON.listen}</button>` : ''}
-      <button class="rbtn" data-act="save" data-id="${esc(s.id)}" aria-pressed="${on}" aria-label="${on ? 'Rimuovi dai salvati' : 'Salva'}">${ICON.save}</button></div>
-    ${i === 0 ? '<div class="hintup">Scorri verso l\'alto per la prossima</div>' : ''}
-  </section>`;
-}
-function onFlowScroll(){
-  const tr = $('#ftrack'); if (!tr || !S.flow) return;
-  const i = Math.round(tr.scrollTop / Math.max(1, tr.clientHeight));
-  S.flow.idx = i;
-  const c = $('#fcount'); if (c) c.textContent = (i + 1) + ' / ' + S.flow.ids.length;
-}
-function closeFlow(fromPop){
-  if (!S.flow) return;
-  S.flow = null;
-  $('#flow').hidden = true; $('#flow').innerHTML = '';
-  document.body.classList.remove('flow-on');
-  if (!S.story) document.body.classList.remove('locked');
-  if (!fromPop) { try { if (history.state && history.state.flow) history.back(); } catch (e) {} }
-}
-
+document.addEventListener('scroll', e => {
+  const el = e.target; if (!el || el.id !== 'sfv') return;
+  S.sfIdx = Math.round(el.scrollTop / Math.max(1, el.clientHeight));
+  if (el.scrollTop + el.clientHeight * 4 > el.scrollHeight) sfMore();
+}, {capture:true, passive:true});
+document.addEventListener('keydown', e => {
+  if (S.tab !== 'sfoglia' || S.story || !$('#onb').hidden) return;
+  if (!['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp'].includes(e.key)) return;
+  const el = $('#sfv'); if (!el) return;
+  e.preventDefault();
+  const i = Math.max(0, (S.sfIdx || 0) + (e.key === 'ArrowDown' || e.key === 'PageDown' ? 1 : -1));
+  el.scrollTo({top:i * el.clientHeight, behavior:'smooth'});
+  const sl = el.children[i]; if (sl) sl.focus({preventScroll:true});
+});
 /* ---------- salvati e cronologia ---------- */
 function snap(s){ return {headline:s.headline, dek:s.dek || '', summary:s.summary || '', points:s.points || [], why:s.why || '', topic:s.topic, dossier:s.dossier || null, updatedAt:s.updatedAt, sources:(s.sources || []).slice(0, 12), img:s.img || null, place:s.place || null}; }
 function toggleSave(id, btn){
@@ -1355,7 +1355,7 @@ function applyReaderSize(){ document.body.classList.remove('size-s', 'size-m', '
 /* ---------- onboarding ---------- */
 function maybeOnboard(){ if (S.onbShown || S.prefs.onboarded) return; S.onbShown = true; openOnb(0); }
 function openOnb(step){ S.onbStep = step; $('#onb').hidden = false; document.body.classList.add('locked'); renderOnb(); $('#onb').scrollTop = 0; }
-function closeOnb(){ $('#onb').hidden = true; if (!S.story && !S.flow) document.body.classList.remove('locked'); }
+function closeOnb(){ $('#onb').hidden = true; if (!S.story) document.body.classList.remove('locked'); }
 function renderOnb(){
   const p = S.prefs; const el = $('#onb'); let h = '';
   const outs = Object.values(S.outlets).sort((a, b) => (a.name || '').localeCompare(b.name || '', 'it'));
@@ -1457,7 +1457,6 @@ function toast(msg){ const t = $('#toast'); t.textContent = msg; t.hidden = fals
 function setTab(tab){
   if (!TABS.includes(tab)) tab = 'oggi';
   if (S.story) closeStory();
-  if (S.flow) closeFlow();
   const same = S.tab === tab;
   if (same && tab === 'esplora') S.explore = null;
   S.tab = tab;
@@ -1476,7 +1475,6 @@ window.addEventListener('popstate', () => {
   const h = (location.hash || '').replace('#', '');
   if (S.story && h.indexOf('s-') !== 0) closeStory(true);
   else if (h.indexOf('s-') === 0 && h.slice(2) !== S.story) openStory(h.slice(2), {fromPop:true, keepCtx:true});
-  if (S.flow && h !== 'sfoglia' && h.indexOf('s-') !== 0) closeFlow(true);
 });
 
 /* ---------- eventi ---------- */
@@ -1507,16 +1505,15 @@ document.addEventListener('click', e => {
     }
     case 'ofilter': S.outletF = id || null; S.topic = 'tutti'; render(); break;
     case 'flow': setTab('sfoglia'); break;
-    case 'flow-close': closeFlow(); break;
     case 'brief': { const top = oggiLists().top; play((top.length ? top : visible(S.stories)).slice(0, 6), 'Prima pagina'); break; }
     case 'listen': { const s = getStory(id); if (s) play([s], 'In ascolto'); break; }
     case 'pl-toggle': toggleTTS(); break;
     case 'pl-next': nextTTS(); break;
     case 'pl-stop': stopTTS(); break;
-    case 'go-search': if (S.story) closeStory(); if (S.flow) closeFlow(); S.tab = 'esplora'; S.explore = null; render(true); setTimeout(() => { const q = $('#q'); if (q) q.focus(); }, 30); break;
+    case 'go-search': if (S.story) closeStory(); S.tab = 'esplora'; S.explore = null; render(true); setTimeout(() => { const q = $('#q'); if (q) q.focus(); }, 30); break;
     case 'xtopic': S.explore = {kind:'topic', id}; render(true); window.scrollTo(0, 0); break;
     case 'xoutlet': S.explore = {kind:'outlet', id}; render(true); window.scrollTo(0, 0); break;
-    case 'dossier': if (S.story) closeStory(); if (S.flow) closeFlow(); S.tab = 'esplora'; S.explore = {kind:'dossier', id}; render(true); window.scrollTo(0, 0); break;
+    case 'dossier': if (S.story) closeStory(); S.tab = 'esplora'; S.explore = {kind:'dossier', id}; render(true); window.scrollTo(0, 0); break;
     case 'xback': S.explore = null; render(true); break;
     case 'ttopic': {
       const on = togglePref('topics', id);
@@ -1570,8 +1567,7 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('keydown', e => {
   if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('article[data-act="open"]') && e.target.tabIndex >= 0) { e.preventDefault(); openStory(e.target.dataset.id); }
-  if (e.key === 'Escape') { if (!$('#onb').hidden && S.prefs.onboarded) closeOnb(); else if (S.story) closeStory(); else if (S.flow) closeFlow(); }
-  if (S.flow && !S.story && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) { e.preventDefault(); const tr = $('#ftrack'); tr.scrollBy({top:(e.key === 'ArrowDown' ? 1 : -1) * tr.clientHeight, behavior:'smooth'}); }
+  if (e.key === 'Escape') { if (!$('#onb').hidden && S.prefs.onboarded) closeOnb(); else if (S.story) closeStory(); }
 });
 document.addEventListener('toggle', e => {
   const d = e.target; if (!d || !d.matches || !d.matches('details.chd')) return;
@@ -1643,7 +1639,7 @@ async function checkUpdate(force){
     if (!v || !v.b || v.b === BUILD) return false;
     const last = LS.get('upd') || {};
     if (last.b === v.b && Date.now() - (last.t || 0) < 10 * 60000) return false;
-    if (!force && (S.story || S.flow)) return false;
+    if (!force && S.story) return false;
     LS.set('upd', {b:v.b, t:Date.now()});
     try { const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration(); if (reg) await reg.update(); } catch (e) {}
     location.replace(location.pathname + '?v=' + encodeURIComponent(v.b) + location.hash);
@@ -1710,7 +1706,7 @@ document.addEventListener('input', e => {
   ind.className = 'ptr'; ind.setAttribute('aria-hidden', 'true'); ind.innerHTML = ICON.refresh;
   document.body.appendChild(ind);
   let y0 = null, x0 = 0, d = 0, pulling = false;
-  const blocked = () => !!S.story || !!S.flow || !$('#onb').hidden || document.body.classList.contains('locked');
+  const blocked = () => !!S.story || S.tab === 'sfoglia' || !$('#onb').hidden || document.body.classList.contains('locked');
   const set = v => { d = v; ind.style.opacity = Math.min(1, v / 55).toFixed(2); ind.style.transform = `translate(-50%, ${v.toFixed(0)}px) rotate(${(v * 3).toFixed(0)}deg)`; ind.classList.toggle('ready', v >= 64); };
   const reset = () => { pulling = false; d = 0; ind.style.opacity = ''; ind.style.transform = ''; ind.classList.remove('ready'); };
   document.addEventListener('touchstart', e => {
