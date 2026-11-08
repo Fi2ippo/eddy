@@ -1183,48 +1183,93 @@ function viewFolder(items){
 }
 
 /* ----- Profilo ----- */
-function topicTile(t){
+const CHECK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const PEN = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>';
+// pulsante di un tema da scegliere (primo avvio e Profilo): quadratino o riga del colore pieno, spunta quando è scelto
+function topicPick(t, sq){
   const on = S.prefs.topics.includes(t.id);
-  return `<button class="ttile press" data-act="ttopic" data-id="${t.id}" aria-pressed="${on}" style="--tc:${t.c}"><span class="ic">${ticon(t.id)}</span><span class="ck">${ICON.check}</span><span><strong>${esc(t.long)}</strong></span></button>`;
+  return `<button class="tb${sq ? ' sq' : ''}" data-act="ttopic" data-id="${t.id}" aria-pressed="${on}"><i style="background:${t.c}"></i><span>${esc(t.name)}</span><span class="ck">${on ? CHECK : ''}</span></button>`;
+}
+const SIZES = [['s', 'Piccola'], ['m', 'Media'], ['l', 'Grande']];
+// i temi più letti: dalle storie aperte (cronologia delle letture)
+function topRead(){
+  const seen = new Set(), cnt = {}; let n = 0;
+  S.history.forEach(x => {
+    if (!x || !x.id || seen.has(x.id)) return; seen.add(x.id);
+    const st = S.byId.get(x.id) || x.s || {}; const t = st.topic; if (!TMAP[t]) return;
+    cnt[t] = (cnt[t] || 0) + 1; n++;
+  });
+  const top = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([id, c]) => ({t:TMAP[id], pct:Math.round(c * 100 / n)}));
+  return {n, top};
 }
 function viewProfilo(){
-  const p = S.prefs, m = S.meta || {};
-  let h = `<div class="head"><span class="kicker">Impostazioni</span><h1>Il tuo Eddy</h1></div>`;
-  h += `<div class="pgroup"><h3 id="intCount">Interessi · ${p.topics.length} scelti</h3><div class="ttiles">${TOPICS.map(topicTile).join('')}</div><p class="hint">Decidono l'ordine di «Per te». «Oggi» mostra sempre tutto.</p></div>`;
-  h += `<div class="pgroup"><h3>Testate</h3><div class="pbox"><p style="margin:0">${p.follow.length ? 'Segui ' + p.follow.map(id => esc(outlet(id).name)).join(', ') + '.' : 'Non segui ancora nessuna testata.'}${p.mute.length ? ' Silenziate: ' + p.mute.map(id => esc(outlet(id).name)).join(', ') + '.' : ''}</p><button class="btn ghost" style="margin-top:12px" data-act="tab" data-tab="esplora">Gestisci le testate</button></div></div>`;
-  h += `<div class="pgroup"><h3>Dimensione del testo</h3><div class="seg" style="margin-top:0">${[['s','Piccolo'],['m','Medio'],['l','Grande']].map(([k, l]) => `<button data-act="size" data-v="${k}" aria-pressed="${p.size === k}">${l}</button>`).join('')}</div></div>`;
-  if (hasTTS()) h += `<div class="pgroup"><h3>Velocità di ascolto</h3><div class="seg" style="margin-top:0">${[0.9, 1, 1.15, 1.3].map(r => `<button data-act="rate" data-v="${r}" aria-pressed="${p.rate === r}">${String(r).replace('.', ',')}×</button>`).join('')}</div></div>`;
-  h += `<div class="pgroup"><h3>Avvisi</h3><div class="seg" style="margin-top:0">${[['1', 'Attivi'], ['0', 'Spenti']].map(([k, l]) => `<button data-act="alerts" data-v="${k}" aria-pressed="${(p.alerts !== false) === (k === '1')}">${l}</button>`).join('')}</div><p class="hint">Con l'app aperta, un avviso in alto segnala le novità importanti nei dossier, nelle testate e nei temi che segui. Ad app chiusa non arrivano notifiche: servirebbe un servizio di invio sempre acceso, che GitHub Pages non offre.</p></div>`;
-  const nh = Object.keys(HID).length + Object.keys(SUMOFF).length;
-  if (nh) h += `<div class="pgroup"><h3>Segnalazioni</h3><div class="pbox"><p style="margin:0">${nh} ${nh === 1 ? 'correzione attiva' : 'correzioni attive'} su questo telefono: articoli tolti da una storia o sintesi nascoste. Durano due settimane, il tempo che la redazione automatica applichi le segnalazioni inviate.</p><div class="row2" style="margin-top:12px"><button class="tog" data-act="unhide">Ripristina tutto</button></div></div></div>`;
-  const ok = (m.outletsOk || []).map(id => outlet(id).name), ko = (m.outletsFailed || []).map(id => outlet(id).name);
-  h += `<div class="pgroup"><h3>Edizioni</h3><div class="pbox"><dl class="kv">
-    <dt>Ultima</dt><dd>${m.runAt ? esc('Aggiornata ' + fmtDMHM.format(new Date(m.runAt)) + ' (' + (m.label || 'edizione').toLowerCase() + ')') : '—'}</dd>
-    <dt>Ultima raccolta</dt><dd>${freshAt() ? esc(fmtDMHM.format(new Date(freshAt())) + (staleMin() > lateLimit() ? ' · in ritardo' : '')) : '—'}</dd>
-    <dt>Prima pagina</dt><dd>Nuova edizione alle 07:00 e alle 19:00</dd>
-    <dt>Prossimo giro</dt><dd>${m.nextAt ? esc(etaText(ts(m.nextAt))) : '—'}</dd>
-    <dt>Aggiornamenti</dt><dd>Circa ogni ${pollCfg().every} minuti, giorno e notte: ogni giro prenota il successivo, perché gli orari programmati di GitHub arrivano con ore di ritardo. Il pulsante ${ICON.refresh.replace('class="i"', 'class="i inl"')} in alto scarica subito l'ultima raccolta</dd>
-    ${m.translate && m.translate.langs ? `<dt>Traduzioni</dt><dd>${esc(Object.entries(m.translate.langs).filter(([, v]) => v).map(([k]) => LANGN[k] || k).join(', ') || 'in preparazione')}</dd>` : ''}
-    <dt>Archivio</dt><dd>${S.stories.length} storie degli ultimi 7 giorni</dd>
-    <dt>Testate</dt><dd>${Object.keys(S.outlets).length} in ${new Set(Object.values(S.outlets).map(o => o.lang || 'it')).size} lingue</dd>
-    ${ok.length ? `<dt>Fonti lette</dt><dd>${ok.length} testate nell'ultima raccolta</dd>` : ''}
-    ${ko.length ? `<dt>Non raggiunte</dt><dd>${esc(ko.join(', '))}</dd>` : ''}
-  </dl></div></div>`;
-  h += `<div class="pgroup"><button class="btn full" data-act="refresh">${ICON.refresh}Aggiorna adesso</button></div>`;
-  h += installBlock();
-  h += `<div class="pgroup"><h3>Il tuo nome</h3><div class="pbox"><label class="sr" for="nameInput">Nome per il saluto</label><input id="nameInput" class="tinput" value="${esc(S.prefs.name || '')}" placeholder="Come ti saluta Eddy" autocomplete="given-name" maxlength="40"></div></div>`;
-  h += `<div class="pgroup"><h3>Copia di sicurezza</h3><div class="pbox"><p style="margin:0">Interessi, testate, salvati e cronologia restano su questo dispositivo. Per spostarli su un altro telefono esporta il file e importalo là.</p><div class="row2" style="margin-top:12px"><button class="btn ghost" data-act="export">Esporta</button><label class="btn ghost" for="importFile">Importa</label><input id="importFile" type="file" accept="application/json,.json" hidden></div></div></div>`;
-  h += `<div class="pgroup"><h3>Come funziona</h3><div class="pbox prose">
-    <p>Ogni quarto d'ora un programma automatico, che gira gratis su GitHub, legge i feed pubblici di oltre cento testate italiane, locali di Napoli e provincia ed estere, riconosce quando più giornali raccontano lo stesso fatto confrontando le parole e i nomi dei titoli, e li riunisce in un'unica storia con le testate in cima. Alle 07:00 e alle 19:00 sceglie la prima pagina: le storie riprese da più testate, con una sola storia per fatto.</p>
-    <p>Non ci sono intelligenze artificiali generative né abbonamenti: titoli, sommari e punti chiave sono frasi delle testate stesse, con il nome di chi le ha scritte. I titoli e i sommari esteri sono tradotti in italiano da modelli di traduzione aperti (OPUS-MT dell'Università di Helsinki) che girano nello stesso programma; sotto ogni traduzione resta l'originale con il link all'articolo.</p>
-    <p>Le testate sono indicate con le loro iniziali. Le foto restano sui siti di chi le ha pubblicate: Eddy le mostra direttamente da lì, senza copiarle, sempre con il credito «Foto: nome della testata». Quando una notizia non ha foto compare la mappa del luogo o un'illustrazione del tema.</p>
-    <p>Per chiedere la rimozione di un contenuto si usa il <a href="https://github.com/Fi2ippo/eddy/issues/new?template=rimozione.yml" target="_blank" rel="noopener">modulo «Richiesta di rimozione» su GitHub</a>: il sito o l'articolo finisce nell'elenco di esclusione e dal giro successivo non viene più raccolto.</p>
-    <p>Le tue scelte e i salvati non lasciano il dispositivo.</p>
-  </div></div>`;
-  h += `<div class="pgroup"><button class="btn ghost full" data-act="onb-open" data-step="0">Rifai la configurazione iniziale</button></div>`;
+  const p = S.prefs, tr = topRead();
+  let h = `<header class="phead who">${S.editName ? `<label class="sr" for="nameInput">Il tuo nome</label><input id="nameInput" class="nameinp" value="${esc(p.name || '')}" placeholder="Il tuo nome" autocomplete="given-name" maxlength="40" enterkeyhint="done">`
+    : `<span class="nm"><h1${p.name ? '' : ' class="noname"'}>${esc(p.name || 'Il tuo nome')}</h1><button class="pen" data-act="edit-name" aria-label="Cambia nome">${PEN}</button></span>`}</header>`;
+  h += `<section class="card2" aria-labelledby="trT"><div class="ch2"><b id="trT">I tuoi temi più letti</b>${tr.n ? `<span>${tr.n} ${tr.n === 1 ? 'storia' : 'storie'}</span>` : ''}</div>`;
+  h += tr.top.length ? `<div class="three">${tr.top.map(x => `<div style="--c:${x.t.c};--ct:${x.t.tx}"><b>${x.pct}%</b><span>${esc(folderName(x.t.id))}</span></div>`).join('')}</div>`
+    : `<p class="hint0">Apri qualche storia: qui vedrai i temi che leggi di più. Il conto si fa solo su questo telefono.</p>`;
+  h += `</section>`;
+  const mine = TOPICS.filter(t => p.topics.includes(t.id));
+  h += `<div class="grp"><p class="gl">Le tue scelte</p><div class="bx">
+    <button class="it" data-act="panel" data-v="temi"><b>I tuoi temi</b><span class="r">${mine.length ? `<span class="tdots" aria-label="${mine.length} temi scelti">${mine.map(t => `<i style="background:${t.c}"></i>`).join('')}</span>` : 'Nessuno'}${CHEV}</span></button>
+    <button class="it" data-act="panel" data-v="testo"><b>Dimensione del testo</b><span class="r">${(SIZES.find(x => x[0] === p.size) || SIZES[1])[1]}${CHEV}</span></button>
+  </div></div>
+  <div class="plain"><button class="it" data-act="panel" data-v="edizione"><b>Come funziona l’edizione</b>${CHEV}</button><button class="it" data-act="panel" data-v="privacy"><b>Privacy</b>${CHEV}</button></div>
+  <button class="again" data-act="onb-open" data-step="0">Rivedi l’introduzione</button>
+  <button class="del" data-act="wipe">Cancella i dati di Eddy</button>
+  <p class="made">Eddy · fatto da Fi2ippo</p>`;
   return h;
 }
 
+/* pannello che sale dal basso (temi, dimensione del testo, edizione, privacy) */
+let panelBack = null;
+function openPanel(kind){ S.panel = kind; panelBack = document.activeElement; renderPanel(); const el = $('#panel'); el.hidden = false; document.body.classList.add('locked'); const f = el.querySelector('.psheet button, .psheet a'); if (f) f.focus(); }
+function closePanel(){ if (!S.panel) return; S.panel = null; const el = $('#panel'); el.hidden = true; el.innerHTML = ''; if (!S.story) document.body.classList.remove('locked'); render(); if (panelBack && panelBack.isConnected) panelBack.focus(); else { const b = document.querySelector(`[data-act="panel"]`); if (b) b.focus(); } }
+function renderPanel(){
+  const k = S.panel, p = S.prefs, m = S.meta || {};
+  let title = '', body = '';
+  if (k === 'temi') {
+    title = 'I tuoi temi';
+    body = `<p class="plede">Decidono le cartelle di Salvati e cosa trovi in Per te. Oggi mostra sempre tutto.</p><div class="tgr">${TOPICS.map(t => topicPick(t)).join('')}</div>`;
+  } else if (k === 'testo') {
+    title = 'Dimensione del testo';
+    body = `<p class="plede">Vale per il testo delle storie.</p><div class="opts" role="radiogroup" aria-label="Dimensione del testo">${SIZES.map(([v, l]) => `<button role="radio" class="opt" data-act="size" data-v="${v}" aria-checked="${p.size === v}"><span style="font-size:${v === 's' ? 15.5 : v === 'm' ? 17 : 19}px">${l}</span><span class="ck">${p.size === v ? CHECK : ''}</span></button>`).join('')}</div>`;
+  } else if (k === 'edizione') {
+    title = 'Come funziona l’edizione';
+    const ok = (m.outletsOk || []).length;
+    body = `<div class="prose">
+      <p>Più volte all'ora un programma automatico, che gira gratis su GitHub, legge i feed pubblici di circa ${Object.keys(S.outlets).length || 145} testate italiane, di Napoli e provincia, estere e di design, architettura e arte. Quando più giornali raccontano lo stesso fatto li riunisce in un'unica storia, con le testate in cima.</p>
+      <p>Alle 7 e alle 19 sceglie la <b>prima pagina</b>: le storie riprese da più testate, una sola per fatto. Le altre arrivano in Ultime notizie man mano che escono.</p>
+      <p>Non c'è scrittura automatica: «In breve», punti chiave e frasi sono <b>frasi delle testate</b>, sempre con il nome di chi le ha scritte e il link all'originale. I titoli esteri sono tradotti da modelli di traduzione aperti e segnalati come «tradotto».</p>
+      <p>Le foto restano sui siti di chi le ha pubblicate: Eddy le mostra da lì, con il credito «Foto: testata». Per chiedere la rimozione di un contenuto c'è il <a href="https://github.com/Fi2ippo/eddy/issues/new?template=rimozione.yml" target="_blank" rel="noopener">modulo su GitHub</a>.</p>
+    </div>
+    <dl class="kv">
+      <dt>Ultima edizione</dt><dd>${m.runAt ? esc(fmtDMHM.format(new Date(m.runAt)) + (m.label ? ' · ' + m.label.toLowerCase() : '')) : '—'}</dd>
+      <dt>Ultima raccolta</dt><dd>${freshAt() ? esc(fmtDMHM.format(new Date(freshAt())) + (staleMin() > lateLimit() ? ' · in ritardo' : '')) : '—'}</dd>
+      <dt>Prossimo giro</dt><dd>${m.nextAt ? esc(etaText(ts(m.nextAt))) : '—'}</dd>
+      <dt>Archivio</dt><dd>${S.stories.length} storie degli ultimi 7 giorni</dd>
+      ${ok ? `<dt>Testate lette</dt><dd>${ok} nell'ultima raccolta</dd>` : ''}
+    </dl>
+    <button class="btnp" data-act="refresh">Aggiorna adesso</button>`;
+  } else if (k === 'privacy') {
+    title = 'Privacy';
+    const nh = Object.keys(HID).length + Object.keys(SUMOFF).length;
+    body = `<div class="prose">
+      <p>Eddy non ha account e non raccoglie dati su di te. Nome, temi, salvati e storie lette restano <b>solo in questo browser</b>: nessuno li riceve.</p>
+      <p>Le foto si caricano direttamente dai siti delle testate, che come ogni sito vedono la richiesta del tuo browser. I link portano agli articoli originali.</p>
+      <p>Per spostare le tue scelte su un altro telefono puoi esportarle in un file e importarlo là.</p>
+    </div>
+    <div class="row2"><button class="btn2" data-act="export">Esporta</button><label class="btn2" for="importFile">Importa</label><input id="importFile" type="file" accept="application/json,.json" hidden></div>
+    ${nh ? `<p class="plede">${nh} ${nh === 1 ? 'correzione attiva' : 'correzioni attive'} su questo telefono (articoli tolti da una storia o sintesi nascoste dopo una tua segnalazione).</p><button class="btn2" data-act="unhide">Ripristina tutto</button>` : ''}`;
+  }
+  $('#panel').innerHTML = `<div class="scrim" data-act="panel-close"></div><div class="psheet" role="dialog" aria-modal="true" aria-labelledby="panelT"><span class="grab" aria-hidden="true"></span><h2 id="panelT">${esc(title)}</h2><div class="pbody">${body}</div><button class="done" data-act="panel-close">Fatto</button></div>`;
+}
+function wipeData(el){
+  if (!armed(el, 'Tocca ancora: cancella tutto')) return;
+  try { Object.keys(localStorage).filter(k => k.indexOf('eddy:') === 0).forEach(k => localStorage.removeItem(k)); } catch (e) {}
+  location.replace(location.pathname + '#oggi'); location.reload();
+}
 
 /* ---------- spazio foto ---------- */
 async function loadStorage(){
@@ -1616,9 +1661,8 @@ document.addEventListener('click', e => {
     case 'xback': S.explore = null; render(true); break;
     case 'ttopic': {
       const on = togglePref('topics', id);
-      refreshToggles('ttopic', id, on, S.explore && S.explore.kind === 'topic' ? ['Nei tuoi interessi', 'Aggiungi ai tuoi interessi'] : null);
+      document.querySelectorAll(`[data-act="ttopic"][data-id="${CSS.escape(id)}"]`).forEach(b => { b.setAttribute('aria-pressed', on); const c = b.querySelector('.ck'); if (c) c.innerHTML = on ? CHECK : ''; });
       updateCounters();
-      if (S.tab === 'perte' && $('#onb').hidden) scheduleRender();
       break;
     }
     case 'follow': {
@@ -1643,7 +1687,11 @@ document.addEventListener('click', e => {
       break;
     }
     case 'clear-history': S.history = []; persist('history', 0); render(); toast('Cronologia svuotata'); break;
-    case 'size': S.prefs.size = el.dataset.v; applyReaderSize(); persist('prefs'); render(); break;
+    case 'size': S.prefs.size = el.dataset.v; applyReaderSize(); persist('prefs'); if (S.panel) renderPanel(); render(); { const f = document.querySelector(`#panel [data-act="size"][data-v="${el.dataset.v}"]`); if (f) f.focus(); } break;
+    case 'panel': openPanel(el.dataset.v); break;
+    case 'panel-close': closePanel(); break;
+    case 'edit-name': S.editName = true; render(); { const i = $('#nameInput'); if (i) { i.focus(); i.select(); } } break;
+    case 'wipe': wipeData(el); break;
     case 'rate': S.prefs.rate = Number(el.dataset.v); persist('prefs'); render(); break;
     case 'copy': { const url = el.dataset.url; try { navigator.clipboard.writeText(url).then(() => toast('Link copiato'), () => toast(url)); } catch (err) { toast(url); } break; }
     case 'more': showMore(el.dataset.pkey); break;
@@ -1665,7 +1713,10 @@ document.addEventListener('click', e => {
       S.tab = S.prefs.topics.length || S.prefs.follow.length ? 'perte' : 'oggi'; render(true); window.scrollTo(0, 0); break;
   }
 });
+document.addEventListener('focusout', e => { if (e.target && e.target.id === 'nameInput' && S.editName) { S.editName = false; setTimeout(render, 0); } });
 document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target && e.target.id === 'nameInput') { e.preventDefault(); e.target.blur(); const b = $('[data-act="edit-name"]'); if (b) b.focus(); return; }
+  if (e.key === 'Escape' && S.panel) { closePanel(); return; }
   if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('article[data-act="open"]') && e.target.tabIndex >= 0) { e.preventDefault(); openStory(e.target.dataset.id); }
   if (e.key === 'Escape') { if (!$('#onb').hidden && S.prefs.onboarded) closeOnb(); else if (S.story) closeStory(); }
 });
@@ -1797,7 +1848,7 @@ document.addEventListener('change', async e => {
   }
 });
 document.addEventListener('input', e => {
-  if (e.target.id === 'nameInput') { S.prefs.name = e.target.value.trim().slice(0, 40); S.firstName = S.prefs.name.split(/\s+/)[0] || ''; persist('prefs', 600); }
+  if (e.target.id === 'nameInput' || e.target.id === 'onbName') { S.prefs.name = e.target.value.trim().slice(0, 40); S.firstName = S.prefs.name.split(/\s+/)[0] || ''; persist('prefs', 600); const g = $('#onbGreet'); if (g) g.innerHTML = onbGreet(); }
 });
 
 /* ---------- trascina verso il basso per aggiornare ---------- */
