@@ -786,7 +786,7 @@ function tcol(s){ return TMAP[s.topic] || {name:s.topic || '', c:'#9A9DA5', tx:'
 function kickName(s){ const t = tcol(s); return s.topic === 'napoli' ? (ZMAP[s.zona] || 'Napoli') : t.name; }
 function covText(n){ return n + ' ' + (n === 1 ? 'testata' : 'testate'); }
 // "Il Mattino +10 · 4 h fa"
-function whoLine(s){ const ids = outletsOf(s); return (ids.length ? esc(outlet(ids[0]).name) + (ids.length > 1 ? ' +' + (ids.length - 1) : '') + ' · ' : '') + esc(ago(s.updatedAt)); }
+function whoLine(s){ const ids = outletsOf(s); const tr = srcOf(s).length && srcOf(s).every(x => langOf(x) !== 'it'); return (ids.length ? esc(outlet(ids[0]).name) + (ids.length > 1 ? ' +' + (ids.length - 1) : '') + ' · ' : '') + esc(ago(s.updatedAt)) + (tr ? ' · Tradotto' : ''); }
 // riga di un elenco: tema (o zona), titolo, testate, miniatura
 function nrow(s, opts){
   opts = opts || {};
@@ -951,25 +951,85 @@ async function requestRefresh(){
 }
 function cancelRefresh(){}
 
-/* ----- Per te ----- */
-function viewPerTe(){
-  const p = S.prefs;
-  let h = `<div class="head"><span class="kicker">Il tuo feed</span><h1>Per te</h1><p>Tocca un tema per aggiungerlo o toglierlo: il feed si riordina subito.</p></div>`;
-  h += `<div class="rail" role="toolbar" aria-label="I tuoi interessi">${topicChips(p.topics, 'ttopic', false)}</div>`;
-  const st = feedState(false); if (st) return h + st;
-  if (!p.topics.length && !p.follow.length && !p.dossiers.length) {
-    return h + `<div class="state"><h3>Scegli almeno un tema</h3><p>Tocca i temi qui sopra oppure segui qualche testata in Esplora: le storie che li riguardano saliranno in cima.</p></div>`;
-  }
-  const list = perTeList();
-  h += `<div class="quick"><button class="qbtn press" data-act="flow" data-src="perte"><span class="disc">${ICON.swipe}</span><span><strong>Sfoglia</strong><small>${list.length} storie per te</small></span></button>
-    <button class="qbtn alt press" data-act="tab" data-tab="esplora"><span class="disc">${ICON.plus}</span><span><strong>Testate</strong><small>${p.follow.length ? p.follow.length + (p.follow.length === 1 ? ' seguita' : ' seguite') : 'Scegli chi seguire'}</small></span></button></div>`;
-  const ds = Object.values(S.dossiers).filter(d => countDossier(d.id) > 0)
-    .sort((a, b) => (p.dossiers.includes(b.id) - p.dossiers.includes(a.id)) || (ts(b.updatedAt) - ts(a.updatedAt)));
-  if (ds.length) h += `<div class="sec"><h2>Dossier</h2><span>storie che continuano</span></div><div class="drail">${ds.map(dcard).join('')}</div>`;
-  h += `<div class="sec"><h2>Scelte per te</h2><span>${list.length} storie</span></div>`;
-  if (!list.length) return h + `<div class="state"><h3>Niente di nuovo sui tuoi temi</h3><p>Questa edizione non ha storie sui temi scelti. Aggiungine altri qui sopra.</p></div>`;
-  return h + feature(list[0], 'La più rilevante per te') + paged('perte', list.slice(1));
+/* ----- Per te: il filo delle storie che segui e le storie collegate ----- */
+// "Letta alle 9:40", "Salvata ieri", "Letta il 6 nov"
+function whenDid(verb, v){
+  const t = ts(v); if (!t) return verb;
+  const d = new Date(t);
+  if (fmtKey.format(d) === fmtKey.format(new Date())) return verb + ' alle ' + fmtHM.format(d);
+  if (fmtKey.format(d) === fmtKey.format(new Date(Date.now() - 86400000))) return verb + ' ieri';
+  return verb + ' il ' + fmtDM.format(d);
 }
+// le storie che hai letto o salvato, con l'ora in cui le hai viste l'ultima volta
+function followed(){
+  const m = new Map();
+  S.history.forEach(x => { if (x && x.id && !m.has(x.id)) m.set(x.id, {id:x.id, readAt:ts(x.at), savedAt:0}); });
+  Object.entries(S.saved).forEach(([id, v]) => { const e = m.get(id) || {id, readAt:0, savedAt:0}; e.savedAt = ts(v && v.at); m.set(id, e); });
+  return [...m.values()].map(e => Object.assign(e, {since:Math.max(e.readAt, e.savedAt), verb:e.readAt >= e.savedAt ? 'Letta' : 'Salvata'}));
+}
+// gli articoli arrivati dopo che hai aperto (o salvato) la storia, dal più recente
+function newsSince(s, since){
+  const seen = new Set();
+  return srcOf(s).filter(x => ts(x.d) > since + 60000).sort((a, b) => ts(b.d) - ts(a.d))
+    .filter(x => { const k = x.o + '|' + norm(titleIt(x) || x.t); if (seen.has(k)) return false; seen.add(k); return true; });
+}
+function filoList(){
+  return followed().map(e => { const s = S.byId.get(e.id); if (!s || !outletsOf(s).length) return null; const ev = newsSince(s, e.since); return ev.length ? {s, e, ev} : null; })
+    .filter(Boolean).sort((a, b) => ts(b.ev[0].d) - ts(a.ev[0].d));
+}
+function filoCard(f){
+  pushCtx(f.s.id);
+  const t = tcol(f.s), at = f.e.verb === 'Letta' ? f.e.readAt : f.e.savedAt;
+  return `<article class="fc" data-act="open" data-id="${esc(f.s.id)}" tabindex="0" style="--tg:${t.c};--tgt:${t.tx}" aria-label="${esc(f.s.headline)}: ${f.ev.length} ${f.ev.length === 1 ? 'novità' : 'novità'}">
+    <div class="fh"><span class="k">${esc(kickName(f.s))}</span><span class="w">${esc(whenDid(f.e.verb, new Date(at).toISOString()))}</span></div>
+    <h3>${esc(f.s.headline)}</h3>
+    <div class="fl">${f.ev.slice(0, 3).map(x => `<div class="ev"><span class="h">${esc(crTime(x.d))} · ${esc(outlet(x.o).name)}</span><p>${esc(titleIt(x) || x.t)}${langOf(x) !== 'it' && titleIt(x) ? ' <em>· tradotto</em>' : ''}</p></div>`).join('')}${f.ev.length > 3 ? `<div class="ev evm"><span class="h">${f.ev.length === 4 ? 'e un altro aggiornamento' : 'e altri ' + (f.ev.length - 3) + ' aggiornamenti'}</span></div>` : ''}</div>
+  </article>`;
+}
+// storie collegate a quelle lette: stesso dossier, oppure nomi e luoghi in comune
+function tagSet(x){ return new Set((x.tags || []).map(norm).filter(w => w.length > 2)); }
+function shortTitle(h){ let t = String(h || '').split(/[:,.;]\s/)[0]; if (t.length > 42) t = t.slice(0, 40).replace(/\s+\S*$/, '') + '…'; return t; }
+function relatedList(){
+  const known = new Set(S.history.map(x => x && x.id).concat(Object.keys(S.saved)));
+  const base = S.history.slice(0, 12).map(x => S.byId.get(x.id) || (x.s && Object.assign({id:x.id}, x.s))).filter(Boolean);
+  const out = new Map();
+  base.forEach((r, ri) => {
+    const rt = tagSet(r);
+    visible(S.stories).forEach(c => {
+      if (known.has(c.id) || c.id === r.id) return;
+      let sc = 0, why = '';
+      if (r.dossier && c.dossier === r.dossier) { sc = 3; why = (S.dossiers[r.dossier] || {}).title || ''; }
+      else { const ct = tagSet(c); let n = 0; rt.forEach(w => { if (ct.has(w)) n++; }); if (n >= 2) sc = 2; else if (n === 1 && c.topic === r.topic) sc = 1; }
+      if (!sc) return;
+      sc = sc * 10 - ri - hoursAgo(c.updatedAt) / 24;
+      const prev = out.get(c.id);
+      if (!prev || prev.sc < sc) out.set(c.id, {s:c, sc, why:'Perché hai letto «' + (why || shortTitle(r.headline)) + '»'});
+    });
+  });
+  return [...out.values()].sort((a, b) => b.sc - a.sc).slice(0, 6);
+}
+function viewPerTe(){
+  const st = feedState(false);
+  const filo = st ? [] : filoList();
+  const rel = st ? [] : relatedList();
+  const nNew = filo.reduce((n, f) => n + f.ev.length, 0);
+  let h = `<header class="phead"><h1>Per te</h1><span class="psub">${filo.length ? `Le storie che segui · <b>${nNew} ${nNew === 1 ? 'novità' : 'novità'}</b>` : 'Le storie che segui e cosa è cambiato'}</span></header>`;
+  if (st) return h + st;
+  if (filo.length) h += `<div class="sec"><h2>Si sono mosse</h2><span>${filo.length} ${filo.length === 1 ? 'storia' : 'storie'}</span></div>${filo.map(filoCard).join('')}`;
+  if (rel.length) h += `<div class="sec"><h2>Collegate</h2><span>${rel.length} ${rel.length === 1 ? 'storia' : 'storie'}</span></div><div class="nlist">${rel.map(r => nrow(r.s, {why:r.why})).join('')}</div>`;
+  if (!filo.length && !rel.length) h += `<div class="empty"><span class="eico">${NAVI.perte}</span><h3>Qui Eddy segue le storie per te</h3><p>Apri o salva una notizia: quando ne arrivano di nuove, o ne escono altre collegate, le trovi qui con un riassunto di cosa è cambiato.</p></div>`;
+  if (filo.length + rel.length < 3) {
+    const seen = new Set(filo.map(f => f.s.id).concat(rel.map(r => r.s.id)));
+    // a turno dai temi scelti, perché si vedano tutti
+    const byT = S.prefs.topics.map(t => perTeList().filter(x => !seen.has(x.id) && hasTopic(x, t)));
+    const mine = [];
+    for (let i = 0; mine.length < 5 && byT.some(l => l.length > i); i++) byT.forEach(l => { const x = l[i]; if (x && mine.length < 5 && !mine.includes(x)) mine.push(x); });
+    const list = (mine.length ? mine : visible(S.stories).filter(x => x.top)).slice(0, 5);
+    if (list.length) h += `<div class="sec"><h2>${S.prefs.topics.length ? 'Per cominciare, dai tuoi temi' : 'Per cominciare, dalla prima pagina'}</h2></div><div class="nlist">${list.map(x => nrow(x)).join('')}</div>`;
+  }
+  return h;
+}
+const NAVI = {perte:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2.1 6.3-6.3 2.1 2.1-6.3z"/></svg>'};
 function dossierVisual(d){
   const withImg = visible(S.stories).filter(s => s.dossier === d.id && hasImg(s)).sort((a, b) => (b.rank || 0) - (a.rank || 0))[0];
   if (withImg) return visual(withImg, 'band');
@@ -1329,7 +1389,7 @@ function toggleSave(id, btn){
   if (S.tab === 'salvati') scheduleRender();
 }
 function addHistory(s){
-  S.history = [{id:s.id, at:new Date().toISOString(), s:{headline:s.headline, topic:s.topic, updatedAt:s.updatedAt, img:s.img || null, place:s.place || null, sources:(s.sources || []).slice(0, 6).map(x => ({o:x.o, t:x.t, u:x.u, d:x.d}))}}].concat(S.history.filter(x => x.id !== s.id)).slice(0, 80);
+  S.history = [{id:s.id, at:new Date().toISOString(), s:{headline:s.headline, topic:s.topic, zona:s.zona || null, dossier:s.dossier || null, tags:(s.tags || []).slice(0, 8), updatedAt:s.updatedAt, img:s.img || null, place:s.place || null, sources:(s.sources || []).slice(0, 6).map(x => ({o:x.o, t:x.t, u:x.u, d:x.d}))}}].concat(S.history.filter(x => x.id !== s.id)).slice(0, 80);
   persist('history', 1500);
 }
 
