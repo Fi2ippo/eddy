@@ -66,7 +66,7 @@ const ICON = {
 };
 const LANGN = {it:'italiano', en:'inglese', fr:'francese', de:'tedesco', es:'spagnolo', pt:'portoghese', nl:'olandese'};
 const LANGF = {en:"dall'inglese", fr:'dal francese', de:'dal tedesco', es:'dallo spagnolo', pt:'dal portoghese', nl:"dall'olandese"};
-const ZONES = [['citta', 'Napoli'], ['flegrea', 'Area flegrea'], ['vesuviana', 'Area vesuviana'], ['nord', 'Area nord e nolana'], ['isole', 'Isole e penisola sorrentina']];
+const ZONES = [['citta', 'Napoli'], ['flegrea', 'Area flegrea'], ['vesuviana', 'Area vesuviana'], ['nord', 'Area nord e nolana'], ['isole', 'Isole e penisola']];
 const ZMAP = Object.fromEntries(ZONES);
 const PIN = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>';
 const SECS = [['napoli', 'Napoli e provincia'], ['it', 'Italiane'], ['mondo', 'Dal mondo'], ['scienza', 'Scienza, salute e tecnologia'], ['design', 'Design, architettura e arte'], ['motori', 'Motori e nautica']];
@@ -429,7 +429,6 @@ function render(animate){
   document.body.classList.toggle('sf-on', S.tab === 'sfoglia');
   renderEdPill();
   const v = $('#view');
-  const carScroll = $('#car') ? $('#car').scrollLeft : 0;
   const railScroll = $('.orail') ? $('.orail').scrollLeft : 0;
   const chipScroll = $('#view .rail') ? $('#view .rail').scrollLeft : 0;
   collecting = true; CTX = [];
@@ -443,18 +442,12 @@ function render(animate){
   collecting = false; S.ctx = CTX;
   v.innerHTML = html;
   if (animate) { v.classList.remove('fade'); void v.offsetWidth; v.classList.add('fade'); }
-  const car = $('#car'); if (car) { car.scrollLeft = carScroll; car.addEventListener('scroll', onCarScroll, {passive:true}); onCarScroll(); }
+  layoutDeck();
   if (!animate) { const or = $('.orail'); if (or) or.scrollLeft = railScroll; const cr = $('#view .rail'); if (cr) cr.scrollLeft = chipScroll; }
   if (S.tab === 'esplora' && !S.explore) { const inp = $('#q'); if (inp) inp.value = S.query; }
   if (S.story && !$('#sheet').hidden) renderSheet(true);
   observeMore();
   railEnds();
-}
-function onCarScroll(){
-  const car = $('#car'); const dots = document.querySelectorAll('#dots i'); if (!car || !dots.length) return;
-  const first = car.firstElementChild; const w = first ? first.getBoundingClientRect().width + 12 : 1;
-  const i = Math.min(dots.length - 1, Math.round(car.scrollLeft / w));
-  dots.forEach((d, j) => d.classList.toggle('on', j === i));
 }
 function renderEdPill(){
   updateRefreshUI();
@@ -494,21 +487,22 @@ function row(s){
 const PAGE = 30;
 const PAGED = {};
 S.pages = {};
-function paged(key, list){
-  PAGED[key] = list;
+const PAGEDF = {};
+function paged(key, list, fn, cls){
+  PAGED[key] = list; PAGEDF[key] = fn || row;
   const n = Math.min(list.length, Math.max(PAGE, S.pages[key] || 0));
   const rest = list.length - n;
-  return `<div class="feed" data-pkey="${esc(key)}">${list.slice(0, n).map(row).join('')}</div>${rest > 0 ? moreBtn(key, rest) : ''}`;
+  return `<div class="${cls || 'feed'}" data-pkey="${esc(key)}">${list.slice(0, n).map(x => PAGEDF[key](x)).join('')}</div>${rest > 0 ? moreBtn(key, rest) : ''}`;
 }
 function moreBtn(key, rest){ return `<button class="more" data-act="more" data-pkey="${esc(key)}">Mostra altre ${rest} ${rest === 1 ? 'storia' : 'storie'}</button>`; }
 function showMore(key){
   const list = PAGED[key]; if (!list) return;
-  const feed = document.querySelector(`.feed[data-pkey="${CSS.escape(key)}"]`); if (!feed) return;
+  const feed = document.querySelector(`[data-pkey="${CSS.escape(key)}"]:not(.more)`); if (!feed) return;
   const n0 = feed.children.length, n1 = Math.min(list.length, n0 + PAGE);
   if (n1 <= n0) return;
   S.pages[key] = n1;
   const was = collecting; collecting = true; CTX = S.ctx || [];
-  feed.insertAdjacentHTML('beforeend', list.slice(n0, n1).map(row).join(''));
+  feed.insertAdjacentHTML('beforeend', list.slice(n0, n1).map(x => (PAGEDF[key] || row)(x)).join(''));
   S.ctx = CTX; collecting = was;
   const btn = document.querySelector(`.more[data-pkey="${CSS.escape(key)}"]`);
   const rest = list.length - n1;
@@ -529,17 +523,6 @@ function feature(s, flag){
     <h3 class="hl">${esc(s.headline)}</h3>
     ${s.dek ? `<p class="dek">${esc(s.dek)}</p>` : ''}
     <div class="foot">${topicTag(s)}${coverage(outletsOf(s).length, s.id)}<span>${esc(ago(s.updatedAt))}</span><span class="sp"></span>${saveBtn(s)}</div>
-  </article>`;
-}
-function hero(s){
-  pushCtx(s.id);
-  const t = TMAP[s.topic] || {name:'', c:'#888'};
-  const nm = s.topic === 'napoli' && s.zona && s.zona !== 'citta' ? ZMAP[s.zona] || t.name : t.name;
-  const n = outletsOf(s).length;
-  return `<article class="hero press" data-act="open" data-id="${esc(s.id)}" tabindex="0" aria-label="${esc(s.headline)}">
-    <div class="hv"><div class="hph">${visual(s, 'wide')}</div><span class="hk" style="--tc:${t.c}">${ticon(s.topic)}${esc(nm)}</span><span class="hcount">${n} ${n === 1 ? 'testata' : 'testate'}</span></div>
-    <div class="hin"><div class="hsrc">${stack(s, 4)}<span>${vnames(s, 2)}</span></div>
-      <h3>${esc(s.headline)}</h3><span class="hmeta">Aggiornata ${esc(ago(s.updatedAt))}</span></div>
   </article>`;
 }
 /* ---------- fonti: chi le riprende, confronto, cronologia, segnalazioni ---------- */
@@ -806,79 +789,120 @@ function topicChips(active, act, withAll){
 }
 
 /* ----- Oggi ----- */
+const REFRESH_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>';
+const PAPER_S = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4.5h11.5A1.5 1.5 0 0 1 20 6v12.5a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2V9.5H7"/><path d="M7 4.5v14a2 2 0 0 1-2 2"/><path d="M10.5 8h6v3.6h-6zM10.5 14.6h6M10.5 17.4h4"/></svg>';
+function tcol(s){ return TMAP[s.topic] || {name:s.topic || '', c:'#9A9DA5', tx:'#6B6E76'}; }
+// etichetta del tema; per Napoli e provincia la zona (Napoli, Area flegrea, Isole e penisola…)
+function kickName(s){ const t = tcol(s); return s.topic === 'napoli' ? (ZMAP[s.zona] || 'Napoli') : t.name; }
+function covText(n){ return n + ' ' + (n === 1 ? 'testata' : 'testate'); }
+// "Il Mattino +10 · 4 h fa"
+function whoLine(s){ const ids = outletsOf(s); return (ids.length ? esc(outlet(ids[0]).name) + (ids.length > 1 ? ' +' + (ids.length - 1) : '') + ' · ' : '') + esc(ago(s.updatedAt)); }
+// riga di un elenco: tema (o zona), titolo, testate, miniatura
+function nrow(s, opts){
+  opts = opts || {};
+  pushCtx(s.id);
+  const t = tcol(s), n = outletsOf(s).length;
+  return `<article class="nrow" data-act="open" data-id="${esc(s.id)}" tabindex="0" aria-label="${esc(s.headline)}">
+    <div class="ntx">${opts.why ? `<span class="nwhy">${esc(opts.why)}</span>` : `<span class="kick" style="color:${t.tx}">${esc(kickName(s))}</span>`}<h3>${esc(s.headline)}</h3>
+    <div class="rm"><b>${PAPER_S}${covText(n)}</b><span>${whoLine(s)}</span></div></div>
+    <div class="th">${visual(s, 'thumb')}</div></article>`;
+}
+function leadOf(s){ return s.dek || String(s.summary || '').split(/\n{2,}/)[0].replace(/\s\(([^()]{2,80})\)\s*$/, '') || ''; }
+function deckCard(s, i){
+  pushCtx(s.id);
+  const t = tcol(s), n = outletsOf(s).length, lead = leadOf(s);
+  return `<article class="dk" data-i="${i}" data-act="open" data-id="${esc(s.id)}" style="--tg:${t.c};--tgt:${t.tx}" aria-label="${esc(s.headline)}">
+    <div class="ph">${visual(s, 'wide')}</div>
+    <div class="cin"><span class="tag">${esc(kickName(s))}</span><h3>${esc(s.headline)}</h3>${lead ? `<p class="lead">${esc(lead)}</p>` : ''}
+      <div class="meta"><span class="cov">${PAPER_S}${covText(n)}</span><span>${esc(ago(s.updatedAt))}</span></div></div>
+  </article>`;
+}
 function viewOggi(){
   const m = S.meta;
   const vis = visible(S.stories);
   const nOut = new Set(); vis.forEach(s => outletsOf(s).forEach(o => nOut.add(o)));
-  const sub = m && m.runAt ? `Notizie raccolte ${esc(whenText(freshAt()))} · ${vis.length} storie da ${nOut.size} testate` : '';
+  const sub = m && m.runAt ? `Notizie raccolte ${whenText(freshAt())} · ${vis.length} storie da ${nOut.size} testate` : '';
   const late = !!(m && m.runAt && staleMin() > lateLimit());
   let h = `<header class="ohead">${LOGO}<h1 class="greet">${greeting()}${S.firstName ? `, <em>${esc(S.firstName)}</em>` : ''}</h1>
-    <span class="osub" title="${esc(sub.replace(/<[^>]*>/g, ''))}">${esc(dayLabel())}${m && m.runAt ? ` · <b id="edPillTxt">Aggiornato ${esc(whenText(freshAt()))}${late ? ' · in ritardo' : ''}</b>` : ''}<button class="rb" id="refreshBtn" data-act="refresh" aria-label="Aggiorna le notizie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button></span></header>`;
-  h += `<div id="rfb">${bannerInner(refreshInfo())}</div>`;
-  if (m && m.runAt && staleMin() > 2 * lateLimit()) h += `<div class="latebar"><strong>Raccolta in ritardo</strong><span>Le ultime notizie sono state raccolte ${esc(whenText(freshAt()))}. La raccolta gira su GitHub, che nelle ore di traffico rinvia o salta alcuni giri programmati: riparte da sola.</span></div>`;
+    <span class="osub" title="${esc(sub)}">${esc(dayLabel())}${m && m.runAt ? ` · <b id="edPillTxt">Aggiornato ${esc(whenText(freshAt()))}${late ? ' · in ritardo' : ''}</b>` : ''}<button class="rb" id="refreshBtn" data-act="refresh" aria-label="Aggiorna le notizie">${REFRESH_SVG}</button></span></header>`;
   const st = feedState(true);
   if (st) return h + st;
-  const counts = {}; vis.forEach(s => outletsOf(s).forEach(o => { counts[o] = (counts[o] || 0) + 1; }));
-  const fresh = new Set(); vis.filter(s => hoursAgo(s.updatedAt) < 12).forEach(s => outletsOf(s).forEach(o => fresh.add(o)));
-  const outs = Object.keys(counts).sort((a, b) => (S.prefs.follow.includes(b) - S.prefs.follow.includes(a)) || counts[b] - counts[a]);
-  h += `<div class="orail" role="toolbar" aria-label="Filtra per testata">
-    <button class="obub press" data-act="ofilter" data-id="" aria-pressed="${!S.outletF}"><span class="ring"><span class="all">${ICON.grid}</span></span><span class="lbl">Tutte</span></button>
-    ${outs.map(id => `<button class="obub press ${fresh.has(id) ? 'fresh' : ''}" data-act="ofilter" data-id="${esc(id)}" aria-pressed="${S.outletF === id}"><span class="ring">${mono(id)}</span><span class="lbl">${esc(outlet(id).name)}</span></button>`).join('')}
-  </div>`;
-  if (!LS.get('orailSeen')) h += '<div class="ohint" aria-hidden="true">Scorri per altre testate</div>';
+  S.topic = 'tutti'; S.outletF = null;
   const {top, rest} = oggiLists();
-  if (S.outletF) h += `<div class="filterbar"><span>Solo ${esc(outlet(S.outletF).name)} · ${rest.length} storie</span><button data-act="ofilter" data-id="">Mostra tutte</button></div>`;
   if (top.length) {
-    h += `<div class="sec"><h2>Prima pagina</h2><span>${top.length} storie</span></div>`;
-    h += `<div class="carousel" id="car">${top.map(hero).join('')}</div><div class="dots" id="dots" aria-hidden="true">${top.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>`;
-    h += `<div class="quick"><button class="qbtn press" data-act="flow" data-src="oggi"><span class="disc">${ICON.swipe}</span><span><strong>Sfoglia</strong><small>Una notizia per schermata</small></span></button>
-      ${hasTTS() ? `<button class="qbtn alt press" data-act="brief"><span class="disc">${ICON.play}</span><span><strong>Ascolta</strong><small>La prima pagina a voce</small></span></button>` : `<button class="qbtn alt press" data-act="tab" data-tab="perte"><span class="disc">${ICON.plus}</span><span><strong>Per te</strong><small>Il tuo feed</small></span></button>`}</div>`;
-    h += localRail(vis);
-    h += foreignRail(vis, new Set(top.map(s => s.id)));
+    S.deckIdx = Math.min(S.deckIdx || 0, top.length - 1);
+    h += `<div class="sec deck-sec"><h2 id="ppT">Prima pagina</h2><span id="deckN">${S.deckIdx + 1} di ${top.length}</span></div>
+      <div class="deck" id="deck" tabindex="0" role="region" aria-roledescription="mazzo di carte" aria-labelledby="ppT" aria-describedby="deckHelp">${top.map(deckCard).join('')}</div>
+      <p class="sr" id="deckHelp">Trascina la carta a sinistra per la prossima notizia, a destra per tornare indietro; con la tastiera usa le frecce. Invio apre la notizia.</p>
+      <div class="pg" id="dots" aria-hidden="true">${top.map((_, i) => `<i class="${i === S.deckIdx ? 'on' : ''}"></i>`).join('')}</div>`;
   }
-  h += `<div class="chipbar"><div class="rail" role="toolbar" aria-label="Filtra per tema">${topicChips(S.topic, 'topic', true)}</div></div>`;
-  const label = S.topic !== 'tutti' ? (TMAP[S.topic] || {}).long : S.outletF ? 'Le sue notizie' : 'Ultime notizie';
-  h += `<div class="sec" id="latest"><h2>${esc(label)}</h2><span>${rest.length} storie</span></div>` + (S.topic === 'napoli' ? zoneChips() : '');
-  if (!rest.length && !top.length) return h + `<div class="state"><h3>Niente qui, per ora</h3><p>L'edizione corrente non ha storie con questo filtro. La redazione automatica aggiorna le notizie ogni quarto d'ora; il pulsante in alto scarica subito l'ultima raccolta.</p></div>`;
-  return h + paged('oggi|' + S.topic + '|' + (S.outletF || '') + '|' + (S.zona || ''), rest);
+  const nap = vis.filter(s => hasTopic(s, 'napoli')).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt));
+  if (nap.length) {
+    h += `<div class="sec"><h2>Napoli e provincia</h2>${nap.length > 3 ? `<button class="lnk" data-act="napoli-all" aria-expanded="${!!S.napAll}">${S.napAll ? 'Meno' : 'Tutte'}</button>` : ''}</div>`;
+    h += S.napAll ? paged('oggi|napoli', nap, nrow, 'nlist') : `<div class="nlist">${nap.slice(0, 3).map(s => nrow(s)).join('')}</div>`;
+  }
+  h += `<div class="sec" id="latest"><h2>Ultime notizie</h2><span>${rest.length} ${rest.length === 1 ? 'storia' : 'storie'}</span></div>`;
+  if (!rest.length && !top.length) return h + `<div class="state"><h3>Niente qui, per ora</h3><p>L'edizione corrente non ha ancora storie. La redazione automatica aggiorna le notizie ogni quarto d'ora; il pulsante in alto scarica subito l'ultima raccolta.</p></div>`;
+  return h + paged('oggi|ultime', rest, nrow, 'nlist');
 }
 
-function lcard(s){
-  pushCtx(s.id);
-  return `<article class="lcard press" data-act="open" data-id="${esc(s.id)}" tabindex="0" aria-label="${esc(s.headline)}">
-    <div class="lv">${visual(s, 'band')}<span class="lz">${PIN}${esc(ZMAP[s.zona] || 'Napoli')}</span></div>
-    <div class="lin"><h3>${esc(s.headline)}</h3><div class="lmeta">${stack(s, 3)}<span class="ln">${vnames(s, 1)}</span><span class="time">${esc(ago(s.updatedAt))}</span></div></div>
-  </article>`;
+/* prima pagina a mazzo di carte: si trascina a sinistra per la prossima, a destra per tornare indietro */
+let deckSuppress = 0;
+function layoutDeck(){
+  const deck = $('#deck'); if (!deck) return;
+  const cards = deck.querySelectorAll('.dk'), idx = S.deckIdx || 0;
+  cards.forEach((c, j) => {
+    const d = j - idx;
+    c.className = 'dk ' + (d < 0 ? 'out' : d === 0 ? 'c0' : d === 1 ? 'b1' : d === 2 ? 'b2' : 'bx');
+    c.style.transform = ''; c.style.transition = '';
+    c.tabIndex = d === 0 ? 0 : -1;
+    if (d === 0) c.removeAttribute('aria-hidden'); else c.setAttribute('aria-hidden', 'true');
+  });
+  const n = $('#deckN'); if (n) n.textContent = (idx + 1) + ' di ' + cards.length;
+  document.querySelectorAll('#dots i').forEach((d, j) => d.classList.toggle('on', j === idx));
 }
-function localRail(vis){
-  const all = vis.filter(s => hasTopic(s, 'napoli'));
-  if (all.length < 3) return '';
-  const list = all.slice().sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt)).slice(0, 12);
-  return `<div class="sec"><h2>Napoli e provincia</h2><button class="lnk" data-act="napoli-all">Tutte · ${all.length}</button></div><div class="lrail">${list.map(lcard).join('')}</div>`;
+function deckGo(step){
+  const deck = $('#deck'); if (!deck) return false;
+  const n = deck.querySelectorAll('.dk').length, to = (S.deckIdx || 0) + step;
+  if (to < 0 || to >= n) { layoutDeck(); return false; }
+  S.deckIdx = to; layoutDeck(); return true;
 }
-function zoneChips(){
-  const all = visible(S.stories).filter(s => hasTopic(s, 'napoli') && (!S.outletF || outletsOf(s).includes(S.outletF)));
-  const zc = {}; all.forEach(s => { const z = s.zona || 'citta'; zc[z] = (zc[z] || 0) + 1; });
-  const opts = [['', 'Tutta la provincia', all.length]].concat(ZONES.filter(([z]) => zc[z]).map(([z, l]) => [z, l, zc[z]]));
-  return `<div class="rail zrail" role="toolbar" aria-label="Zone di Napoli e provincia">${opts.map(([z, l, n]) => `<button class="chip plain" data-act="zona" data-id="${z}" aria-pressed="${(S.zona || '') === z}">${z ? PIN : ''}${esc(l)} <em>${n}</em></button>`).join('')}</div>`;
-}
-function foreignRail(vis, topIds){
-  const list = vis.filter(s => !topIds.has(s.id) && srcOf(s).some(x => langOf(x) !== 'it')).sort((a, b) => score(b) - score(a)).slice(0, 12);
-  if (list.length < 3) return '';
-  const langs = new Set(); vis.forEach(s => srcOf(s).forEach(x => { const l = langOf(x); if (l !== 'it') langs.add(l); }));
-  return `<div class="sec"><h2>La stampa estera</h2><span>${langs.size > 1 ? 'Titoli tradotti da ' + langs.size + ' lingue' : 'Titoli tradotti ' + (LANGF[[...langs][0]] || '')}</span></div><div class="xrail">${list.map(xcard).join('')}</div>`;
-}
-function xcard(s){
-  pushCtx(s.id);
-  const fx = srcOf(s).filter(x => langOf(x) !== 'it').sort((a, b) => ts(b.d) - ts(a.d))[0];
-  const l = langOf(fx), ti = titleIt(fx), nf = new Set(srcOf(s).filter(x => langOf(x) !== 'it').map(x => x.o)).size;
-  return `<article class="xcard press" data-act="open" data-id="${esc(s.id)}" tabindex="0" aria-label="${esc(s.headline)}">
-    <div class="xv">${visual(s, 'band')}</div>
-    <div class="xin"><div class="xo">${mono(fx.o)}<b>${esc(outlet(fx.o).name)}</b>${nf > 1 ? `<em>+${nf - 1}</em>` : ''}<span class="lang">${esc(l.toUpperCase())}</span></div>
-    <q>${esc(ti || fx.t)}</q>
-    <small>${ti ? 'Tradotto ' + esc(LANGF[l] || '') : 'In ' + esc(LANGN[l] || l)} · ${esc(ago(fx.d))}</small></div>
-  </article>`;
-}
+(function(){
+  let x0 = 0, y0 = 0, dx = 0, drag = false, card = null, pid = null;
+  document.addEventListener('pointerdown', e => {
+    const deck = e.target.closest && e.target.closest('#deck'); if (!deck || e.button > 0) return;
+    card = deck.querySelector('.dk.c0'); if (!card) return;
+    x0 = e.clientX; y0 = e.clientY; dx = 0; drag = false; pid = e.pointerId;
+  });
+  document.addEventListener('pointermove', e => {
+    if (!card || e.pointerId !== pid) return;
+    const mx = e.clientX - x0, my = e.clientY - y0;
+    if (!drag) { if (Math.abs(mx) < 8 || Math.abs(mx) < Math.abs(my)) { if (Math.abs(my) > 12) card = null; return; } drag = true; try { card.setPointerCapture(pid); } catch (err) {} card.style.transition = 'none'; }
+    dx = mx;
+    const atEnd = (dx < 0 && !card.nextElementSibling) || (dx > 0 && (S.deckIdx || 0) === 0);
+    const v = atEnd ? dx * .25 : dx;
+    card.style.transform = `translateX(${v.toFixed(1)}px) rotate(${(v * .03).toFixed(2)}deg)`;
+  });
+  const end = e => {
+    if (!card || (e && e.pointerId !== pid)) return;
+    const was = drag; const c = card; card = null;
+    if (!was) return;
+    deckSuppress = Date.now() + 350;
+    c.style.transition = '';
+    if (dx < -70 && deckGo(1)) return;
+    if (dx > 70 && deckGo(-1)) return;
+    c.style.transform = '';
+  };
+  document.addEventListener('pointerup', end);
+  document.addEventListener('pointercancel', end);
+  document.addEventListener('keydown', e => {
+    if (!e.target.closest || !e.target.closest('#deck')) return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      e.preventDefault(); deckGo(e.key === 'ArrowRight' ? 1 : -1);
+      const c = $('#deck .dk.c0'); if (c && e.target !== $('#deck')) c.focus();
+    }
+  });
+})();
 
 /* ----- aggiornamento: la redazione automatica gira ogni 15 minuti, il pulsante scarica subito ----- */
 function pollCfg(){ const m = S.meta || {}; return {every:Number(m.every) || 15}; }
@@ -1484,15 +1508,11 @@ document.addEventListener('click', e => {
     case 'alert-x': hideAlert(); break;
     case 'alerts': S.prefs.alerts = el.dataset.v === '1'; persist('prefs'); render(); break;
     case 'unhide': HID = {}; SUMOFF = {}; LS.set('hid', HID); LS.set('sumoff', SUMOFF); toast('Correzioni locali annullate'); render(); break;
-    case 'open': openStory(id); break;
+    case 'open': if (Date.now() < deckSuppress) break; openStory(id); break;
     case 'open-next': openStory(id, {keepCtx:true}); break;
     case 'close': closeStory(); break;
     case 'zona': S.zona = id || null; render(); break;
-    case 'napoli-all': {
-      S.topic = 'napoli'; S.zona = null; render();
-      const cb = $('.chipbar'); if (cb) window.scrollTo({top:cb.getBoundingClientRect().top + window.scrollY - 0, behavior:'smooth'});
-      break;
-    }
+    case 'napoli-all': S.napAll = !S.napAll; render(); break;
     case 'topic': {
       S.topic = el.dataset.topic; S.zona = null; render();
       const cb = $('.chipbar'); if (cb) { const y = cb.getBoundingClientRect().top + window.scrollY - 0; if (window.scrollY > y) window.scrollTo(0, y); }
@@ -1561,7 +1581,7 @@ document.addEventListener('click', e => {
   }
 });
 document.addEventListener('keydown', e => {
-  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('article[data-act="open"]')) { e.preventDefault(); openStory(e.target.dataset.id); }
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('article[data-act="open"]') && e.target.tabIndex >= 0) { e.preventDefault(); openStory(e.target.dataset.id); }
   if (e.key === 'Escape') { if (!$('#onb').hidden && S.prefs.onboarded) closeOnb(); else if (S.story) closeStory(); else if (S.flow) closeFlow(); }
   if (S.flow && !S.story && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) { e.preventDefault(); const tr = $('#ftrack'); tr.scrollBy({top:(e.key === 'ArrowDown' ? 1 : -1) * tr.clientHeight, behavior:'smooth'}); }
 });
