@@ -793,8 +793,8 @@ function nrow(s, opts){
   pushCtx(s.id);
   const t = tcol(s), n = outletsOf(s).length;
   return `<article class="nrow" data-act="open" data-id="${esc(s.id)}" tabindex="0" aria-label="${esc(s.headline)}">
-    <div class="ntx">${opts.why ? `<span class="nwhy">${esc(opts.why)}</span>` : `<span class="kick" style="color:${t.tx}">${esc(kickName(s))}</span>`}<h3>${esc(s.headline)}</h3>
-    <div class="rm"><b>${PAPER_S}${covText(n)}</b><span>${whoLine(s)}</span></div></div>
+    <div class="ntx">${opts.why ? `<span class="nwhy">${esc(opts.why)}</span>` : opts.kick === false ? '' : `<span class="kick" style="color:${t.tx}">${esc(kickName(s))}</span>`}<h3>${esc(s.headline)}</h3>
+    <div class="rm"><b>${PAPER_S}${covText(n)}</b>${opts.meta || `<span>${whoLine(s)}</span>`}</div></div>
     <div class="th">${visual(s, 'thumb')}</div></article>`;
 }
 function leadOf(s){ return s.dek || String(s.summary || '').split(/\n{2,}/)[0].replace(/\s\(([^()]{2,80})\)\s*$/, '') || ''; }
@@ -1128,20 +1128,58 @@ function viewExploreDetail(){
   return h;
 }
 
-/* ----- Salvati ----- */
+/* ----- Salvati: cartelle per tema e Recenti ----- */
+// "Salvata ieri", "Aperta alle 9:40", "Aperta 4 giorni fa"
+function relDay(verb, v){
+  const t = ts(v); if (!t) return verb;
+  const d = new Date(t), k = fmtKey.format(d);
+  if (k === fmtKey.format(new Date())) return verb + ' alle ' + fmtHM.format(d);
+  if (k === fmtKey.format(new Date(Date.now() - 86400000))) return verb + ' ieri';
+  const n = Math.round((Date.now() - t) / 86400000);
+  return n < 7 ? `${verb} ${n} giorni fa` : verb + ' il ' + fmtDM.format(d);
+}
+function folderName(id){ return id === 'napoli' ? 'Napoli' : (TMAP[id] || {name:id}).name; }
+function savedItems(){ return Object.entries(S.saved).sort((a, b) => ts(b[1].at) - ts(a[1].at)).map(([id, v]) => ({id, at:v.at, s:getStory(id)})).filter(x => x.s); }
+function folderCard(id, items){
+  const all = id === 'tutte', t = all ? {c:'#111216', tx:'#111216'} : TMAP[id] || {c:'#9A9DA5', tx:'#6B6E76'};
+  const n = items.length, name = all ? 'Tutte' : folderName(id);
+  const k = all ? 4 : Math.min(4, n);
+  const tiles = n ? items.slice(0, all ? 4 : k).map(x => `<i>${visual(x.s, 'thumb')}</i>`).join('') + (all ? '<i></i>'.repeat(Math.max(0, 4 - n)) : '') : '<i></i><i></i><i></i><i></i>';
+  const cls = all ? 'm4' : !n ? 'm4' : 'm' + k;
+  return `<button class="fd${all ? ' all' : ''}${n ? '' : ' void'}" data-act="folder" data-id="${id}" style="--tg:${t.c};--tgt:${t.tx}" aria-label="${esc(name)}: ${n ? n + (n === 1 ? ' storia' : ' storie') : 'vuota'}">
+    <span class="mo ${cls}" aria-hidden="true">${tiles}</span><span class="fi"><b>${esc(name)}</b><span>${n || 'vuota'}</span></span></button>`;
+}
 function viewSalvati(){
-  let h = `<div class="head"><span class="kicker">La tua lista</span><h1>Salvati</h1><p>Restano su questo dispositivo, anche offline.</p></div>`;
-  h += `<div class="seg" role="tablist"><button data-act="seg" data-seg="salvati" aria-pressed="${S.savedSeg === 'salvati'}">Salvati</button><button data-act="seg" data-seg="cronologia" aria-pressed="${S.savedSeg === 'cronologia'}">Letti di recente</button></div>`;
-  if (S.savedSeg === 'salvati') {
-    const items = Object.entries(S.saved).sort((a, b) => ts(b[1].at) - ts(a[1].at));
-    if (!items.length) return h + `<div class="state"><h3>Nessuna notizia salvata</h3><p>Tocca il segnalibro su una storia per ritrovarla qui, anche dopo che è uscita dall'archivio.</p></div>`;
-    return h + `<div class="feed" style="margin-top:6px">${items.map(([id, v]) => row(S.byId.get(id) || Object.assign({id}, v.s || {}))).join('')}</div>`;
+  const items = savedItems();
+  if (S.folder) return viewFolder(items);
+  const seg = S.savedSeg === 'cronologia' ? 'recenti' : S.savedSeg || 'salvati';
+  let h = `<header class="phead"><h1>Salvati</h1><span class="psub">${seg === 'recenti' ? 'Le storie che hai aperto di recente' : `${items.length} ${items.length === 1 ? 'storia' : 'storie'} · restano su questo telefono`}</span></header>`;
+  h += `<div class="stabs" role="tablist" aria-label="Salvati e recenti"><button role="tab" data-act="seg" data-seg="salvati" aria-selected="${seg === 'salvati'}">Salvati</button><button role="tab" data-act="seg" data-seg="recenti" aria-selected="${seg === 'recenti'}">Recenti</button></div>`;
+  if (seg === 'salvati') {
+    if (!items.length) return h + `<div class="empty"><span class="eico">${SBI.save}</span><h3>Nessuna storia salvata</h3><p>Tocca il segnalibro in cima a una storia per ritrovarla qui, divisa per tema, anche dopo che è uscita dall'archivio.</p></div>`;
+    const topics = S.prefs.topics.length ? S.prefs.topics.filter(id => TMAP[id]) : [...new Set(items.map(x => x.s.topic))].filter(id => TMAP[id]);
+    h += `<div class="fg">${folderCard('tutte', items)}${topics.map(id => folderCard(id, items.filter(x => x.s.topic === id))).join('')}</div>`;
+    return h + `<p class="fnote">Le cartelle sono i tuoi temi. Le storie di altri temi stanno in «Tutte».</p>`;
   }
   const seen = new Set();
-  const items = S.history.filter(x => x && x.id && !seen.has(x.id) && seen.add(x.id));
-  if (!items.length) return h + `<div class="state"><h3>Nessuna lettura</h3><p>Le storie che apri compaiono qui.</p></div>`;
-  return h + `<div class="feed" style="margin-top:6px">${items.map(x => { const s = S.byId.get(x.id) || (S.saved[x.id] && S.saved[x.id].s && Object.assign({id:x.id}, S.saved[x.id].s)) || (x.s && Object.assign({id:x.id}, x.s)); return s ? row(s) : ''; }).join('')}</div>
-    <p class="hint"><button class="tog" data-act="clear-history">Svuota la cronologia</button></p>`;
+  const hist = S.history.filter(x => x && x.id && !seen.has(x.id) && seen.add(x.id)).map(x => ({x, s:getStory(x.id) || (x.s && Object.assign({id:x.id}, x.s))})).filter(y => y.s && y.s.headline);
+  if (!hist.length) return h + `<div class="empty"><span class="eico">${NAVI.perte}</span><h3>Nessuna lettura</h3><p>Le storie che apri compaiono qui, divise per giorno, con le novità arrivate dopo.</p></div>`;
+  const today = fmtKey.format(new Date()), yest = fmtKey.format(new Date(Date.now() - 86400000));
+  const groups = [['Oggi', []], ['Ieri', []], ['Questa settimana', []], ['Prima', []]];
+  hist.forEach(y => { const t = ts(y.x.at), k = fmtKey.format(new Date(t)); (k === today ? groups[0] : k === yest ? groups[1] : Date.now() - t < 7 * 86400000 ? groups[2] : groups[3])[1].push(y); });
+  groups.forEach(([label, list]) => {
+    if (!list.length) return;
+    h += `<p class="day">${label}</p><div class="nlist">${list.map(y => { const live = S.byId.get(y.s.id); const nn = live ? newsSince(live, ts(y.x.at)).length : 0; return nrow(y.s, {meta:`<span>${esc(relDay('Aperta', y.x.at))}</span>${nn ? `<span class="nv">${nn} ${nn === 1 ? 'novità' : 'novità'}</span>` : ''}`}); }).join('')}</div>`;
+  });
+  return h + `<button class="more" data-act="clear-history">Svuota i recenti</button>`;
+}
+function viewFolder(items){
+  const id = S.folder, all = id === 'tutte', t = all ? {c:'#111216', tx:'#111216'} : TMAP[id] || {c:'#9A9DA5', tx:'#6B6E76'};
+  const list = all ? items : items.filter(x => x.s.topic === id);
+  let h = `<button class="bk" data-act="folder" data-id="">${SBI.back}Salvati</button>
+    <header class="phead fhead"><h1 style="color:${t.tx}">${esc(all ? 'Tutte' : folderName(id))}</h1><span class="psub">${list.length} ${list.length === 1 ? 'storia salvata' : 'storie salvate'}</span></header>`;
+  if (!list.length) return h + `<div class="empty"><span class="eico">${SBI.save}</span><h3>Cartella vuota</h3><p>Le storie di questo tema che salvi compaiono qui.</p></div>`;
+  return h + `<div class="nlist ftop" style="--tg:${t.c}">${list.map(x => nrow(x.s, {kick:all, meta:`<span>${esc(relDay('Salvata', x.at))}</span>`})).join('')}</div>`;
 }
 
 /* ----- Profilo ----- */
@@ -1519,6 +1557,7 @@ function setTab(tab){
   if (S.story) closeStory();
   const same = S.tab === tab;
   if (same && tab === 'esplora') S.explore = null;
+  if (tab !== 'salvati' || same) S.folder = null;
   S.tab = tab;
   if (tab !== 'esplora') S.explore = null;
   try { history.replaceState(null, '', '#' + tab); } catch (e) {}
@@ -1593,6 +1632,7 @@ document.addEventListener('click', e => {
     case 'mute': { const on = togglePref('mute', id); refreshToggles('mute', id, on, ['Silenziata', 'Silenzia']); scheduleRender(); break; }
     case 'fdossier': { const on = togglePref('dossiers', id); refreshToggles('fdossier', id, on, ['Segui già', 'Segui il dossier']); scheduleRender(); break; }
     case 'seg': S.savedSeg = el.dataset.seg; render(); break;
+    case 'folder': S.folder = id || null; render(true); window.scrollTo(0, 0); break;
     case 'clean-assets': cleanAssets(); break;
     case 'refresh': requestRefresh(); break;
     case 'refresh-cancel': cancelRefresh(); break;
