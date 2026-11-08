@@ -822,9 +822,9 @@ function viewOggi(){
   if (top.length) {
     S.deckIdx = Math.min(S.deckIdx || 0, top.length - 1);
     h += `<div class="sec deck-sec"><h2 id="ppT">Prima pagina</h2><span id="deckN">${S.deckIdx + 1} di ${top.length}</span></div>
-      <div class="deck" id="deck" tabindex="0" role="region" aria-roledescription="mazzo di carte" aria-labelledby="ppT" aria-describedby="deckHelp">${top.map(deckCard).join('')}</div>
+      <div class="deck${deckHint() ? ' hinting' : ''}" id="deck" tabindex="0" role="region" aria-roledescription="mazzo di carte" aria-labelledby="ppT" aria-describedby="deckHelp">${top.map(deckCard).join('')}</div>
       <p class="sr" id="deckHelp">Trascina la carta a sinistra per la prossima notizia, a destra per tornare indietro; con la tastiera usa le frecce. Invio apre la notizia.</p>
-      <div class="pg" id="dots" aria-hidden="true">${top.map((_, i) => `<i class="${i === S.deckIdx ? 'on' : ''}"></i>`).join('')}</div>`;
+      ${deckHint() ? `<div class="hintp" id="deckHintP">${ARROW_L} Trascina per la prossima</div>` : `<div class="pg" id="dots" aria-hidden="true">${top.map((_, i) => `<i class="${i === S.deckIdx ? 'on' : ''}"></i>`).join('')}</div>`}`;
   }
   const nap = vis.filter(s => hasTopic(s, 'napoli')).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt));
   if (nap.length) {
@@ -855,13 +855,14 @@ function deckGo(step){
   const deck = $('#deck'); if (!deck) return false;
   const n = deck.querySelectorAll('.dk').length, to = (S.deckIdx || 0) + step;
   if (to < 0 || to >= n) { layoutDeck(); return false; }
-  S.deckIdx = to; layoutDeck(); return true;
+  S.deckIdx = to; layoutDeck(); deckHintDone(); return true;
 }
 (function(){
   let x0 = 0, y0 = 0, dx = 0, drag = false, card = null, pid = null;
   document.addEventListener('pointerdown', e => {
     const deck = e.target.closest && e.target.closest('#deck'); if (!deck || e.button > 0) return;
     card = deck.querySelector('.dk.c0'); if (!card) return;
+    deck.classList.remove('hinting');
     x0 = e.clientX; y0 = e.clientY; dx = 0; drag = false; pid = e.pointerId;
   });
   document.addEventListener('pointermove', e => {
@@ -1495,41 +1496,47 @@ function refreshToggles(act, id, on, labels){
 }
 function applyReaderSize(){ document.body.classList.remove('size-s', 'size-m', 'size-l'); document.body.classList.add('size-' + (S.prefs.size || 'm')); }
 
-/* ---------- onboarding ---------- */
+/* ---------- primo avvio: benvenuto, temi, nome; poi in Oggi la carta che si muove da sola ---------- */
+const ARROW_R = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+const ARROW_L = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>';
 function maybeOnboard(){ if (S.onbShown || S.prefs.onboarded) return; S.onbShown = true; openOnb(0); }
 function openOnb(step){ S.onbStep = step; $('#onb').hidden = false; document.body.classList.add('locked'); renderOnb(); $('#onb').scrollTop = 0; }
 function closeOnb(){ $('#onb').hidden = true; if (!S.story) document.body.classList.remove('locked'); }
+function onbGreet(){ return `${greeting()}${S.firstName ? `, <em>${esc(S.firstName)}</em>` : ''}`; }
+function finishOnb(){
+  S.prefs.onboarded = true; persist('prefs', 0); closeOnb();
+  S.deckIdx = 0; setTab('oggi');
+}
 function renderOnb(){
-  const p = S.prefs; const el = $('#onb'); let h = '';
-  const outs = Object.values(S.outlets).sort((a, b) => (a.name || '').localeCompare(b.name || '', 'it'));
-  const steps = `<div class="steps">${[0, 1, 2].map(i => `<i class="${i <= S.onbStep ? 'on' : ''}"></i>`).join('')}</div>`;
-  if (S.onbStep === 0) {
-    const seenT = new Set(); const demo = visible(S.stories).filter(s => s.top).sort((a, b) => (b.rank || 0) - (a.rank || 0)).filter(s => !seenT.has(s.topic) && seenT.add(s.topic)).slice(0, 3);
-    const tiles = demo.length === 3 ? demo : [{id:'a', topic:'scienza'}, {id:'b', topic:'mondo'}, {id:'c', topic:'salute'}];
-    h = `<div class="wrap">${steps}<span class="step">Benvenuto in Eddy</span>
-      <div class="collage" aria-hidden="true">${tiles.map((s, i) => `<div>${visual(s, i ? 'thumb' : 'tall')}${i === 0 && s.sources ? `<span class="vpill">${stack(s, 4)}<span>${outletsOf(s).length} testate</span></span>` : ''}</div>`).join('')}</div>
-      <h2>Una notizia, tutte le voci che la raccontano.</h2>
-      <p class="lede">Eddy riunisce in un'unica storia gli articoli di più testate sullo stesso fatto. In cima vedi chi la sta raccontando; sotto trovi riassunto, punti chiave e i titoli originali con il link a ogni articolo.</p>
-      <span class="grow"></span>
-      <div class="actions"><button class="btn" data-act="onb-next">Iniziamo</button></div></div>`;
-  } else if (S.onbStep === 1) {
-    h = `<div class="wrap">${steps}<span class="step">Passo 1 di 2 · Temi</span><h2>Cosa ti interessa?</h2><p class="lede">Scegline quanti vuoi. Decidono cosa sale in cima a «Per te».</p>
-      <div class="ttiles">${TOPICS.map(topicTile).join('')}</div>
-      <span class="grow"></span>
-      <div class="actions"><button class="btn ghost" data-act="onb-back">Indietro</button><button class="btn" data-act="onb-next" id="onbNext" ${p.topics.length ? '' : 'disabled'}>${p.topics.length ? 'Avanti · ' + p.topics.length : 'Scegli almeno un tema'}</button></div></div>`;
+  const p = S.prefs, el = $('#onb'), st = S.onbStep;
+  const top = `<div class="obt"><span class="steps" aria-label="Passo ${st + 1} di 3">${[0, 1, 2].map(i => `<i class="${i <= st ? 'on' : ''}"></i>`).join('')}</span><button class="skip" data-act="onb-done">Salta</button></div>`;
+  let h = '';
+  if (st === 0) {
+    const n = Object.keys(S.outlets).length || 145;
+    h = `${top}<div class="ostack" aria-hidden="true"><div class="sc" style="top:0;transform:scale(.9);border-top-color:#C25400;opacity:.9"></div><div class="sc" style="top:14px;transform:scale(.95);border-top-color:#3D5FC4"></div><div class="sc" style="top:30px;border-top-color:#D0021B"><span class="p"></span><span class="l1"></span><span class="l2"></span><span class="l3"></span></div></div>
+      <div class="obx"><h1 id="onbT">Ciao, benvenuto in <em>Eddy</em></h1><p class="olead">Ogni giorno leggiamo per te ${n} testate e mettiamo insieme gli articoli che raccontano lo stesso fatto.</p><p class="olead" style="margin-top:8px">Una notizia, tutte le voci, in un posto solo.</p></div>
+      <button class="cta" data-act="onb-next">Iniziamo ${ARROW_R}</button>`;
+  } else if (st === 1) {
+    const k = p.topics.length;
+    h = `${top}<h1 id="onbT" class="oh2">Cosa ti interessa?</h1><p class="olead sm">Scegline quanti vuoi. Li puoi cambiare dal Profilo.</p>
+      <div class="tgr otg">${TOPICS.map(t => topicPick(t)).join('')}</div>
+      <div class="obot"><button class="cta" data-act="onb-next" id="onbNext">${k ? `Avanti · ${k} ${k === 1 ? 'tema' : 'temi'}` : 'Avanti'}</button></div>`;
   } else {
-    h = `<div class="wrap">${steps}<span class="step">Passo 2 di 2 · Testate</span><h2>Quali testate segui?</h2><p class="lede">Tutte restano nel feed; quelle che segui pesano di più in «Per te». Puoi anche saltare.</p>
-      <div class="pick">${outs.length ? outletGroups(outs, o => { const f = p.follow.includes(o.id); return `<div class="orow" data-act="follow" data-id="${esc(o.id)}">${mono(o.id, 'md')}<div class="oinfo"><strong>${esc(o.name)}</strong><span>${esc([o.kind, langLabel(o)].filter(Boolean).join(' · '))}</span></div><span class="tog" data-act="follow" data-id="${esc(o.id)}" aria-pressed="${f}">${f ? 'Segui già' : 'Segui'}</span></div>`; }) : '<p class="hint" style="padding:12px 0">L\'elenco delle testate si carica con il feed: potrai sceglierle in Esplora.</p>'}</div>
-      <span class="grow"></span>
-      <div class="actions"><button class="btn ghost" data-act="onb-back">Indietro</button><button class="btn" data-act="onb-done">Apri il mio feed</button></div></div>`;
+    h = `${top}<div class="obx" style="margin-top:70px"><h1 id="onbT">Come ti dobbiamo chiamare?</h1><p class="olead">Solo per salutarti. Il nome resta su questo telefono.</p>
+      <label class="sr" for="onbName">Il tuo nome</label><input id="onbName" class="oinp" value="${esc(p.name || '')}" placeholder="Il tuo nome" autocomplete="given-name" maxlength="40" enterkeyhint="done">
+      <div class="oprev" aria-live="polite"><small>Così ti saluteremo</small><b id="onbGreet">${onbGreet()}</b></div></div>
+      <button class="cta" data-act="onb-done">Inizia a leggere</button>`;
   }
-  el.innerHTML = h;
+  el.innerHTML = `<div class="ob">${h}</div>`;
+  const f = el.querySelector('#onbT'); if (f) { f.tabIndex = -1; f.focus({preventScroll:true}); }
 }
 function updateCounters(){
-  const n = S.prefs.topics.length;
-  const b = $('#onbNext'); if (b) { b.disabled = !n; b.textContent = n ? 'Avanti · ' + n : 'Scegli almeno un tema'; }
-  const c = $('#intCount'); if (c) c.textContent = 'Interessi · ' + n + (n === 1 ? ' scelto' : ' scelti');
+  const k = S.prefs.topics.length;
+  const b = $('#onbNext'); if (b) b.textContent = k ? `Avanti · ${k} ${k === 1 ? 'tema' : 'temi'}` : 'Avanti';
 }
+// la prima volta in Oggi la carta in primo piano si muove da sola: finisce appena sposti il mazzo
+function deckHint(){ return !!S.prefs.onboarded && !LS.get('deckHint'); }
+function deckHintDone(){ if (!deckHint()) return; LS.set('deckHint', 1); const d = $('#deck'); if (d) d.classList.remove('hinting'); const hp = $('#deckHintP'); if (hp) hp.outerHTML = `<div class="pg" id="dots" aria-hidden="true">${[...document.querySelectorAll('#deck .dk')].map((_, i) => `<i class="${i === (S.deckIdx || 0) ? 'on' : ''}"></i>`).join('')}</div>`; }
 
 /* ---------- audio ---------- */
 const TTS = {queue:[], idx:0, playing:false, paused:false, voice:null, label:'', curId:null};
@@ -1705,20 +1712,19 @@ document.addEventListener('click', e => {
     }
     case 'export': exportData(); break;
     case 'install': doInstall(); break;
-    case 'onb-open': openOnb(Number(el.dataset.step || 0)); break;
-    case 'onb-next': if (el.disabled) break; S.onbStep++; renderOnb(); $('#onb').scrollTop = 0; break;
+    case 'onb-open': if (S.panel) closePanel(); LS.set('deckHint', 0); openOnb(Number(el.dataset.step || 0)); break;
+    case 'onb-next': S.onbStep = Math.min(2, S.onbStep + 1); renderOnb(); $('#onb').scrollTop = 0; break;
     case 'onb-back': S.onbStep = Math.max(0, S.onbStep - 1); renderOnb(); $('#onb').scrollTop = 0; break;
-    case 'onb-done':
-      S.prefs.onboarded = true; persist('prefs', 0); closeOnb();
-      S.tab = S.prefs.topics.length || S.prefs.follow.length ? 'perte' : 'oggi'; render(true); window.scrollTo(0, 0); break;
+    case 'onb-done': finishOnb(); break;
   }
 });
 document.addEventListener('focusout', e => { if (e.target && e.target.id === 'nameInput' && S.editName) { S.editName = false; setTimeout(render, 0); } });
 document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target && e.target.id === 'onbName') { e.preventDefault(); finishOnb(); return; }
   if (e.key === 'Enter' && e.target && e.target.id === 'nameInput') { e.preventDefault(); e.target.blur(); const b = $('[data-act="edit-name"]'); if (b) b.focus(); return; }
   if (e.key === 'Escape' && S.panel) { closePanel(); return; }
   if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('article[data-act="open"]') && e.target.tabIndex >= 0) { e.preventDefault(); openStory(e.target.dataset.id); }
-  if (e.key === 'Escape') { if (!$('#onb').hidden && S.prefs.onboarded) closeOnb(); else if (S.story) closeStory(); }
+  if (e.key === 'Escape') { if (!$('#onb').hidden) finishOnb(); else if (S.story) closeStory(); }
 });
 document.addEventListener('toggle', e => {
   const d = e.target; if (!d || !d.matches || !d.matches('details.chd')) return;
@@ -1769,7 +1775,7 @@ async function loadData(manual){
     if (before.size) checkAlerts(before);
     if (S.pendingStory) { const p = S.pendingStory; S.pendingStory = null; if (S.byId.has(p)) setTimeout(() => openStory(p, {fromPop:true}), 0); }
     scheduleRender();
-    if (!$('#onb').hidden && S.onbStep === 2) renderOnb();
+    if (!$('#onb').hidden && S.onbStep === 0) renderOnb();
     if (DL.offline) { DL.last = 0; return {ok:false, offline:true, added, updated}; }
     return {ok:true, added, updated};
   } catch (e) {
