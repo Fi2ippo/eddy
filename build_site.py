@@ -34,8 +34,7 @@ HEAD = f"""<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="{DESC}">
-<meta name="theme-color" content="#F4F5F7">
-<script>/* luce dell'ora e colore della barra di stato prima del primo disegno (stessa regola di light() in app.js) */(function(){{try{{var h=Number(new Intl.DateTimeFormat('it-IT',{{hour:'numeric',hourCycle:'h23',timeZone:'Europe/Rome'}}).format(new Date()))%24,l=h>=5&&h<12?'mattino':h>=12&&h<18?'pomeriggio':'sera';document.documentElement.dataset.light=l;document.querySelector('meta[name="theme-color"]').content={{mattino:'#FBE6DA',pomeriggio:'#DFEBF6',sera:'#E6E4F4'}}[l];}}catch(e){{}}}})();</script>
+<meta name="theme-color" content="#FFFFFF">
 <meta name="color-scheme" content="light">
 <link rel="preload" href="fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
 <meta name="mobile-web-app-capable" content="yes">
@@ -65,7 +64,7 @@ json.dump({'b': build}, open(os.path.join(out, 'version.json'), 'w', encoding='u
 manifest = {
     'name': 'Eddy — le notizie a più voci', 'short_name': 'Eddy', 'description': DESC, 'lang': 'it', 'dir': 'ltr',
     'id': './', 'start_url': './#oggi', 'scope': './', 'display': 'standalone', 'orientation': 'portrait',
-    'background_color': '#F4F5F7', 'theme_color': '#F4F5F7', 'categories': ['news'],
+    'background_color': '#FFFFFF', 'theme_color': '#FFFFFF', 'categories': ['news'],
     'icons': [
         {'src': 'icons/icon-192.png', 'sizes': '192x192', 'type': 'image/png', 'purpose': 'any'},
         {'src': 'icons/icon-512.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'any'},
