@@ -1,7 +1,7 @@
 # Eddy — brief di progetto (leggi tutto prima di toccare il codice)
 
 ## Cos'è
-Eddy è un'app web **gratuita** e installabile che più volte all'ora raccoglie le notizie di circa 145 testate (italiane, estere, di Napoli e provincia, riviste di design, architettura e arte), riunisce in **un'unica storia** gli articoli che raccontano lo stesso fatto e la mostra con le testate in cima, un sommario fatto di frasi delle testate e i link agli originali. Sezioni: **Oggi** (prima pagina alle 7 e alle 19 + ultime notizie), **Per te** (temi scelti), **Esplora** (temi, dossier, testate, ricerca), **Salvati**, **Profilo**, più **Sfoglia** (una notizia per schermata) e **Ascolta** (lettura a voce del browser). Tutto ciò che l'utente sceglie o salva resta **solo nel suo browser**.
+Eddy è un'app web **gratuita** e installabile che più volte all'ora raccoglie le notizie di circa 145 testate (italiane, estere, di Napoli e provincia, riviste di design, architettura e arte), riunisce in **un'unica storia** gli articoli che raccontano lo stesso fatto e la mostra con le testate in cima, un sommario fatto di frasi delle testate e i link agli originali. Sezioni: **Oggi** (prima pagina alle 7 e alle 19 a mazzo di carte, Napoli e provincia, ultime notizie), **Per te** (il filo delle storie lette o salvate che sono andate avanti, le collegate), **Sfoglia** (una notizia per schermata), **Salvati** (cartelle per tema e Recenti), **Profilo**. Tutto ciò che l'utente sceglie o salva resta **solo nel suo browser**.
 
 ## Chi sono io
 Filippo, studente di UX design, non programmatore. Spiega in italiano semplice, un passo alla volta, senza gergo non spiegato. Prima di cambiare molti file dimmi cosa farai.
@@ -34,4 +34,12 @@ site_src/ (page.html, app.js, sw.js) ─► build_site.py (+ make_icons.py) ─�
 - **Aggiungere una fonte:** voce in `pipeline/sources.json` (`o`, `name`, `short`, `color`, `kind`, `lang`, `site`, `sec`, `feeds: [{u, h}]`), dopo aver verificato feed e condizioni d'uso.
 
 ## Design
-Aspetto e interazioni sono quelli di `site_src/page.html` (stile) e `site_src/app.js` (schermate): tema chiaro e scuro automatici, font Inter, schede morbide, pillole, barra di navigazione in basso con 5 voci. Icona di Eddy: "E" bianca su quadrato blu #2B3FD6 con punto arancio #FF7A3D (`make_icons.py`). Colori dei temi nuovi: Napoli #0A86BF, Design #5F7A12, Architettura #56677A, Arte #9B2242. Testi mai sotto 12px.
+Il riferimento è `docs/design-definitivo/` (DESIGN.md e le schermate 01–17 a 390px): l'app resta `site_src/page.html` (stile) + `site_src/app.js` (schermate).
+- **Carattere:** Schibsted Grotesk (licenza OFL), servito dal sito stesso da `site_src/fonts/` (copiato da `build_site.py`), mai da Google Fonts. Titoli 800, testo 400–500.
+- **Solo tema chiaro.** Colori, raggi e ombre sono variabili CSS in cima a `page.html` (inchiostro #111216, grigio testo #6B6E76, grigio chiaro #9A9DA5, bordi #E1E3E7, card bianche). Pulsante principale: pillola nera, alta almeno 54px. Niente blu acceso, verde o pallini verdi.
+- **Luce dell'ora** (`light()` in app.js, `data-light` su `<html>`): 5–12 Buongiorno, 12–18 Buon pomeriggio, 18–5 Buonasera; cambiano sfondo delle pagine e colore del nome.
+- **Colori dei temi "Famiglie Solare"** (`TOPICS` in app.js): `c` tono pieno per righe, cartelle, quadratini; `tx` tono scritta per il testo colorato. Mai testo bianco sul tono pieno.
+- **Logo "Tre notizie"** (strisce rossa #D0021B, blu #3D5FC4, arancio #C25400 + "eddy"): solo in cima a Oggi; icona dell'app con le strisce su quadrato bianco (`make_icons.py`).
+- **Barra di navigazione:** pillola bianca fluttuante con 5 icone (Oggi, Per te, Sfoglia, Salvati, Profilo); la voce attiva si allarga con il nome.
+- **Tolti:** Ascolta e lettura a voce, Esplora con la ricerca, seguire o silenziare le testate, avvisi, tema scuro, "Installa Eddy". I temi si scelgono nel primo avvio e nel Profilo.
+- Testi mai sotto 12px, tocchi mai sotto 44px. Dati dell'utente solo nel browser (chiavi `eddy:` in localStorage: prefs, saved, history con l'ora di lettura `at`).

@@ -44,33 +44,12 @@ const TICON = {
 const PALETTE = ['#1F4E79','#8B2E2E','#2E6B4F','#6B3FA0','#9A5B13','#0F6A7A','#A33E6B','#3D4A5C','#5C6B1F','#7A2E5C','#24527A','#8A4B2A'];
 const TABS = ['oggi','perte','sfoglia','salvati','profilo'];
 const ICON = {
-  save:'<svg class="i" viewBox="0 0 24 24"><path d="M7 4h10v16l-5-3.6L7 20z"/></svg>',
-  back:'<svg class="i" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
-  listen:'<svg class="i" viewBox="0 0 24 24"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3.5" y="14" width="4" height="6" rx="1.5"/><rect x="16.5" y="14" width="4" height="6" rx="1.5"/></svg>',
-  play:'<svg class="f" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z"/></svg>',
-  pause:'<svg class="f" viewBox="0 0 24 24"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>',
   ext:'<svg class="i" viewBox="0 0 24 24"><path d="M14 5h5v5M19 5l-8 8M18 14v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h4"/></svg>',
-  send:'<svg class="i" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg>',
-  copy:'<svg class="i" viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M5 15V6a1 1 0 0 1 1-1h9"/></svg>',
-  search:'<svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>',
-  close:'<svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
-  check:'<svg class="i" viewBox="0 0 24 24" style="stroke-width:3"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
-  swipe:'<svg class="i" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="3"/><path d="M12 8v8M9 11l3-3 3 3"/></svg>',
-  plus:'<svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
-  grid:'<svg class="i" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg>',
-  refresh:'<svg class="i" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 0 1-12.9 5.2M4.5 12a7.5 7.5 0 0 1 12.9-5.2"/><path d="M17.8 3.4v3.6h-3.6M6.2 20.6V17h3.6"/></svg>',
-  globe:'<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/></svg>',
-  mute:'<svg class="i" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>',
-  share:'<svg class="i" viewBox="0 0 24 24"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1"/></svg>',
-  translate:'<svg class="i" viewBox="0 0 24 24"><path d="M3.5 5.5h9M8 3.5v2M5.5 5.5c.8 3.4 3 6 6 7.5M10.5 5.5c-.8 3.6-3 6.6-6.5 8.2"/><path d="M12.5 20.5l4-9.5 4 9.5M14 17h5"/></svg>'
+  refresh:'<svg class="i" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 0 1-12.9 5.2M4.5 12a7.5 7.5 0 0 1 12.9-5.2"/><path d="M17.8 3.4v3.6h-3.6M6.2 20.6V17h3.6"/></svg>'
 };
 const LANGN = {it:'italiano', en:'inglese', fr:'francese', de:'tedesco', es:'spagnolo', pt:'portoghese', nl:'olandese'};
-const LANGF = {en:"dall'inglese", fr:'dal francese', de:'dal tedesco', es:'dallo spagnolo', pt:'dal portoghese', nl:"dall'olandese"};
 const ZONES = [['citta', 'Napoli'], ['flegrea', 'Area flegrea'], ['vesuviana', 'Area vesuviana'], ['nord', 'Area nord e nolana'], ['isole', 'Isole e penisola']];
 const ZMAP = Object.fromEntries(ZONES);
-const PIN = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>';
-const SECS = [['napoli', 'Napoli e provincia'], ['it', 'Italiane'], ['mondo', 'Dal mondo'], ['scienza', 'Scienza, salute e tecnologia'], ['design', 'Design, architettura e arte'], ['motori', 'Motori e nautica']];
-function ticon(id, cls){ return `<svg class="i ${cls || ''}" viewBox="0 0 24 24" aria-hidden="true">${TICON[id] || TICON.mondo}</svg>`; }
 
 /* ---------- utilità ---------- */
 const $ = (s, r) => (r || document).querySelector(s);
@@ -78,7 +57,6 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp
 const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 const hash = s => { let h = 2166136261; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h; };
 const TZ = 'Europe/Rome';
-const fmtDay = new Intl.DateTimeFormat('it-IT', {weekday:'long', day:'numeric', month:'long', timeZone:TZ});
 const fmtHM = new Intl.DateTimeFormat('it-IT', {hour:'numeric', minute:'2-digit', timeZone:TZ});
 const fmtWD = new Intl.DateTimeFormat('it-IT', {weekday:'short', day:'numeric', month:'long', timeZone:TZ});
 const fmtDM = new Intl.DateTimeFormat('it-IT', {day:'numeric', month:'short', timeZone:TZ});
@@ -271,7 +249,6 @@ function hasImg(s){ return !!(s && s.img && s.img.u); }
 function imgUrl(img){
   return img && img.u ? img.u : '';
 }
-function logoUrl(l){ return /^(https?:|\/|logos\/|data:)/.test(l) ? l : '/_blob/' + l; }
 function hasPlace(s){ return s && s.place && typeof s.place.lat === 'number' && typeof s.place.lon === 'number'; }
 function fallbackVisual(s, kind){ return hasPlace(s) ? mapSvg(s.place, kind) : art(s, kind); }
 // Ogni foto porta il credito della testata (sulle miniature è nel testo accanto e nel titolo dell'immagine).
@@ -285,12 +262,6 @@ function visual(s, kind, credit = true){
 }
 document.addEventListener('error', e => {
   const t = e.target;
-  if (t && t.tagName === 'IMG' && t.classList.contains('olg')) {
-    BADLOGO.add(t.dataset.lid);
-    const m = t.parentNode; t.remove();
-    if (m) { m.classList.remove('haslogo', 'bleed'); m.textContent = m.dataset.t || ''; }
-    return;
-  }
   if (!t || t.tagName !== 'IMG' || !t.classList.contains('ph')) return;
   const s = getStory(t.dataset.sid) || {id:t.dataset.sid, topic:'mondo'};
   const holder = t.parentNode;
@@ -306,7 +277,7 @@ const S = {
   stories:[], byId:new Map(), outlets:{}, dossiers:{}, meta:null,
   prefs:defaultPrefs(), prefsReady:false,
   saved:{}, history:[],
-  tab:'oggi', topic:'tutti', outletF:null, explore:null, query:'', savedSeg:'salvati',
+  tab:'oggi', savedSeg:'salvati',
   story:null, storyCtx:[], ctx:[], onbStep:0, onbShown:false, flow:null,
   req:null, run:null, canEdit:null, lastSeen:0, rfPrev:'idle', rfbHidden:0, rfReady:0
 };
@@ -318,16 +289,7 @@ function outlet(id){
   const name = String(id || '?').replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   return {id, name, short:name.slice(0, 2), color:PALETTE[hash(id) % PALETTE.length], kind:'', lang:'it'};
 }
-const BADLOGO = new Set();
-function mono(id, cls){
-  const o = outlet(id);
-  const c = esc(o.color || PALETTE[hash(id) % PALETTE.length]);
-  const txt = esc(o.short || o.name.slice(0, 2));
-  if (o.logo && !BADLOGO.has(o.logo)) return `<span class="mono haslogo ${o.logoBleed ? 'bleed' : ''} ${cls || ''}" style="--c:${c};--lb:${esc(o.logoBg || '#FFFFFF')}" title="${esc(o.name)}" aria-hidden="true" data-t="${txt}"><img class="olg" src="${esc(logoUrl(o.logo))}" alt="" decoding="async" data-lid="${esc(o.logo)}"></span>`;
-  return `<span class="mono ${cls || ''}" style="--c:${c}" title="${esc(o.name)}" aria-hidden="true">${txt}</span>`;
-}
 function langOf(x){ return (x && x.l) || outlet(x && x.o).lang || 'it'; }
-function secOf(o){ return o.sec || (o.lang && o.lang !== 'it' ? 'mondo' : 'it'); }
 function hasTopic(s, t){ return s.topic === t || (t !== 'napoli' && Array.isArray(s.alt) && s.alt.includes(t)); }
 /* traduzioni dei titoli esteri: dalla redazione (campo ti) o, per le storie più vecchie, tradotte qui e tenute in cache */
 const TR = new Map(Object.entries(LS.get('tr') || {}));
@@ -336,39 +298,27 @@ function titleIt(x){
   if (langOf(x) === 'it') return null;
   return x.ti || TR.get(trKey(x.t)) || null;
 }
-function saveTR(){ const e = Array.from(TR.entries()); LS.set('tr', Object.fromEntries(e.slice(-900))); }
-function srcOf(s){ const muted = new Set(S.prefs.mute); const hid = HID[s.id] && HID[s.id].u; return (s.sources || []).filter(x => x && x.o && !muted.has(x.o) && !(hid && hid.includes(x.u))); }
+function srcOf(s){ const hid = HID[s.id] && HID[s.id].u; return (s.sources || []).filter(x => x && x.o && !(hid && hid.includes(x.u))); }
 function outletsOf(s){ const seen = new Set(), ids = []; for (const x of srcOf(s)) if (!seen.has(x.o)) { seen.add(x.o); ids.push(x.o); } return ids; }
 function visible(list){ return list.filter(s => outletsOf(s).length > 0); }
-function vnames(s, n){
-  const ids = outletsOf(s); const names = ids.slice(0, n || 2).map(id => esc(outlet(id).name)); const more = ids.length - names.length;
-  return `${names.join(', ')}${more > 0 ? ` <em>+${more}</em>` : ''}`;
-}
-function stack(s, max){ return `<span class="stack">${outletsOf(s).slice(0, max || 4).map(id => mono(id)).join('')}</span>`; }
 
 /* ---------- ordinamenti ---------- */
 function score(s){ return (s.rank || 40) - hoursAgo(s.updatedAt) * 1.6 + Math.min(outletsOf(s).length, 6) * 3; }
 function personalScore(s){
   const p = S.prefs; let sc = score(s);
   if (p.topics.some(t => hasTopic(s, t))) sc += p.topics.includes(s.topic) ? 28 : 20;
-  if (s.dossier && p.dossiers.includes(s.dossier)) sc += 24;
-  if (outletsOf(s).some(o => p.follow.includes(o))) sc += 14;
   return sc;
 }
 function matchesMe(s){
   const p = S.prefs;
-  return p.topics.some(t => hasTopic(s, t)) || (s.dossier && p.dossiers.includes(s.dossier)) || outletsOf(s).some(o => p.follow.includes(o));
+  return p.topics.some(t => hasTopic(s, t));
 }
+// prima pagina (le storie dell'edizione) e ultime notizie; Napoli e provincia ha la sua sezione
 function oggiLists(){
-  let list = visible(S.stories);
-  if (S.outletF) list = list.filter(s => outletsOf(s).includes(S.outletF));
-  if (S.topic !== 'tutti') list = list.filter(s => hasTopic(s, S.topic));
-  else if (!S.outletF) list = list.filter(s => s.topic !== 'napoli' || s.top);
-  if (S.topic === 'napoli' && S.zona) list = list.filter(s => (s.zona || 'citta') === S.zona);
-  const filtered = !!S.outletF || S.topic !== 'tutti';
-  const top = filtered ? [] : list.filter(s => s.top).sort((a, b) => (b.rank || 0) - (a.rank || 0)).slice(0, 9);
+  const list = visible(S.stories).filter(s => s.topic !== 'napoli' || s.top);
+  const top = list.filter(s => s.top).sort((a, b) => (b.rank || 0) - (a.rank || 0)).slice(0, 9);
   const topIds = new Set(top.map(s => s.id));
-  const rest = list.filter(s => !topIds.has(s.id)).sort(filtered ? (a, b) => score(b) - score(a) : (a, b) => ts(b.updatedAt) - ts(a.updatedAt));
+  const rest = list.filter(s => !topIds.has(s.id)).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt));
   return {top, rest, all:top.concat(rest)};
 }
 function perTeList(){ return visible(S.stories).filter(matchesMe).sort((a, b) => personalScore(b) - personalScore(a)); }
@@ -399,25 +349,6 @@ function persist(name, delay){
     }).then(() => { st.inflight--; if (!st.inflight && !st.timer) st.dirty = false; });
   }, delay == null ? 400 : delay);
 }
-function applyUserDoc(name, snapDoc){
-  if (!snapDoc || !snapDoc.exists) return false;
-  if (snapDoc.metadata && snapDoc.metadata.hasPendingWrites) return false;
-  const st = pstate(name);
-  if (st.dirty) return false;
-  const d = Object.assign({}, snapDoc.data() || {});
-  if (d._rev && myRevs.has(d._rev)) return false;
-  delete d._rev;
-  if (name === 'prefs') {
-    const p = Object.assign(defaultPrefs(), d);
-    ['topics', 'follow', 'mute', 'dossiers'].forEach(k => { if (!Array.isArray(p[k])) p[k] = []; });
-    S.prefs = p; applyReaderSize();
-  }
-  else if (name === 'saved') S.saved = Object.assign({}, d.items || {});
-  else if (name === 'history') S.history = Array.isArray(d.items) ? d.items.slice() : [];
-  LS.set(name, payload(name));
-  return true;
-}
-
 /* ---------- render ---------- */
 let raf = 0, collecting = false, CTX = [];
 function scheduleRender(){ if (raf) return; raf = requestAnimationFrame(() => { raf = 0; render(); }); }
@@ -429,14 +360,11 @@ function render(animate){
   document.body.classList.toggle('sf-on', S.tab === 'sfoglia');
   renderEdPill();
   const v = $('#view');
-  const railScroll = $('.orail') ? $('.orail').scrollLeft : 0;
-  const chipScroll = $('#view .rail') ? $('#view .rail').scrollLeft : 0;
   collecting = true; CTX = [];
   let html = '';
   if (S.tab === 'oggi') html = viewOggi();
   else if (S.tab === 'perte') html = viewPerTe();
   else if (S.tab === 'sfoglia') html = viewSfoglia();
-  else if (S.tab === 'esplora') html = viewEsplora();
   else if (S.tab === 'salvati') html = viewSalvati();
   else html = viewProfilo();
   collecting = false; S.ctx = CTX;
@@ -444,11 +372,8 @@ function render(animate){
   const sfv = $('#sfv'); if (sfv && S.sfIdx) sfv.scrollTop = S.sfIdx * sfv.clientHeight;
   if (animate) { v.classList.remove('fade'); void v.offsetWidth; v.classList.add('fade'); }
   layoutDeck();
-  if (!animate) { const or = $('.orail'); if (or) or.scrollLeft = railScroll; const cr = $('#view .rail'); if (cr) cr.scrollLeft = chipScroll; }
-  if (S.tab === 'esplora' && !S.explore) { const inp = $('#q'); if (inp) inp.value = S.query; }
   if (S.story && !$('#sheet').hidden) renderSheet(true);
   observeMore();
-  railEnds();
 }
 function renderEdPill(){
   updateRefreshUI();
@@ -466,34 +391,16 @@ function feedState(hero){
   if (S.dbState === 'error') return `<div class="state"><h3>Notizie non raggiungibili</h3><p>Il sito di Eddy non ha risposto (${esc(S.dbErr || 'errore')}). Riprova tra poco.</p><button class="btn" data-act="refresh" style="margin-top:14px">Riprova</button></div>`;
   return '';
 }
-const PAPER = '<svg class="i" viewBox="2.5 3.5 18.5 18" aria-hidden="true"><path d="M7 4.5h11.5A1.5 1.5 0 0 1 20 6v12.5a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2V9.5H7"/><path d="M7 4.5v14a2 2 0 0 1-2 2"/><path d="M10.5 8h6v3.6h-6zM10.5 14.6h6M10.5 17.4h4"/></svg>';
-function coverage(n, id){
-  const w = n === 1 ? 'testata' : 'testate';
-  const inner = `${PAPER}<b>${n}</b><small>${w}</small>`;
-  return id ? `<button type="button" class="cov" data-act="srcs" data-id="${esc(id)}" aria-label="Riportata da ${n} ${w}: vedi chi la racconta">${inner}</button>` : `<span class="cov">${inner}</span>`;
-}
 function isSaved(id){ return !!S.saved[id]; }
-function isNew(s){ const a = ts(s.addedAt); return !!a && a > S.lastSeen && Date.now() - a < 36 * 3600000; }
-function saveBtn(s){ const on = isSaved(s.id); return `<button class="savebtn" data-act="save" data-id="${esc(s.id)}" aria-pressed="${on}" aria-label="${on ? 'Rimuovi dai salvati' : 'Salva'}">${ICON.save}</button>`; }
-function topicTag(s){ const t = TMAP[s.topic] || {name:s.topic || '', c:'#888'}; const nm = s.topic === 'napoli' && s.zona && s.zona !== 'citta' ? ZMAP[s.zona] || t.name : t.name; return `<span class="topic" style="--tc:${t.c}">${ticon(s.topic)}${esc(nm)}</span>`; }
-function row(s){
-  pushCtx(s.id);
-  return `<article class="row press" data-act="open" data-id="${esc(s.id)}" tabindex="0" aria-label="${esc(s.headline)}">
-    <div class="voices">${stack(s)}<span class="vnames">${vnames(s)}</span>${isNew(s) ? '<span class="nb">Nuova</span>' : isDev(s) ? `<span class="nb dev" title="${esc(s.dev.t)}">${s.dev.k === 'rettifica' ? 'Rettifica' : 'Nuovi elementi'}</span>` : ''}<span class="time">${esc(ago(s.updatedAt))}</span></div>
-    <h3 class="hl">${esc(s.headline)}</h3>
-    <div class="thumb">${visual(s, 'thumb')}</div>
-    <div class="foot">${topicTag(s)}${coverage(outletsOf(s).length, s.id)}<span class="sp"></span>${saveBtn(s)}</div>
-  </article>`;
-}
 const PAGE = 30;
 const PAGED = {};
 S.pages = {};
 const PAGEDF = {};
 function paged(key, list, fn, cls){
-  PAGED[key] = list; PAGEDF[key] = fn || row;
+  PAGED[key] = list; PAGEDF[key] = fn || nrow;
   const n = Math.min(list.length, Math.max(PAGE, S.pages[key] || 0));
   const rest = list.length - n;
-  return `<div class="${cls || 'feed'}" data-pkey="${esc(key)}">${list.slice(0, n).map(x => PAGEDF[key](x)).join('')}</div>${rest > 0 ? moreBtn(key, rest) : ''}`;
+  return `<div class="${cls || 'nlist'}" data-pkey="${esc(key)}">${list.slice(0, n).map(x => PAGEDF[key](x)).join('')}</div>${rest > 0 ? moreBtn(key, rest) : ''}`;
 }
 function moreBtn(key, rest){ return `<button class="more" data-act="more" data-pkey="${esc(key)}">Mostra altre ${rest} ${rest === 1 ? 'storia' : 'storie'}</button>`; }
 function showMore(key){
@@ -503,7 +410,7 @@ function showMore(key){
   if (n1 <= n0) return;
   S.pages[key] = n1;
   const was = collecting; collecting = true; CTX = S.ctx || [];
-  feed.insertAdjacentHTML('beforeend', list.slice(n0, n1).map(x => (PAGEDF[key] || row)(x)).join(''));
+  feed.insertAdjacentHTML('beforeend', list.slice(n0, n1).map(x => (PAGEDF[key] || nrow)(x)).join(''));
   S.ctx = CTX; collecting = was;
   const btn = document.querySelector(`.more[data-pkey="${CSS.escape(key)}"]`);
   const rest = list.length - n1;
@@ -516,16 +423,6 @@ function observeMore(){
   moreObs.disconnect();
   document.querySelectorAll('.more[data-pkey]').forEach(b => moreObs.observe(b));
 }
-function feature(s, flag){
-  pushCtx(s.id);
-  return `<article class="feature press" data-act="open" data-id="${esc(s.id)}" tabindex="0" aria-label="${esc(s.headline)}">
-    <div class="cover">${visual(s, 'wide')}<span class="vpill">${stack(s, 5)}<span>${vnames(s, 2)}</span></span></div>
-    ${flag ? `<span class="flag">${esc(flag)}</span>` : ''}
-    <h3 class="hl">${esc(s.headline)}</h3>
-    ${s.dek ? `<p class="dek">${esc(s.dek)}</p>` : ''}
-    <div class="foot">${topicTag(s)}${coverage(outletsOf(s).length, s.id)}<span>${esc(ago(s.updatedAt))}</span><span class="sp"></span>${saveBtn(s)}</div>
-  </article>`;
-}
 /* ---------- fonti: chi le riprende, confronto, cronologia, segnalazioni ---------- */
 const AGN = {ansa:'ANSA', agi:'AGI', adnkronos:'Adnkronos', lapresse:'LaPresse', askanews:'Askanews', italpress:'Italpress', dire:'Dire', reuters:'Reuters', afp:'AFP', ap:'AP', dpa:'dpa', efe:'EFE'};
 let HID = LS.get('hid') || {}, SUMOFF = LS.get('sumoff') || {};
@@ -536,16 +433,6 @@ let HID = LS.get('hid') || {}, SUMOFF = LS.get('sumoff') || {};
   for (const k of Object.keys(SUMOFF)) if ((SUMOFF[k] || 0) < cut) { delete SUMOFF[k]; ch = true; }
   if (ch) { LS.set('hid', HID); LS.set('sumoff', SUMOFF); }
 })();
-function isDev(s){ const t = s.dev && ts(s.dev.at); return !!t && t > S.lastSeen && Date.now() - t < 24 * 3600000; }
-function goSources(id){
-  if (S.story !== id) openStory(id);
-  const go = () => {
-    const sh = $('#sheet'), b = $('#srcBlk'); if (!sh || !b) return;
-    const y = b.getBoundingClientRect().top - sh.getBoundingClientRect().top + sh.scrollTop - 70;
-    sh.scrollTo({top:Math.max(0, y), behavior:'smooth'});
-  };
-  requestAnimationFrame(() => requestAnimationFrame(go));
-}
 function agName(a){ return AGN[a] || (S.outlets[a] ? outlet(a).name : String(a || '').toUpperCase()); }
 function agencyLine(srcs){
   const ag = new Map();
@@ -697,87 +584,6 @@ function flagSummary(el){
   renderSheet(true);
 }
 
-/* caroselli: sfumatura sul bordo destro finché c'è altro da scorrere */
-const RAILS = '.orail,.lrail,.xrail,.drail,#view .rail';
-function railEnd(el){ el.classList.toggle('atend', el.scrollLeft + el.clientWidth >= el.scrollWidth - 6); }
-function railEnds(){ document.querySelectorAll(RAILS).forEach(railEnd); }
-document.addEventListener('scroll', e => {
-  const el = e.target; if (!el || !el.matches || !el.matches(RAILS)) return;
-  railEnd(el);
-  if (el.classList.contains('orail') && el.scrollLeft > 40 && !LS.get('orailSeen')) { LS.set('orailSeen', 1); const h = $('.ohint'); if (h) h.remove(); }
-}, {capture:true, passive:true});
-window.addEventListener('resize', railEnds, {passive:true});
-
-/* esplora: filtri e ordinamenti */
-function xfDefault(){ return {p:0, sort:'', min:1, topic:'', o:''}; }
-S.xf = xfDefault();
-function xfCount(){ const f = S.xf; return (f.p ? 1 : 0) + (f.sort ? 1 : 0) + (f.min > 1 ? 1 : 0) + (f.topic ? 1 : 0) + (f.o ? 1 : 0); }
-function setXF(k, v){
-  if (k === 'p') S.xf.p = Number(v) || 0; else if (k === 'min') S.xf.min = Math.max(1, Number(v) || 1); else S.xf[k] = v || '';
-  render();
-}
-function xfSorter(hasQ){
-  const m = S.xf.sort || (hasQ ? 'rel' : 'upd');
-  const up = (a, b) => ts(b.updatedAt) - ts(a.updatedAt);
-  if (m === 'new') return (a, b) => ts(b.publishedAt || b.updatedAt) - ts(a.publishedAt || a.updatedAt);
-  if (m === 'cov') return (a, b) => outletsOf(b).length - outletsOf(a).length || up(a, b);
-  if (m === 'upd') return up;
-  return (a, b) => score(b) - score(a);
-}
-function xfPanel(){
-  const f = S.xf, n = xfCount(), hasQ = norm(S.query).trim().length >= 2;
-  const cur = f.sort || (hasQ ? 'rel' : 'upd');
-  const ch = (k, v, l, on) => `<button class="chip plain" data-act="xf" data-k="${k}" data-v="${esc(v)}" aria-pressed="${on}">${esc(l)}</button>`;
-  const outs = Object.values(S.outlets).sort((a, b) => (a.name || '').localeCompare(b.name || '', 'it'));
-  const sorts = [hasQ ? ['rel', 'Pertinenza'] : null, ['new', 'Più recenti'], ['upd', 'Più aggiornate'], ['cov', 'Più testate']].filter(Boolean);
-  return `<details class="xf"${n ? ' open' : ''}><summary><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h16M7 12h10M10 17.5h4"/></svg>Filtri e ordinamento${n ? `<em>${n}</em>` : ''}</summary>
-    <div class="xfg"><small>Periodo</small><div class="xch">${[[0, 'Sempre'], [6, '6 ore'], [24, '24 ore'], [48, '2 giorni'], [168, '7 giorni']].map(([v, l]) => ch('p', v, l, f.p === v)).join('')}</div></div>
-    <div class="xfg"><small>Ordina per</small><div class="xch">${sorts.map(([v, l]) => ch('sort', v === (hasQ ? 'rel' : 'upd') ? '' : v, l, cur === v)).join('')}</div></div>
-    <div class="xfg"><small>Testate che ne parlano</small><div class="xch">${[[1, 'Tutte'], [2, 'Almeno 2'], [5, 'Almeno 5'], [10, 'Almeno 10']].map(([v, l]) => ch('min', v, l, (f.min || 1) === v)).join('')}</div></div>
-    <div class="xfg"><small>Tema</small><div class="xch">${ch('topic', '', 'Tutti', !f.topic)}${TOPICS.map(t => ch('topic', t.id, t.name, f.topic === t.id)).join('')}</div></div>
-    <div class="xfg"><small>Testata</small><label class="sr" for="xfO">Testata</label><select id="xfO" class="tinput"><option value="">Tutte le testate</option>${outs.map(o => `<option value="${esc(o.id)}"${f.o === o.id ? ' selected' : ''}>${esc(o.name)}</option>`).join('')}</select></div>
-    ${n ? '<button class="tog" data-act="xf-reset">Azzera i filtri</button>' : ''}
-  </details>`;
-}
-document.addEventListener('change', e => { if (e.target && e.target.id === 'xfO') { S.xf.o = e.target.value; render(); } });
-
-/* avvisi con l'app aperta: novità importanti su dossier, testate e temi seguiti */
-let alertT = 0;
-function hideAlert(){ const a = $('#alertBar'); if (a) a.remove(); clearTimeout(alertT); }
-function showAlert(s, why, more){
-  hideAlert();
-  const k = isDev(s) ? (s.dev.k === 'rettifica' ? 'Rettifica' : 'Nuovi elementi') : 'Nuova storia';
-  document.body.insertAdjacentHTML('beforeend', `<div class="alertbar" id="alertBar" role="status"><button class="ab-main" data-act="alert-open" data-id="${esc(s.id)}"><small>${esc(k)}${why ? ' · ' + esc(why) : ''}</small><b>${esc(s.headline)}</b>${more ? `<em>e altre ${more} tra le storie che segui</em>` : ''}</button><button class="ab-x" data-act="alert-x" aria-label="Chiudi l'avviso">${ICON.close}</button></div>`);
-  alertT = setTimeout(hideAlert, 12000);
-}
-function checkAlerts(before){
-  if (S.prefs.alerts === false || S.story) return;
-  const p = S.prefs, seen = LS.get('alerted') || {}, now = Date.now(), cands = [];
-  visible(S.stories).forEach(s => {
-    const b = before.get(s.id), isNewS = b === undefined, changed = !isNewS && b !== (s.changedAt || s.updatedAt);
-    if (!isNewS && !changed) return;
-    const dev = s.dev && ts(s.dev.at) > now - 3 * 3600000 ? s.dev.at : '';
-    const key = dev || (isNewS ? 'n' : '');
-    if (!key || seen[s.id] === key) return;
-    const n = outletsOf(s).length;
-    const fd = s.dossier && p.dossiers.includes(s.dossier), fo = outletsOf(s).find(o => p.follow.includes(o)), ft = p.topics.includes(s.topic);
-    if (!(fd || (fo && (n >= 3 || dev)) || (ft && (n >= 5 || s.top || (dev && n >= 3))))) return;
-    const why = fd ? (S.dossiers[s.dossier] || {}).title || 'Dossier' : fo ? outlet(fo).name : (TMAP[s.topic] || {}).name || '';
-    cands.push({s, key, why, r:(s.rank || 40) + n * 2 + (dev ? 10 : 0) + (fd ? 15 : 0)});
-  });
-  if (!cands.length) return;
-  cands.sort((a, b) => b.r - a.r);
-  cands.forEach(c => { seen[c.s.id] = c.key; });
-  const ks = Object.keys(seen); if (ks.length > 400) ks.slice(0, ks.length - 400).forEach(k => delete seen[k]);
-  LS.set('alerted', seen);
-  showAlert(cands[0].s, cands[0].why, cands.length - 1);
-}
-
-function topicChips(active, act, withAll){
-  const sel = id => Array.isArray(active) ? active.includes(id) : active === id;
-  return `${withAll ? `<button class="chip plain" data-act="${act}" data-topic="tutti" aria-pressed="${active === 'tutti'}">Tutto</button>` : ''}${TOPICS.map(t => `<button class="chip" data-act="${act}" data-topic="${t.id}" data-id="${t.id}" aria-pressed="${sel(t.id)}" style="--tc:${t.c}">${ticon(t.id)}${esc(t.name)}</button>`).join('')}`;
-}
-
 /* ----- Oggi ----- */
 const REFRESH_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>';
 const PAPER_S = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4.5h11.5A1.5 1.5 0 0 1 20 6v12.5a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2V9.5H7"/><path d="M7 4.5v14a2 2 0 0 1-2 2"/><path d="M10.5 8h6v3.6h-6zM10.5 14.6h6M10.5 17.4h4"/></svg>';
@@ -817,7 +623,6 @@ function viewOggi(){
     <span class="osub" title="${esc(sub)}">${esc(dayLabel())}${m && m.runAt ? ` · <b id="edPillTxt">Aggiornato ${esc(whenText(freshAt()))}${late ? ' · in ritardo' : ''}</b>` : ''}<button class="rb" id="refreshBtn" data-act="refresh" aria-label="Aggiorna le notizie">${REFRESH_SVG}</button></span></header>`;
   const st = feedState(true);
   if (st) return h + st;
-  S.topic = 'tutti'; S.outletF = null;
   const {top, rest} = oggiLists();
   if (top.length) {
     S.deckIdx = Math.min(S.deckIdx || 0, top.length - 1);
@@ -896,7 +701,6 @@ function deckGo(step){
 })();
 
 /* ----- aggiornamento: la redazione automatica gira ogni 15 minuti, il pulsante scarica subito ----- */
-function pollCfg(){ const m = S.meta || {}; return {every:Number(m.every) || 15}; }
 function etaText(t){
   if (!t) return 'a breve';
   if (t < Date.now()) return 'tra pochi minuti';
@@ -911,17 +715,6 @@ function refreshInfo(){
   if (r.state === 'error' && now - r.finishedAt < 8 * 60000 && S.rfbHidden !== r.finishedAt) return {k:'error', at:r.finishedAt, note:r.note || ''};
   return {k:'idle'};
 }
-function bannerInner(i){
-  if (i.k === 'idle') return '';
-  const m = S.meta || {};
-  const hm = t => fmtHM.format(new Date(t));
-  const next = m.nextAt ? etaText(ts(m.nextAt)) : 'tra qualche minuto';
-  if (i.k === 'running') return `<div class="rfb run"><span class="rfi spin">${ICON.refresh}</span><div><strong>Scarico le ultime notizie</strong><small>${m.runAt ? 'Ultima raccolta della redazione automatica alle ' + hm(m.runAt) + '.' : ''}</small></div><i class="bar"></i></div>`;
-  if (i.k === 'done' && staleMin() > lateLimit() && !i.added && !i.updated) return `<div class="rfb err"><span class="rfi">${ICON.refresh}</span><div><strong>Nessuna novità: ultima raccolta ${esc(ago(m.runAt))}</strong><small>La redazione automatica su GitHub è in ritardo: l'ultima edizione è stata pubblicata ${esc(whenText(m.runAt))}. Le notizie nuove arrivano da sole appena riparte.</small></div><button class="rfc" data-act="refresh-hide" data-v="${i.at}" aria-label="Chiudi">${ICON.close}</button></div>`;
-  if (i.k === 'done') return `<div class="rfb ok"><span class="rfi">${ICON.check}</span><div><strong>${m.runAt ? 'Notizie aggiornate ' + esc(whenText(m.runAt)) : 'Notizie aggiornate'}</strong><small>${i.added || i.updated ? (i.added ? i.added + (i.added === 1 ? ' storia nuova' : ' storie nuove') : '') + (i.added && i.updated ? ', ' : '') + (i.updated ? i.updated + (i.updated === 1 ? ' aggiornata' : ' aggiornate') : '') + '.' : 'Nessuna novità dall\'ultimo controllo.'} Prossimo giro della redazione ${esc(next)}.</small></div>${i.added || i.updated ? '<button class="rfx" data-act="refresh-see">Vedi</button>' : ''}<button class="rfc" data-act="refresh-hide" data-v="${i.at}" aria-label="Chiudi">${ICON.close}</button></div>`;
-  return `<div class="rfb err"><span class="rfi">${ICON.close}</span><div><strong>Aggiornamento non riuscito</strong><small>${esc(i.note || 'Il sito di Eddy non ha risposto.')}</small></div><button class="rfx" data-act="refresh">Riprova</button><button class="rfc" data-act="refresh-hide" data-v="${i.at}" aria-label="Chiudi">${ICON.close}</button></div>`;
-}
-let lastRfKey = '';
 function updateRefreshUI(){
   const i = refreshInfo();
   const b = $('#refreshBtn');
@@ -930,10 +723,6 @@ function updateRefreshUI(){
     b.classList.remove('queued');
     b.setAttribute('aria-label', i.k === 'running' ? 'Aggiornamento in corso' : 'Aggiorna le notizie');
   }
-  const key = JSON.stringify(i);
-  const el = $('#rfb');
-  if (el && key !== lastRfKey) el.innerHTML = bannerInner(i);
-  lastRfKey = key;
   if ((i.k === 'done' || i.k === 'error') && S.rfPrev === 'running') {
     toast(i.k === 'error' ? 'Aggiornamento non riuscito' : i.added ? `${i.added} ${i.added === 1 ? 'storia nuova' : 'storie nuove'}` : i.updated ? `${i.updated} ${i.updated === 1 ? 'storia aggiornata' : 'storie aggiornate'}` : staleMin() > lateLimit() ? 'Redazione in ritardo: ultima raccolta ' + ago(S.meta.runAt) : 'Sei già aggiornato');
   }
@@ -950,7 +739,6 @@ async function requestRefresh(){
   updateRefreshUI();
   if (S.tab === 'oggi') scheduleRender();
 }
-function cancelRefresh(){}
 
 /* ----- Per te: il filo delle storie che segui e le storie collegate ----- */
 // "Letta alle 9:40", "Salvata ieri", "Letta il 6 nov"
@@ -1031,104 +819,6 @@ function viewPerTe(){
   return h;
 }
 const NAVI = {perte:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2.1 6.3-6.3 2.1 2.1-6.3z"/></svg>'};
-function dossierVisual(d){
-  const withImg = visible(S.stories).filter(s => s.dossier === d.id && hasImg(s)).sort((a, b) => (b.rank || 0) - (a.rank || 0))[0];
-  if (withImg) return visual(withImg, 'band');
-  const withPlace = visible(S.stories).filter(s => s.dossier === d.id && hasPlace(s))[0];
-  return withPlace ? mapSvg(withPlace.place, 'band') : art({id:'d-' + d.id, topic:d.topic, headline:d.title}, 'band');
-}
-function countDossier(id){ return visible(S.stories).filter(s => s.dossier === id).length; }
-function dcard(d){
-  const n = countDossier(d.id); const t = TMAP[d.topic] || {name:''}; const f = S.prefs.dossiers.includes(d.id);
-  return `<button class="dcard press" data-act="dossier" data-id="${esc(d.id)}"><div class="dart">${dossierVisual(d)}</div><span class="dchip" style="--tc:${t.c || '#888'}">${ticon(d.topic)}${esc(t.name)}</span><div class="din"><span class="dtx"><strong>${esc(d.title)}</strong><span>${f ? '<b class="fol">Segui</b> · ' : ''}aggiornato ${esc(ago(d.updatedAt))}</span></span><span class="dnum"><small>${n === 1 ? 'storia' : 'storie'}</small><b>${n}</b></span></div></button>`;
-}
-
-/* ----- Esplora ----- */
-function viewEsplora(){
-  if (S.explore) return viewExploreDetail();
-  return `<div class="head"><span class="kicker">Esplora</span><h1>Cerca e scopri</h1></div>
-    <label class="search" for="q">${ICON.search}<span class="sr">Cerca</span><input id="q" type="search" placeholder="Notizie, persone, luoghi" autocomplete="off" enterkeyhint="search"></label>
-    ${xfPanel()}
-    <div id="results">${searchResults()}</div>`;
-}
-function searchResults(){
-  const q = norm(S.query).trim();
-  if (q.length >= 2 || xfCount()) {
-    const words = q.length >= 2 ? q.split(/\s+/) : [];
-    const f = S.xf, now = Date.now();
-    const res = visible(S.stories).filter(s => {
-      if (f.p && now - ts(s.updatedAt) > f.p * 3600000) return false;
-      if (outletsOf(s).length < (f.min || 1)) return false;
-      if (f.topic && !hasTopic(s, f.topic)) return false;
-      if (f.o && !outletsOf(s).includes(f.o)) return false;
-      if (!words.length) return true;
-      const hay = norm([s.headline, s.dek, s.summary, (s.tags || []).join(' '), (s.sources || []).map(x => x.t + ' ' + (x.ti || '')).join(' '), (s.sources || []).map(x => outlet(x.o).name).join(' ')].join(' '));
-      return words.every(w => hay.includes(w));
-    }).sort(xfSorter(q.length >= 2));
-    const was = collecting; collecting = true; CTX = [];
-    const out = `<div class="sec"><h2>Risultati</h2><span>${res.length}</span></div>` + (res.length ? paged('q|' + q, res) : `<div class="state"><h3>Nessun risultato</h3><p>${q.length >= 2 ? `Nessuna storia degli ultimi sette giorni contiene «${esc(S.query)}»${xfCount() ? ' con questi filtri' : ''}.` : 'Nessuna storia corrisponde ai filtri scelti.'}</p></div>`);
-    if (!was) { collecting = false; S.ctx = CTX; }
-    return out;
-  }
-  const vis = visible(S.stories);
-  let h = `<div class="sec"><h2>Temi</h2><span>storie in archivio</span></div><div class="ttiles">`;
-  h += TOPICS.map(t => { const n = vis.filter(s => hasTopic(s, t.id)).length; return `<button class="ttile nav press" data-act="xtopic" data-id="${t.id}" style="--tc:${t.c}"><span class="ic">${ticon(t.id)}</span><span class="tnum"><b>${n}</b><small>${n === 1 ? 'storia' : 'storie'}</small></span><span><strong>${esc(t.long)}</strong></span></button>`; }).join('');
-  h += `</div>`;
-  const ds = Object.values(S.dossiers).filter(d => countDossier(d.id) > 0).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt));
-  if (ds.length) h += `<div class="sec"><h2>Dossier</h2><span>${ds.length}</span></div><div class="drail">${ds.map(dcard).join('')}</div>`;
-  const outs = Object.values(S.outlets).sort((a, b) => (a.name || '').localeCompare(b.name || '', 'it'));
-  h += `<div class="sec"><h2>Testate</h2><span>${outs.length}</span></div>`;
-  const st = feedState(false);
-  if (st && !outs.length) return h + st;
-  h += outletGroups(outs, orow) + `<p class="hint">Segui: le sue storie salgono in «Per te». Silenzia: spariscono da tutto il feed. Le testate estere sono tradotte in italiano.</p>`;
-  return h;
-}
-function outletGroups(outs, fn){
-  return SECS.map(([k, label]) => {
-    const g = outs.filter(o => secOf(o) === k); if (!g.length) return '';
-    return `<h4 class="grp">${esc(label)}<span>${g.length}</span></h4><div class="olist">${g.map(fn).join('')}</div>`;
-  }).join('');
-}
-const OCN = {ref:null, m:{}};
-function outletCount(id){
-  if (OCN.ref !== S.stories) { OCN.ref = S.stories; OCN.m = {}; S.stories.forEach(s => new Set((s.sources || []).map(x => x.o)).forEach(o => { OCN.m[o] = (OCN.m[o] || 0) + 1; })); }
-  return OCN.m[id] || 0;
-}
-function langLabel(o){ return o.lang && o.lang !== 'it' ? 'in ' + (LANGN[o.lang] || o.lang) : ''; }
-function orow(o){
-  const n = outletCount(o.id);
-  const f = S.prefs.follow.includes(o.id), m = S.prefs.mute.includes(o.id);
-  return `<div class="orow">${mono(o.id, 'md')}<button class="oinfo" data-act="xoutlet" data-id="${esc(o.id)}"><strong>${esc(o.name)}</strong><span>${esc([o.kind, langLabel(o), n + (n === 1 ? ' storia' : ' storie')].filter(Boolean).join(' · '))}</span></button>
-    <button class="tog" data-act="follow" data-id="${esc(o.id)}" aria-pressed="${f}">${f ? 'Segui già' : 'Segui'}</button>
-    <button class="mutei" data-act="mute" data-id="${esc(o.id)}" aria-pressed="${m}" aria-label="Silenzia ${esc(o.name)}" title="Silenzia">${ICON.mute}</button></div>`;
-}
-function viewExploreDetail(){
-  const x = S.explore;
-  let h = `<button class="back" data-act="xback">${ICON.back}Esplora</button>`;
-  let list = [];
-  if (x.kind === 'topic') {
-    const t = TMAP[x.id] || {long:x.id, name:x.id, c:'#888'};
-    const on = S.prefs.topics.includes(x.id);
-    list = visible(S.stories).filter(s => hasTopic(s, x.id)).sort((a, b) => score(b) - score(a));
-    h += `<div class="dhead"><div class="dcover">${art({id:'t-' + x.id, topic:x.id, headline:t.long}, 'band')}</div><small>Tema</small><h1>${esc(t.long)}</h1><div class="row2"><button class="tog" data-act="ttopic" data-id="${esc(x.id)}" aria-pressed="${on}">${on ? 'Nei tuoi interessi' : 'Aggiungi ai tuoi interessi'}</button></div></div>`;
-  } else if (x.kind === 'outlet') {
-    const o = outlet(x.id);
-    const f = S.prefs.follow.includes(o.id), m = S.prefs.mute.includes(o.id);
-    list = S.stories.filter(s => (s.sources || []).some(y => y.o === o.id)).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt));
-    h += `<div class="dhead"><small>Testata</small><div style="display:flex;align-items:center;gap:12px">${mono(o.id, 'lg')}<h1>${esc(o.name)}</h1></div>
-      <p>${esc([o.kind, langLabel(o) ? langLabel(o) + ', tradotta da Eddy' : 'in italiano'].filter(Boolean).join(' · '))}${o.site ? ` · <a href="${esc(o.site)}" target="_blank" rel="noopener">${esc(o.site.replace(/^https?:\/\//, '').replace(/\/$/, ''))}</a>` : ''}</p>
-      <div class="row2"><button class="tog" data-act="follow" data-id="${esc(o.id)}" aria-pressed="${f}">${f ? 'Segui già' : 'Segui'}</button><button class="tog mute" data-act="mute" data-id="${esc(o.id)}" aria-pressed="${m}">${m ? 'Silenziata' : 'Silenzia'}</button></div></div>`;
-  } else if (x.kind === 'dossier') {
-    const d = S.dossiers[x.id] || {title:x.id, topic:'mondo'};
-    const on = S.prefs.dossiers.includes(x.id);
-    list = visible(S.stories).filter(s => s.dossier === x.id).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt));
-    h += `<div class="dhead"><div class="dcover">${dossierVisual(Object.assign({id:x.id}, d))}</div><small>Dossier · ${esc((TMAP[d.topic] || {}).name || '')}</small><h1>${esc(d.title)}</h1>${d.blurb ? `<p>${esc(d.blurb)}</p>` : ''}<div class="row2"><button class="tog" data-act="fdossier" data-id="${esc(x.id)}" aria-pressed="${on}">${on ? 'Segui già' : 'Segui il dossier'}</button></div></div>`;
-  }
-  h += `<div class="sec"><h2>Storie</h2><span>${list.length}</span></div>`;
-  h += list.length ? paged('x|' + x.kind + '|' + x.id, list) : `<div class="state"><h3>Nessuna storia</h3><p>Negli ultimi sette giorni non ci sono storie qui.</p></div>`;
-  return h;
-}
-
 /* ----- Salvati: cartelle per tema e Recenti ----- */
 // "Salvata ieri", "Aperta alle 9:40", "Aperta 4 giorni fa"
 function relDay(verb, v){
@@ -1270,48 +960,6 @@ function wipeData(el){
   if (!armed(el, 'Tocca ancora: cancella tutto')) return;
   try { Object.keys(localStorage).filter(k => k.indexOf('eddy:') === 0).forEach(k => localStorage.removeItem(k)); } catch (e) {}
   location.replace(location.pathname + '#oggi'); location.reload();
-}
-
-/* ---------- spazio foto ---------- */
-async function loadStorage(){
-  const C = window.claude; if (!C || typeof C.use !== 'function') return;
-  let a = null; try { a = await C.use('assets'); } catch (e) { a = null; }
-  S.assetsApi = a;
-  if (!a) { S.assetInfo = null; return; }
-  try { S.assetInfo = await a.list(); } catch (e) { S.assetInfo = {err:e && e.code}; }
-  if (S.tab === 'profilo') scheduleRender();
-}
-function usedAssetIds(){
-  const used = new Set();
-  const add = x => { if (x && x.img && x.img.id) used.add(x.img.id); };
-  S.stories.forEach(add);
-  Object.values(S.saved).forEach(v => add(v && v.s));
-  S.history.forEach(x => add(x && x.s));
-  return used;
-}
-function storageBlock(){
-  const info = S.assetInfo;
-  if (!S.assetsApi || !info || info.err || !info.usage) return '';
-  const u = info.usage, used = usedAssetIds();
-  const orphans = (info.assets || []).filter(a => !used.has(a.id));
-  const pct = u.maxBytes ? Math.min(100, u.bytes / u.maxBytes * 100) : 0;
-  const mb = b => (b / 1048576).toFixed(b > 104857600 ? 0 : 1).replace('.', ',');
-  return `<div class="pgroup"><h3>Spazio foto</h3><div class="pbox"><div class="meter"><i style="width:${pct.toFixed(1)}%"></i></div>
-    <p class="hint" style="margin-top:10px">${u.files} foto · ${mb(u.bytes)} MB su ${mb(u.maxBytes)} MB</p>
-    ${orphans.length ? `<button class="btn ghost full" style="margin-top:12px" data-act="clean-assets">${S.cleanConfirm ? `Conferma: elimina ${orphans.length} foto` : `Libera spazio: ${orphans.length} foto non più usate`}</button>` : '<p class="hint">Nessuna foto inutilizzata.</p>'}
-  </div></div>`;
-}
-async function cleanAssets(){
-  if (!S.assetsApi || !S.assetInfo) return;
-  if (!S.cleanConfirm) { S.cleanConfirm = true; render(); return; }
-  S.cleanConfirm = false;
-  const used = usedAssetIds();
-  const orphans = (S.assetInfo.assets || []).filter(a => !used.has(a.id));
-  let n = 0;
-  toast('Elimino le foto non più usate…');
-  for (const a of orphans) { try { const r = await S.assetsApi.delete(a.id); if (r && r.deleted) n++; } catch (e) { if (e && e.code === 'rate_limited') break; } }
-  toast(n + ' foto eliminate');
-  await loadStorage(); render();
 }
 
 /* ---------- lettore ---------- */
@@ -1483,16 +1131,8 @@ function togglePref(key, id){
   const i = arr.indexOf(id);
   if (i >= 0) arr.splice(i, 1); else arr.push(id);
   S.prefs[key] = arr;
-  if (key === 'follow' && i < 0) S.prefs.mute = S.prefs.mute.filter(x => x !== id);
-  if (key === 'mute' && i < 0) S.prefs.follow = S.prefs.follow.filter(x => x !== id);
   persist('prefs');
   return i < 0;
-}
-function refreshToggles(act, id, on, labels){
-  document.querySelectorAll(`[data-act="${act}"][data-id="${CSS.escape(id)}"]`).forEach(b => {
-    b.setAttribute('aria-pressed', on);
-    if (labels && b.classList.contains('tog')) b.textContent = on ? labels[0] : labels[1];
-  });
 }
 function applyReaderSize(){ document.body.classList.remove('size-s', 'size-m', 'size-l'); document.body.classList.add('size-' + (S.prefs.size || 'm')); }
 
@@ -1538,67 +1178,6 @@ function updateCounters(){
 function deckHint(){ return !!S.prefs.onboarded && !LS.get('deckHint'); }
 function deckHintDone(){ if (!deckHint()) return; LS.set('deckHint', 1); const d = $('#deck'); if (d) d.classList.remove('hinting'); const hp = $('#deckHintP'); if (hp) hp.outerHTML = `<div class="pg" id="dots" aria-hidden="true">${[...document.querySelectorAll('#deck .dk')].map((_, i) => `<i class="${i === (S.deckIdx || 0) ? 'on' : ''}"></i>`).join('')}</div>`; }
 
-/* ---------- audio ---------- */
-const TTS = {queue:[], idx:0, playing:false, paused:false, voice:null, label:'', curId:null};
-function hasTTS(){ return typeof window.speechSynthesis !== 'undefined' && typeof window.SpeechSynthesisUtterance !== 'undefined'; }
-function pickVoice(){
-  if (!hasTTS()) return null;
-  const vs = speechSynthesis.getVoices() || [];
-  return vs.find(v => /^it(-|_|$)/i.test(v.lang) && /google|enhanced|premium|natural/i.test(v.name)) || vs.find(v => /^it/i.test(v.lang)) || null;
-}
-function chunks(text){
-  const out = []; const parts = String(text).replace(/\s+/g, ' ').match(/[^.!?;:]+[.!?;:]*\s*/g) || [text];
-  let cur = '';
-  for (const p of parts) { if ((cur + p).length > 220 && cur) { out.push(cur.trim()); cur = p; } else cur += p; }
-  if (cur.trim()) out.push(cur.trim());
-  return out;
-}
-function storySpeech(s){
-  const ids = outletsOf(s).map(id => outlet(id).name);
-  const intro = ids.length ? `Raccontata da ${ids.slice(0, 3).join(', ')}${ids.length > 3 ? ' e altre ' + (ids.length - 3) + ' testate' : ''}.` : '';
-  return [s.headline + '.', intro, s.summary || s.dek || '', (s.points || []).length ? 'Punti chiave. ' + s.points.join('. ') + '.' : ''].join(' ');
-}
-function play(items, label){
-  if (!hasTTS() || !items.length) return;
-  speechSynthesis.cancel();
-  TTS.voice = pickVoice(); TTS.queue = [];
-  items.forEach((s, n) => chunks((n === 0 && items.length > 1 ? 'Ecco la prima pagina di Eddy. ' : '') + storySpeech(s) + (n < items.length - 1 ? ' Prossima notizia.' : '')).forEach(c => TTS.queue.push({text:c, id:s.id, title:s.headline, s})));
-  TTS.idx = 0; TTS.playing = true; TTS.paused = false; TTS.label = label; TTS.curId = null;
-  $('#player').hidden = false; document.body.classList.add('player-on');
-  speakCurrent();
-}
-function speakCurrent(){
-  if (!TTS.playing) return;
-  const it = TTS.queue[TTS.idx];
-  if (!it) { stopTTS(); return; }
-  $('#plLabel').textContent = TTS.label; $('#plTitle').textContent = it.title;
-  if (TTS.curId !== it.id) { $('#plArt').innerHTML = visual(it.s, 'thumb'); TTS.curId = it.id; }
-  $('#plToggle').innerHTML = ICON.pause; $('#plToggle').setAttribute('aria-label', 'Pausa');
-  $('#plNext').hidden = !TTS.queue.some((x, i) => i > TTS.idx && x.id !== it.id);
-  const u = new SpeechSynthesisUtterance(it.text);
-  u.lang = 'it-IT'; if (TTS.voice) u.voice = TTS.voice; u.rate = S.prefs.rate || 1;
-  const my = TTS.idx;
-  u.onend = () => { if (TTS.playing && !TTS.paused && TTS.idx === my) { TTS.idx++; speakCurrent(); } };
-  u.onerror = e => { if (e && (e.error === 'interrupted' || e.error === 'canceled')) return; if (TTS.playing && !TTS.paused && TTS.idx === my) { TTS.idx++; speakCurrent(); } };
-  speechSynthesis.speak(u);
-}
-function toggleTTS(){
-  if (!TTS.playing) return;
-  if (TTS.paused) { TTS.paused = false; speakCurrent(); }
-  else { TTS.paused = true; speechSynthesis.cancel(); $('#plToggle').innerHTML = ICON.play; $('#plToggle').setAttribute('aria-label', 'Riprendi'); }
-}
-function nextTTS(){
-  const cur = TTS.queue[TTS.idx]; if (!cur) return;
-  let j = TTS.idx; while (j < TTS.queue.length && TTS.queue[j].id === cur.id) j++;
-  TTS.idx = j; TTS.paused = false; speechSynthesis.cancel(); setTimeout(speakCurrent, 60);
-}
-function stopTTS(){
-  TTS.playing = false; TTS.paused = false; TTS.queue = [];
-  if (hasTTS()) speechSynthesis.cancel();
-  $('#player').hidden = true; document.body.classList.remove('player-on');
-}
-if (hasTTS() && 'onvoiceschanged' in speechSynthesis) speechSynthesis.onvoiceschanged = () => { TTS.voice = pickVoice(); };
-
 /* ---------- toast ---------- */
 let toastT = 0;
 function toast(msg){ const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 1800); }
@@ -1608,12 +1187,9 @@ function setTab(tab){
   if (!TABS.includes(tab)) tab = 'oggi';
   if (S.story) closeStory();
   const same = S.tab === tab;
-  if (same && tab === 'esplora') S.explore = null;
   if (tab !== 'salvati' || same) S.folder = null;
   S.tab = tab;
-  if (tab !== 'esplora') S.explore = null;
   try { history.replaceState(null, '', '#' + tab); } catch (e) {}
-  if (tab === 'profilo') { S.cleanConfirm = false; loadStorage(); }
   render(!same);
   window.scrollTo({top:0, behavior:same ? 'smooth' : 'auto'});
 }
@@ -1635,72 +1211,28 @@ document.addEventListener('click', e => {
   if (a === 'save') { e.stopPropagation(); toggleSave(id, el); return; }
   switch (a) {
     case 'tab': e.preventDefault(); closeOnb(); setTab(el.dataset.tab); break;
-    case 'srcs': goSources(id); break;
     case 'flag-src': flagSource(el); break;
     case 'flag-sum': flagSummary(el); break;
-    case 'xf': setXF(el.dataset.k, el.dataset.v); break;
-    case 'xf-reset': S.xf = xfDefault(); render(); break;
-    case 'alert-open': hideAlert(); openStory(id); break;
-    case 'alert-x': hideAlert(); break;
-    case 'alerts': S.prefs.alerts = el.dataset.v === '1'; persist('prefs'); render(); break;
     case 'unhide': HID = {}; SUMOFF = {}; LS.set('hid', HID); LS.set('sumoff', SUMOFF); toast('Correzioni locali annullate'); render(); break;
     case 'open': if (Date.now() < deckSuppress) break; openStory(id); break;
     case 'crono-all': S.cronoAll = !S.cronoAll; renderSheet(true); break;
     case 'close': closeStory(); break;
-    case 'zona': S.zona = id || null; render(); break;
     case 'napoli-all': S.napAll = !S.napAll; render(); break;
-    case 'topic': {
-      S.topic = el.dataset.topic; S.zona = null; render();
-      const cb = $('.chipbar'); if (cb) { const y = cb.getBoundingClientRect().top + window.scrollY - 0; if (window.scrollY > y) window.scrollTo(0, y); }
-      break;
-    }
-    case 'ofilter': S.outletF = id || null; S.topic = 'tutti'; render(); break;
-    case 'flow': setTab('sfoglia'); break;
-    case 'brief': { const top = oggiLists().top; play((top.length ? top : visible(S.stories)).slice(0, 6), 'Prima pagina'); break; }
-    case 'listen': { const s = getStory(id); if (s) play([s], 'In ascolto'); break; }
-    case 'pl-toggle': toggleTTS(); break;
-    case 'pl-next': nextTTS(); break;
-    case 'pl-stop': stopTTS(); break;
-    case 'go-search': if (S.story) closeStory(); S.tab = 'esplora'; S.explore = null; render(true); setTimeout(() => { const q = $('#q'); if (q) q.focus(); }, 30); break;
-    case 'xtopic': S.explore = {kind:'topic', id}; render(true); window.scrollTo(0, 0); break;
-    case 'xoutlet': S.explore = {kind:'outlet', id}; render(true); window.scrollTo(0, 0); break;
-    case 'dossier': if (S.story) closeStory(); S.tab = 'esplora'; S.explore = {kind:'dossier', id}; render(true); window.scrollTo(0, 0); break;
-    case 'xback': S.explore = null; render(true); break;
     case 'ttopic': {
       const on = togglePref('topics', id);
       document.querySelectorAll(`[data-act="ttopic"][data-id="${CSS.escape(id)}"]`).forEach(b => { b.setAttribute('aria-pressed', on); const c = b.querySelector('.ck'); if (c) c.innerHTML = on ? CHECK : ''; });
       updateCounters();
       break;
     }
-    case 'follow': {
-      e.stopPropagation();
-      const on = togglePref('follow', id);
-      refreshToggles('follow', id, on, ['Segui già', 'Segui']);
-      refreshToggles('mute', id, false, ['Silenziata', 'Silenzia']);
-      if ($('#onb').hidden) scheduleRender();
-      break;
-    }
-    case 'mute': { const on = togglePref('mute', id); refreshToggles('mute', id, on, ['Silenziata', 'Silenzia']); scheduleRender(); break; }
-    case 'fdossier': { const on = togglePref('dossiers', id); refreshToggles('fdossier', id, on, ['Segui già', 'Segui il dossier']); scheduleRender(); break; }
     case 'seg': S.savedSeg = el.dataset.seg; render(); break;
     case 'folder': S.folder = id || null; render(true); window.scrollTo(0, 0); break;
-    case 'clean-assets': cleanAssets(); break;
     case 'refresh': requestRefresh(); break;
-    case 'refresh-cancel': cancelRefresh(); break;
-    case 'refresh-hide': S.rfbHidden = Number(el.dataset.v) || 0; updateRefreshUI(); break;
-    case 'refresh-see': {
-      if (S.tab !== 'oggi' || S.topic !== 'tutti' || S.outletF) { S.topic = 'tutti'; S.outletF = null; if (S.tab !== 'oggi') setTab('oggi'); else render(); }
-      const sec = $('#latest'); if (sec) window.scrollTo({top:sec.getBoundingClientRect().top + window.scrollY - 0 - 50, behavior:'smooth'});
-      break;
-    }
     case 'clear-history': S.history = []; persist('history', 0); render(); toast('Cronologia svuotata'); break;
     case 'size': S.prefs.size = el.dataset.v; applyReaderSize(); persist('prefs'); if (S.panel) renderPanel(); render(); { const f = document.querySelector(`#panel [data-act="size"][data-v="${el.dataset.v}"]`); if (f) f.focus(); } break;
     case 'panel': openPanel(el.dataset.v); break;
     case 'panel-close': closePanel(); break;
     case 'edit-name': S.editName = true; render(); { const i = $('#nameInput'); if (i) { i.focus(); i.select(); } } break;
     case 'wipe': wipeData(el); break;
-    case 'rate': S.prefs.rate = Number(el.dataset.v); persist('prefs'); render(); break;
-    case 'copy': { const url = el.dataset.url; try { navigator.clipboard.writeText(url).then(() => toast('Link copiato'), () => toast(url)); } catch (err) { toast(url); } break; }
     case 'more': showMore(el.dataset.pkey); break;
     case 'share': {
       const st = getStory(id); if (!st) break;
@@ -1711,7 +1243,6 @@ document.addEventListener('click', e => {
       break;
     }
     case 'export': exportData(); break;
-    case 'install': doInstall(); break;
     case 'onb-open': if (S.panel) closePanel(); LS.set('deckHint', 0); openOnb(Number(el.dataset.step || 0)); break;
     case 'onb-next': S.onbStep = Math.min(2, S.onbStep + 1); renderOnb(); $('#onb').scrollTop = 0; break;
     case 'onb-back': S.onbStep = Math.max(0, S.onbStep - 1); renderOnb(); $('#onb').scrollTop = 0; break;
@@ -1730,9 +1261,6 @@ document.addEventListener('toggle', e => {
   const d = e.target; if (!d || !d.matches || !d.matches('details.chd')) return;
   if (d.open) S.openCh.add(d.dataset.ch); else S.openCh.delete(d.dataset.ch);
 }, true);
-document.addEventListener('input', e => {
-  if (e.target.id === 'q') { S.query = e.target.value; const r = $('#results'); if (r) { r.innerHTML = searchResults(); observeMore(); } }
-});
 
 /* ---------- dati: file statici pubblicati dalla redazione automatica ---------- */
 const DL = {loading:false, last:0, feed:null, archive:[], archAt:''};
@@ -1772,7 +1300,6 @@ async function loadData(manual){
     if (f.archive && f.archive.at !== DL.archAt) loadArchive(f.archive.at);
     let added = 0, updated = 0;
     if (before.size) S.stories.forEach(x => { const b = before.get(x.id); if (b === undefined) added++; else if (b !== (x.changedAt || x.updatedAt)) updated++; });
-    if (before.size) checkAlerts(before);
     if (S.pendingStory) { const p = S.pendingStory; S.pendingStory = null; if (S.byId.has(p)) setTimeout(() => openStory(p, {fromPop:true}), 0); }
     scheduleRender();
     if (!$('#onb').hidden && S.onbStep === 0) renderOnb();
@@ -1811,25 +1338,9 @@ document.addEventListener('visibilitychange', () => {
 });
 window.addEventListener('pagehide', markSeen);
 window.addEventListener('online', () => { if (Date.now() - DL.last > 60000) loadData(false); });
-setInterval(() => { if (!document.hidden && Date.now() - DL.last > 5 * 60000) loadData(false); if (refreshInfo().k !== 'idle') { lastRfKey = ''; updateRefreshUI(); } }, 30000);
+setInterval(() => { if (!document.hidden && Date.now() - DL.last > 5 * 60000) loadData(false); }, 30000);
 
 /* ---------- installazione, copia di sicurezza, nome ---------- */
-let deferredInstall = null;
-window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; if (S.tab === 'profilo') scheduleRender(); });
-window.addEventListener('appinstalled', () => { deferredInstall = null; toast('Eddy è installata'); if (S.tab === 'profilo') scheduleRender(); });
-function standalone(){ return (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true || /EddyAndroid/.test(navigator.userAgent); }
-function installBlock(){
-  if (standalone()) return '';
-  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent), android = /android/i.test(navigator.userAgent);
-  const apk = S.meta && S.meta.apk;
-  let h = '<div class="pgroup"><h3>Installa Eddy</h3><div class="pbox">';
-  if (deferredInstall) h += '<p style="margin:0">Aggiungi Eddy alla schermata Home: si apre a tutto schermo come un\'app e funziona anche senza rete.</p><button class="btn full" style="margin-top:12px" data-act="install">Installa l\'app</button>';
-  else if (ios) h += '<p style="margin:0">In Safari tocca <b>Condividi</b> e poi <b>Aggiungi a Home</b>: Eddy si apre a tutto schermo come un\'app.</p>';
-  else h += '<p style="margin:0">Dal menu del browser scegli <b>Installa app</b> o <b>Aggiungi a schermata Home</b>.</p>';
-  if (apk && !ios) h += `<p style="margin:12px 0 0">${android ? 'Oppure' : 'Per Android'} scarica l'app vera e propria: <a href="${esc(apk)}" download>eddy.apk</a>. All'installazione Android chiede di consentire le app da questa fonte.</p>`;
-  return h + '</div></div>';
-}
-async function doInstall(){ if (!deferredInstall) return; deferredInstall.prompt(); try { await deferredInstall.userChoice; } catch (e) {} deferredInstall = null; scheduleRender(); }
 function exportData(){
   const data = {app:'eddy', v:1, at:new Date().toISOString(), prefs:S.prefs, saved:S.saved, history:S.history};
   const fname = 'eddy-backup-' + new Date().toISOString().slice(0, 10) + '.json';

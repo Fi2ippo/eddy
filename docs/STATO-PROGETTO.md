@@ -1,10 +1,25 @@
 # Eddy: stato del progetto
 
-Aggiornato al 6 novembre 2026: lavori di novembre A–H finiti, **Eddy è online su https://fi2ippo.github.io/eddy**.
+Aggiornato al 9 novembre 2026: nuovo design pronto sul ramo `nuovo-design`, in attesa dell'ok di Filippo per unirlo a `main` e pubblicarlo. **Eddy è online su https://fi2ippo.github.io/eddy** (ancora con il design precedente).
 Repository pubblico: https://github.com/Fi2ippo/eddy. I dati raccolti stanno sul ramo `dati`.
 Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese".
 
 ---
+
+## Nuovo design (8–9 novembre 2026)
+Riferimento: `docs/design-definitivo/` (deciso da Filippo schermata per schermata). Lavoro sul ramo `nuovo-design`, un commit per passo; raccolta, redazione e formato dei dati non sono cambiati.
+- [x] **1 · Fondamenta:** Schibsted Grotesk servito dal sito, variabili CSS, solo tema chiaro, colori dei temi "Famiglie Solare", luce dell'ora, logo "Tre notizie" e nuova icona.
+- [x] **2 · Barra di navigazione** fluttuante a icone; Sfoglia è una voce della barra.
+- [x] **3 · Oggi:** prima pagina a mazzo di carte trascinabile (anche con le frecce), Napoli e provincia, Ultime notizie.
+- [x] **4 · Storia:** riga del tema, In breve, cronologia (ultimi 3 + tutta), capitoli Punti chiave, Confronto, Le fonti.
+- [x] **5 · Sfoglia:** una notizia per schermata con foto incorniciata e frase di una testata.
+- [x] **6 · Per te:** il filo (storie lette o salvate con articoli arrivati dopo, ricavato dall'ora di lettura già salvata), Collegate, primo giorno.
+- [x] **7 · Salvati:** cartelle per tema, Recenti per giorno con le novità, cartella con titolo nel colore del tema.
+- [x] **8 · Profilo:** nome modificabile, temi più letti, pannelli per temi, testo, edizione, privacy; cancella i dati.
+- [x] **9 · Primo avvio:** benvenuto, temi, nome; la prima volta in Oggi la carta si muove da sola.
+- [x] **10 · Pulizia:** tolti Ascolta, Esplora e ricerca, seguire/silenziare, avvisi, tema scuro, "Installa Eddy" e il codice non più usato. I dati già salvati nel browser restano.
+- [x] **11 · Controllo finale** a 390px contro le schermate, tastiera, console.
+- [ ] Unire `nuovo-design` a `main` e pubblicare (dopo l'ok di Filippo).
 
 ## Nuova app (6 novembre 2026)
 Filippo ha deciso di rifare Eddy sulla base di un'app di un amico che gli piace in tutto (codice riusato con il suo permesso, nessuna citazione). Lavoro fatto sul ramo `nuova-app` e poi portato su `main`:
