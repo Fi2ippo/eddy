@@ -358,10 +358,11 @@ let raf = 0, collecting = false, CTX = [];
 function scheduleRender(){ if (raf) return; raf = requestAnimationFrame(() => { raf = 0; if (deckBusy()) { DKR = true; return; } render(); }); }
 function pushCtx(id){ if (collecting && !CTX.includes(id)) CTX.push(id); }
 
-function render(animate){
+function render(){
   if (DKA) DKA.done();   // un render chiesto dall'utente chiude subito il volo della carta
   applyLight();
   document.querySelectorAll('.tabs button').forEach(b => { if (b.dataset.tab === S.tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  syncInd();
   document.body.classList.toggle('sf-on', S.tab === 'sfoglia');
   renderEdPill();
   const v = $('#view');
@@ -379,7 +380,6 @@ function render(animate){
   const nd = $('#deck');
   if (nd) { const src = nd.outerHTML.replace(/ fetchpriority="high"/g, ''); if (od && od._src === src) nd.replaceWith(od); else nd._src = src; }
   const sfv = $('#sfv'); if (sfv && S.sfIdx) sfv.scrollTop = S.sfIdx * sfv.clientHeight;
-  if (animate) { v.classList.remove('fade'); void v.offsetWidth; v.classList.add('fade'); }
   layoutDeck();
   if (S.story && !$('#sheet').hidden) renderSheet(true);
   observeMore();
@@ -985,9 +985,7 @@ function viewPerTe(){
 const PLUS_I = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
 function openTopic(id){
   if (!TMAP[id]) return;
-  S.topicPage = id; S.tdeckIdx = 0; S.pages['tema|' + id] = 0;
-  render(true); window.scrollTo(0, 0);
-  const b = $('.bk'); if (b) b.focus({preventScroll:true});
+  subPage(1, () => { S.topicPage = id; S.tdeckIdx = 0; S.pages['tema|' + id] = 0; }, '.bk');
 }
 // pagina di un tema: luce del colore del tema, mazzo delle notizie nuove, poi tutte le altre dalla più recente
 function viewTopic(id){
@@ -1180,6 +1178,8 @@ function openStory(id, opts){
   S.story = id;
   addHistory(s);
   const sh = $('#sheet');
+  if (sh.getAnimations) sh.getAnimations().forEach(a => a.cancel());   // una chiusura ancora in corso si annulla
+  sh.style.pointerEvents = '';
   sh.hidden = false;
   if (!wasOpen) { sh.classList.remove('enter'); void sh.offsetWidth; sh.classList.add('enter'); }
   document.body.classList.add('locked');
@@ -1189,10 +1189,16 @@ function openStory(id, opts){
   const cb = sh.querySelector('[data-act="close"]'); if (cb) cb.focus({preventScroll:true});
   if (!opts.fromPop) { try { if (wasOpen && history.state && history.state.story) history.replaceState({story:id}, '', '#s-' + id); else history.pushState({story:id}, '', '#s-' + id); } catch (e) {} }
 }
-function closeStory(fromPop){
+function closeStory(fromPop, instant){
   if (!S.story) return;
   S.story = null;
-  $('#sheet').hidden = true; $('#sheet').innerHTML = '';
+  const sh = $('#sheet');
+  const hide = () => { if (S.story) return; sh.hidden = true; sh.innerHTML = ''; sh.style.pointerEvents = ''; };
+  if (!instant && sh.animate) {
+    sh.style.pointerEvents = 'none';
+    const a = sh.animate(reduceMotion() ? [{opacity:1}, {opacity:0}] : [{opacity:1, transform:'none'}, {opacity:0, transform:'translate3d(28px,0,0)'}], {duration:reduceMotion() ? 120 : 160, easing:PG_EASE, fill:'forwards'});
+    a.onfinish = () => { hide(); a.cancel(); };
+  } else hide();
   if (S.storyBack && S.storyBack.isConnected) S.storyBack.focus({preventScroll:true}); S.storyBack = null;
   document.body.classList.remove('locked');
   if (!fromPop) { try { if (history.state && history.state.story) history.back(); else history.replaceState(null, '', '#' + S.tab); } catch (e) {} }
@@ -1399,16 +1405,130 @@ let toastT = 0;
 function toast(msg){ const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 1800); }
 
 /* ---------- navigazione ---------- */
+/* ----- movimento tra le sezioni: indicatore della barra e pagine che entrano dal lato giusto ----- */
+const PG_EASE = 'cubic-bezier(.22,1,.36,1)', NAV_EASE = 'cubic-bezier(.34,1.25,.64,1)';
+const SCROLLS = {};      // dove eri arrivato in ogni pagina
+let NAVA = 0;            // fino a quando l'indicatore sta scivolando
+let PGT = null;          // passaggio di pagina in corso (si può concludere subito)
+function pageKey(){ return S.tab + (S.topicPage ? '|tema' : '') + (S.folder ? '|cartella' : ''); }
+// indicatore: x e larghezza in pixel dentro la barra, solo transform
+function placeInd(x, w, ms){
+  const ind = $('.tind'); if (!ind) return;
+  const tm = ind.querySelector('.tm'), tb = ind.querySelector('.tb'), k = Math.max(0, w - 48);
+  const tr = ms ? `transform ${ms}ms ${NAV_EASE}` : 'none';
+  ind.style.transition = ms ? `${tr},opacity .25s` : 'opacity .25s'; tm.style.transition = tr; tb.style.transition = tr;
+  ind.style.transform = `translate3d(${x.toFixed(1)}px,0,0)`;
+  tm.style.transform = `scaleX(${k.toFixed(1)})`;
+  tb.style.transform = `translate3d(${k.toFixed(1)}px,0,0)`;
+  ind._g = [x, w];
+}
+function activeGeom(){
+  const nav = $('.tabs'), b = nav && nav.querySelector('button[aria-current="page"]'); if (!b) return null;
+  const nr = nav.getBoundingClientRect(), br = b.getBoundingClientRect();
+  return [br.left - nr.left - nav.clientLeft, br.width];
+}
+function syncInd(){ if (Date.now() < NAVA) return; const g = activeGeom(); if (g) placeInd(g[0], g[1], 0); }
+window.addEventListener('resize', syncInd, {passive:true});
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(syncInd);
+// cambio di voce: l'indicatore scivola, il nome nuovo si apre, quello vecchio si chiude, le icone scivolano (FLIP)
+function navMorph(to){
+  const nav = $('.tabs'); if (!nav) return;
+  const btns = [...nav.querySelectorAll('button')], old = nav.querySelector('button[aria-current="page"]');
+  if (old && old.dataset.tab === to) return;
+  const rm = reduceMotion(), nr = nav.getBoundingClientRect();
+  const x0 = btns.map(b => b.getBoundingClientRect().left);
+  const ind = $('.tind'), g0 = (ind && ind._g) || activeGeom();
+  let ghost = null;
+  const ol = old && old.querySelector('span');
+  if (ol && !rm) {
+    const r = ol.getBoundingClientRect();
+    ghost = document.createElement('span'); ghost.className = 'tlab'; ghost.textContent = ol.textContent;
+    ghost.style.left = (r.left - nr.left - nav.clientLeft) + 'px'; ghost.style.marginTop = (-r.height / 2) + 'px';
+    nav.appendChild(ghost);
+  }
+  btns.forEach(b => { if (b.dataset.tab === to) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  const g1 = activeGeom(); if (!g1) return;
+  if (rm || !g0) { placeInd(g1[0], g1[1], 0); return; }
+  const x1 = btns.map(b => b.getBoundingClientRect().left);
+  btns.forEach((b, i) => { const d = x0[i] - x1[i]; b.style.transition = 'none'; b.style.transform = Math.abs(d) > .5 ? `translate3d(${d.toFixed(1)}px,0,0)` : ''; });
+  placeInd(g0[0], g0[1], 0);
+  void nav.offsetWidth;
+  NAVA = Date.now() + 420;
+  btns.forEach(b => { if (b.style.transform) { b.style.transition = `transform 380ms ${NAV_EASE},color .25s`; b.style.transform = ''; } });
+  setTimeout(() => btns.forEach(b => { b.style.transition = ''; }), 420);
+  placeInd(g1[0], g1[1], 380);
+  const nl = nav.querySelector('button[aria-current="page"] span');
+  if (nl && nl.animate) nl.animate([{opacity:0, transform:'scaleX(.6)'}, {opacity:1, transform:'none'}], {duration:300, easing:PG_EASE});
+  if (ghost) { const a = ghost.animate([{opacity:1, transform:'none'}, {opacity:0, transform:'scaleX(.6)'}], {duration:200, easing:PG_EASE, fill:'forwards'}); a.onfinish = () => ghost.remove(); setTimeout(() => ghost.remove(), 400); }
+}
+// "premuto" sull'icona toccata
+(function(){
+  const off = () => document.querySelectorAll('.tabs button.press').forEach(b => b.classList.remove('press'));
+  document.addEventListener('pointerdown', e => { const b = e.target.closest && e.target.closest('.tabs button'); if (b) b.classList.add('press'); });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => document.addEventListener(t, off));
+})();
+// cambia pagina con una direzione: 1 avanti (entra da destra), -1 indietro (entra da sinistra), 0 solo dissolvenza
+function swapPage(dir, change){
+  if (PGT) { PGT.end(); PGT = null; }
+  const root = document.documentElement, rm = reduceMotion();
+  const kind = rm || !dir ? 'fade' : dir > 0 ? 'fwd' : 'back';
+  if (document.startViewTransition) {
+    root.dataset.vt = kind;
+    let t;
+    try { t = document.startViewTransition(() => { change(); }); } catch (e) { delete root.dataset.vt; change(); return; }
+    const me = {end:() => { try { t.skipTransition(); } catch (e) {} }};
+    PGT = me;
+    t.ready.catch(() => {}); t.updateCallbackDone.catch(() => {});
+    t.finished.catch(() => {}).then(() => { if (PGT === me) PGT = null; if (!PGT) delete root.dataset.vt; });
+    return;
+  }
+  // senza View Transitions: copia della pagina vecchia che esce, la nuova entra animata
+  const v = $('#view'), y = window.scrollY;
+  const ghost = document.createElement('div'); ghost.className = 'pghost'; ghost.setAttribute('aria-hidden', 'true');
+  const copy = v.cloneNode(true); copy.removeAttribute('id'); copy.querySelectorAll('[id]').forEach(x => x.removeAttribute('id'));
+  copy.style.transform = `translate3d(0,${-y}px,0)`;
+  const box = document.createElement('div'); box.appendChild(copy); ghost.appendChild(box);
+  document.body.appendChild(ghost);
+  change();
+  if (!v.animate) { ghost.remove(); return; }
+  const dx = kind === 'fwd' ? 28 : kind === 'back' ? -28 : 0, out = rm || kind === 'fade' ? 120 : 160, inn = rm || kind === 'fade' ? 120 : 300;
+  const a1 = box.animate([{opacity:1, transform:'none'}, {opacity:0, transform:`translate3d(${-dx}px,0,0)`}], {duration:out, easing:PG_EASE, fill:'forwards'});
+  const a2 = v.animate([{opacity:0, transform:`translate3d(${dx}px,0,0)`}, {opacity:1, transform:'none'}], {duration:inn, easing:PG_EASE});
+  const me = {end:() => { try { a1.finish(); a2.finish(); } catch (e) {} ghost.remove(); }};
+  PGT = me;
+  a1.onfinish = () => ghost.remove();
+  a2.onfinish = () => { if (PGT === me) PGT = null; };
+}
+// apri o chiudi una pagina dentro una sezione (tema, cartella) con lo stesso linguaggio
+function subPage(dir, mutate, focusSel, top){
+  const from = pageKey(); SCROLLS[from] = window.scrollY;
+  swapPage(dir, () => {
+    mutate(); render();
+    window.scrollTo(0, dir > 0 || top ? 0 : (SCROLLS[pageKey()] || 0));
+    if (focusSel) { const b = typeof focusSel === 'function' ? focusSel() : $(focusSel); if (b) b.focus({preventScroll:true}); }
+  });
+}
 function setTab(tab){
   if (!TABS.includes(tab)) tab = 'oggi';
-  if (S.story) closeStory();
-  const same = S.tab === tab;
-  if (tab !== 'salvati' || same) S.folder = null;
-  if (tab !== 'perte' || same) S.topicPage = null;
-  S.tab = tab;
-  try { history.replaceState(null, '', '#' + tab); } catch (e) {}
-  render(!same);
-  window.scrollTo({top:0, behavior:same ? 'smooth' : 'auto'});
+  const same = S.tab === tab && !S.story;
+  // secondo tocco sulla voce attiva: in cima con uno scorrimento morbido (e fuori dal tema o dalla cartella)
+  if (same) {
+    if (S.topicPage || S.folder) { subPage(-1, () => { S.topicPage = null; S.folder = null; }, null, true); return; }
+    window.scrollTo({top:0, behavior:reduceMotion() ? 'auto' : 'smooth'});
+    return;
+  }
+  SCROLLS[pageKey()] = window.scrollY;
+  const dir = Math.sign(TABS.indexOf(tab) - TABS.indexOf(S.tab));
+  navMorph(tab);
+  swapPage(S.story ? -1 : dir, () => {
+    if (S.story) { S.pendingHash = tab; closeStory(false, true); }
+    if (tab !== 'salvati') S.folder = null;
+    if (tab !== 'perte') S.topicPage = null;
+    S.tab = tab;
+    try { history.replaceState(null, '', '#' + tab); } catch (e) {}
+    render();
+    window.scrollTo(0, SCROLLS[pageKey()] || 0);
+  });
 }
 function readHash(){
   const h = (location.hash || '').replace('#', '');
@@ -1416,6 +1536,8 @@ function readHash(){
   else if (h.indexOf('s-') === 0) { S.tab = 'oggi'; S.pendingStory = h.slice(2); }
 }
 window.addEventListener('popstate', () => {
+  // chiusa la storia cambiando sezione: l'indirizzo segue la sezione nuova
+  if (S.pendingHash) { const t = S.pendingHash; S.pendingHash = null; try { history.replaceState(null, '', '#' + t); } catch (e) {} return; }
   const h = (location.hash || '').replace('#', '');
   if (S.story && h.indexOf('s-') !== 0) closeStory(true);
   else if (h.indexOf('s-') === 0 && h.slice(2) !== S.story) openStory(h.slice(2), {fromPop:true, keepCtx:true});
@@ -1442,9 +1564,9 @@ document.addEventListener('click', e => {
       break;
     }
     case 'seg': S.savedSeg = el.dataset.seg; render(); break;
-    case 'folder': S.folder = id || null; render(true); window.scrollTo(0, 0); break;
+    case 'folder': { const was = S.folder; subPage(id ? 1 : -1, () => { S.folder = id || null; }, id ? '.bk' : () => document.querySelector(`[data-act="folder"][data-id="${was}"]`)); break; }
     case 'topic-open': openTopic(id); break;
-    case 'topic-close': { const was = S.topicPage; S.topicPage = null; render(true); window.scrollTo(0, 0); const b = document.querySelector(`[data-act="topic-open"][data-id="${was}"]`); if (b) b.focus({preventScroll:true}); break; }
+    case 'topic-close': { const was = S.topicPage; subPage(-1, () => { S.topicPage = null; }, () => document.querySelector(`[data-act="topic-open"][data-id="${was}"]`)); break; }
     case 'topic-mine': { const on = togglePref('topics', id); render(); const b = $('[data-act="topic-mine"]'); if (b) b.focus(); toast(on ? 'Aggiunto ai tuoi temi' : 'Tolto dai tuoi temi'); break; }
     case 'refresh': requestRefresh(); break;
     case 'clear-history': S.history = []; persist('history', 0); render(); toast('Cronologia svuotata'); break;

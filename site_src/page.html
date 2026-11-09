@@ -51,9 +51,7 @@ a{color:inherit}
 svg.i{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 svg.f{fill:currentColor;stroke:none}
 .art{display:block;width:100%;height:100%}
-@media (prefers-reduced-motion:no-preference){#view.fade{animation:fade .32s cubic-bezier(.2,.8,.2,1) both}
-@keyframes fade{from{opacity:0;transform:translateY(8px)}}
-.pop{animation:pop .36s cubic-bezier(.3,.7,.4,1)}
+@media (prefers-reduced-motion:no-preference){.pop{animation:pop .36s cubic-bezier(.3,.7,.4,1)}
 @keyframes pop{45%{transform:scale(1.3)}}}
 /* in cima a Oggi: logo "Tre notizie", saluto con il nome colorato, data e aggiornamento */
 .ohead{text-align:center;padding:calc(env(safe-area-inset-top,0px) + 14px) 4px 0}
@@ -283,19 +281,27 @@ svg.f{fill:currentColor;stroke:none}
 .prose p:last-child{margin-bottom:0}
 /* barra di navigazione: pillola bianca che fluttua, solo icone; la voce attiva si allarga con il nome */
 .tabs{position:fixed;left:14px;right:14px;bottom:var(--nav-gap);z-index:30;max-width:520px;height:var(--nav-h);margin:0 auto;padding:0 10px;display:flex;justify-content:space-between;align-items:center;border-radius:34px;background:var(--card);border:1px solid var(--line-2);box-shadow:var(--sh-nav);box-sizing:border-box;transition:background .25s,border-color .25s,box-shadow .25s}
-.tabs button{display:flex;align-items:center;justify-content:center;gap:8px;min-width:48px;height:48px;padding:0;border-radius:24px;color:var(--ink-2);font-size:15px;font-weight:800;letter-spacing:-.01em;white-space:nowrap;transition:padding .25s cubic-bezier(.3,.7,.4,1),background .25s,color .25s}
-.tabs button svg{width:23px;height:23px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.tabs button span{display:none}
-.tabs button[aria-current="page"]{padding:0 18px;background:var(--pill);color:var(--ink)}
+.tabs button{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:8px;min-width:48px;height:48px;padding:0;border-radius:24px;color:var(--ink-2);font-size:15px;font-weight:800;letter-spacing:-.01em;white-space:nowrap;transition:color .25s}
+.tabs button svg{width:23px;height:23px;flex:none;transition:transform 250ms cubic-bezier(.34,1.56,.64,1);fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tabs button span{display:none;transform-origin:0 50%}
+.tabs button.press svg{transform:scale(.9);transition-duration:90ms}
+/* la pillola della voce attiva è un solo indicatore che scivola: due mezzi cerchi e una striscia che si allunga (solo transform) */
+.tind{position:absolute;left:0;top:50%;height:48px;margin-top:-24px;pointer-events:none;transition:opacity .25s}
+.tind i{position:absolute;top:0;height:48px;background:var(--pill)}
+.tind .ta,.tind .tb{left:0;width:48px;border-radius:24px}
+.tind .tm{left:24px;width:1px;transform-origin:0 50%}
+.tlab{position:absolute;z-index:1;top:50%;font-size:15px;font-weight:800;letter-spacing:-.01em;color:var(--ink);white-space:nowrap;pointer-events:none;transform-origin:0 50%}
+.tabs button[aria-current="page"]{padding:0 18px;color:var(--ink)}
 .tabs button[aria-current="page"] span{display:inline}
 /* in Sfoglia la barra si fa da parte: velata, per non coprire la notizia */
 body.sf-on .tabs{background:rgba(255,255,255,.55);border-color:rgba(228,229,233,.6);box-shadow:none;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
 body.sf-on .tabs button{color:#A3A6AD}
-body.sf-on .tabs button[aria-current="page"]{background:rgba(238,239,242,.7);color:#55585F}
+body.sf-on .tabs button[aria-current="page"]{color:#55585F}
+body.sf-on .tind{opacity:.7}
 /* storia aperta */
 .sheet{position:fixed;inset:0;z-index:50;background:var(--bg);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-@media (prefers-reduced-motion:no-preference){.sheet.enter{animation:rise .32s cubic-bezier(.2,.8,.2,1)}
-@keyframes rise{from{transform:translateY(28px);opacity:0}}}
+@media (prefers-reduced-motion:no-preference){.sheet.enter{animation:pgInR .3s cubic-bezier(.22,1,.36,1) both}}
+@media (prefers-reduced-motion:reduce){.sheet.enter{animation:pgFadeIn .12s ease both}}
 .sbar{position:sticky;top:0;z-index:3;display:flex;align-items:center;padding:calc(env(safe-area-inset-top,0px) + 13px) 8px 0;background:linear-gradient(var(--tg),var(--tg)) top/100% calc(env(safe-area-inset-top,0px) + 5px) no-repeat,rgba(255,255,255,.94);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
 .sbar .grow{flex:1}
 .ib{width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:22px;color:var(--ink);background:transparent;flex:none}
@@ -459,12 +465,33 @@ button.cov:active{background:var(--pill)}
 .cmpg p{margin:4px 0 0;font-size:14px;line-height:1.45;color:var(--ink-2)}
 .cmpg p b{color:var(--ink);font-weight:700;margin-right:4px}
 @keyframes abin{from{opacity:0;transform:translateY(-12px)}}
+/* passaggio tra le pagine: la nuova entra dal lato verso cui vai, la vecchia esce dall'altro (View Transitions, o copia della pagina dove non ci sono) */
+.tabs{view-transition-name:tabbar}
+::view-transition{pointer-events:none}
+::view-transition-group(tabbar){animation:none}
+::view-transition-old(tabbar){display:none}
+::view-transition-new(tabbar){animation:none}
+html[data-vt="fwd"]::view-transition-old(root){animation:pgOutL 160ms cubic-bezier(.22,1,.36,1) both}
+html[data-vt="fwd"]::view-transition-new(root){animation:pgInR 300ms cubic-bezier(.22,1,.36,1) both}
+html[data-vt="back"]::view-transition-old(root){animation:pgOutR 160ms cubic-bezier(.22,1,.36,1) both}
+html[data-vt="back"]::view-transition-new(root){animation:pgInL 300ms cubic-bezier(.22,1,.36,1) both}
+html[data-vt="fade"]::view-transition-old(root){animation:pgFadeOut 120ms ease both}
+html[data-vt="fade"]::view-transition-new(root){animation:pgFadeIn 120ms ease both}
+@keyframes pgOutL{to{opacity:0;transform:translateX(-28px)}}
+@keyframes pgOutR{to{opacity:0;transform:translateX(28px)}}
+@keyframes pgInR{from{opacity:0;transform:translateX(28px)}}
+@keyframes pgInL{from{opacity:0;transform:translateX(-28px)}}
+@keyframes pgFadeOut{to{opacity:0}}
+@keyframes pgFadeIn{from{opacity:0}}
+.pghost{position:fixed;inset:0;z-index:2;overflow:hidden;pointer-events:none}
+.pghost>*{will-change:transform,opacity}
 </style>
 
 
 <main id="view" class="wrap"></main>
 
 <nav class="tabs" aria-label="Sezioni">
+  <span class="tind" aria-hidden="true"><i class="ta"></i><i class="tm"></i><i class="tb"></i></span>
   <button data-act="tab" data-tab="oggi" aria-label="Oggi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 22h14a2 2 0 0 0 2-2V4a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h3"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg><span>Oggi</span></button>
   <button data-act="tab" data-tab="perte" aria-label="Per te"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2.1 6.3-6.3 2.1 2.1-6.3z"/></svg><span>Per te</span></button>
   <button data-act="tab" data-tab="sfoglia" aria-label="Sfoglia"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="3" width="12" height="15" rx="2"/><path d="M5 6.5V19a2 2 0 0 0 2 2h9"/></svg><span>Sfoglia</span></button>
