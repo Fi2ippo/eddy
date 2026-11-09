@@ -251,36 +251,65 @@ function imgUrl(img){
 }
 function hasPlace(s){ return s && s.place && typeof s.place.lat === 'number' && typeof s.place.lon === 'number'; }
 function fallbackVisual(s, kind){ return hasPlace(s) ? mapSvg(s.place, kind) : art(s, kind); }
-// Ogni foto porta il credito della testata (sulle miniature è nel testo accanto e nel titolo dell'immagine).
-// load: 'lazy' (elenchi), 'eager' (carte del mazzo, scaricate subito) o 'high' (la carta davanti, con la precedenza).
-// decoding="sync": Safari prepara la foto prima di dipingerla. Con "async" (o lasciando decidere a lui) le foto grandi,
-// ogni volta che tornano visibili, vengono preparate in differita: per un attimo si vede il riquadro vuoto (il "lampo").
-// Le foto che arrivano dalla rete sono già preparate con decode() prima di comparire (readyImgs).
-const BADIMG = new Map();   // foto che non sono arrivate (e quando): ridisegnando la pagina si mostra subito la copertina di riserva; dopo 2 minuti si riprova
-// dec: 'sync' o 'async' (Sfoglia).
-function visual(s, kind, credit = true, load = 'lazy', dec = 'sync'){
-  if (hasImg(s) && !(Date.now() - (BADIMG.get(imgUrl(s.img)) || 0) < 120000)) {
-    const who = s.img.o ? outlet(s.img.o).name : '';
-    const cr = credit && kind !== 'thumb' && who ? `<span class="pcred">Foto: ${esc(who)}</span>` : '';
-    const u = esc(imgUrl(s.img, kind));
-    const ld = (load === 'lazy' ? 'loading="lazy" ' : 'loading="eager" ' + (load === 'high' ? 'fetchpriority="high" ' : '')) + `decoding="${dec}"`;
-    return `<span class="vis k-${kind}"><img class="ph" src="${u}" alt="" title="${who ? 'Foto: ' + esc(who) : ''}" ${ld} referrerpolicy="no-referrer" data-sid="${esc(s.id)}" data-kind="${kind}">${cr}</span>`;
-  }
-  return fallbackVisual(s, kind);
+// Ogni posizione crea la propria immagine; la cache degli indirizzi è gestita dal browser.
+function visual(s, kind, credit = true, load = 'lazy'){
+  if (!hasImg(s)) return fallbackVisual(s, kind);
+  const who = s.img.o ? outlet(s.img.o).name : '';
+  const cr = credit && kind !== 'thumb' && who ? `<span class="pcred">Foto: ${esc(who)}</span>` : '';
+  return `<span class="vis k-${kind}"><img class="ph" src="${esc(imgUrl(s.img))}" alt="" title="${who ? 'Foto: ' + esc(who) : ''}" loading="${load === 'lazy' ? 'lazy' : 'eager'}"${load === 'high' ? ' fetchpriority="high"' : ''} decoding="async" referrerpolicy="no-referrer" data-sid="${esc(s.id)}" data-kind="${kind}">${cr}</span>`;
 }
-document.addEventListener('error', e => {
-  const t = e.target;
-  if (!t || t.tagName !== 'IMG' || !t.classList.contains('ph')) return;
-  imgFail(t);
-}, true);
-// foto che non arriva: al suo posto la copertina generata (o la mappa)
-function imgFail(t){
-  BADIMG.set(t.getAttribute('src'), Date.now());
-  const s = getStory(t.dataset.sid) || {id:t.dataset.sid, topic:'mondo'};
-  const holder = t.parentNode;
-  t.remove();
-  if (holder) holder.querySelectorAll('.pcred').forEach(c => c.remove());
-  if (holder) holder.insertAdjacentHTML('beforeend', fallbackVisual(Object.assign({}, s, {img:null}), t.dataset.kind || 'thumb'));
+const PHOTO_STATE = new WeakMap();   // tentativi del singolo elemento, mai dell'indirizzo o delle altre pagine
+const PHOTO_STATS = {fallbacks:0};
+function photoVisible(im){
+  if (document.visibilityState !== 'visible' || !im.isConnected || im.closest('.pg-old') || !$('#onb').hidden) return false;
+  if (im.closest('#sheet')) return !!S.story && !$('#sheet').hidden;
+  return !S.story && im.closest('.pane') === $('#view > .pane:not(.pg-old)');
+}
+function retryPhoto(im){
+  const state = PHOTO_STATE.get(im);
+  if (!state || state.timer || !state.pending || navigator.onLine === false || !photoVisible(im)) return;
+  state.timer = setTimeout(() => {
+    state.timer = 0;
+    if (!state.pending || navigator.onLine === false || !photoVisible(im)) return;
+    state.pending = false; state.retried = state.errors > 0;
+    im.src = im.getAttribute('src');   // stesso indirizzo, senza mai togliere src
+  }, 1000);
+}
+function photoError(im){
+  const state = PHOTO_STATE.get(im); if (!state) return;
+  state.pending = true;
+  // Un annullamento a pagina nascosta o senza rete non consuma un tentativo visibile.
+  if (!photoVisible(im) || navigator.onLine === false) return;
+  if (!state.retried) { state.errors = 1; retryPhoto(im); return; }
+  state.pending = false;
+  if (state.fallback) return;
+  const holder = im.parentElement, story = getStory(im.dataset.sid) || {id:im.dataset.sid, topic:'mondo'};
+  const cover = document.createElement('span'); cover.className = 'photo-cover'; cover.setAttribute('aria-hidden', 'true');
+  cover.innerHTML = fallbackVisual(story, im.dataset.kind || 'thumb'); holder.appendChild(cover);
+  const credit = holder.querySelector('.pcred'); if (credit) credit.hidden = true;
+  state.fallback = true; state.pending = false; PHOTO_STATS.fallbacks++;
+}
+function watchPhotos(root){
+  root.querySelectorAll('img.ph').forEach(im => {
+    if (PHOTO_STATE.has(im)) return;
+    PHOTO_STATE.set(im, {errors:0, pending:false, timer:0, fallback:false, retried:false});
+    im.addEventListener('error', () => photoError(im));
+    im.addEventListener('load', () => {
+      const state = PHOTO_STATE.get(im); clearTimeout(state.timer);
+      state.timer = 0; state.errors = 0; state.pending = false; state.fallback = false; state.retried = false;
+      const holder = im.parentElement; if (!holder) return;
+      const cover = holder.querySelector('.photo-cover'); if (cover) cover.remove();
+      const credit = holder.querySelector('.pcred'); if (credit) credit.hidden = false;
+    });
+  });
+}
+function resumePhotos(root, returning = false, online = false){
+  if (!root) return;
+  root.querySelectorAll('img.ph').forEach(im => {
+    const state = PHOTO_STATE.get(im); if (!state) return;
+    if (online || (returning && state.fallback)) { state.errors = 0; state.retried = false; state.pending = state.pending || state.fallback; }
+    retryPhoto(im);
+  });
 }
 
 /* ---------- stato ---------- */
@@ -372,9 +401,6 @@ function pushCtx(id){ if (collecting && !CTX.includes(id)) CTX.push(id); }
 /* ----- pagine tenute pronte: ogni sezione (e ogni sotto-pagina) ha il suo contenitore, che resta com'era quando cambi sezione.
    Le pagine nascoste stanno fuori dal documento (così gli id non si ripetono) con le foto già scaricate. ----- */
 const PANES = new Map();   // chiave della pagina → {el, sig, ctx}
-const POOL = new Map();    // foto pronte senza pagina (preparate in anticipo o di pagine chiuse), per indirizzo
-const IMG_KEEP = new Set(['src', 'srcset', 'sizes', 'class', 'loading', 'fetchpriority', 'decoding', 'referrerpolicy', 'crossorigin']);
-const POOL_MAX = 220, PANE_IMG_MAX = 200, SUB_MAX = 3;
 function subOf(tab){ return tab === 'perte' ? S.topicPage : tab === 'salvati' ? S.folder : null; }
 function pageKey(){ const sub = subOf(S.tab); return S.tab + (sub ? (S.tab === 'perte' ? '|tema:' : '|cartella:') + sub : ''); }
 // da cosa dipende ogni pagina: se cambia, la pagina si ridisegna (quando la mostri, mai mentre è nascosta)
@@ -396,76 +422,24 @@ function viewHtml(){
   if (S.tab === 'salvati') return viewSalvati();
   return viewProfilo();
 }
-function poolPut(im){
-  const k = im.getAttribute('src'); if (!k || POOL.has(k)) return;
-  POOL.set(k, im);
-  while (POOL.size > POOL_MAX) POOL.delete(POOL.keys().next().value);
+function dropPane(k){ PANES.delete(k); }
+// Al massimo tre pagine nascoste: Oggi, Per te e la più recente delle altre.
+function trimPanes(active = pageKey()){
+  const held = PAGE_HOLD?.key || $('#view > .pg-old')?.dataset.k;
+  const hidden = [...PANES.keys()].filter(k => k !== active && k !== held);
+  const keep = new Set(hidden.filter(k => k === 'oggi' || k === 'perte'));
+  for (const k of hidden.slice().reverse()) if (k !== 'sfoglia' && keep.size < 3) keep.add(k);
+  hidden.forEach(k => { if (k === 'sfoglia' || !keep.has(k)) dropPane(k); });
 }
-// chiude una pagina nascosta: le prime foto restano pronte per quando la riapri
-function dropPane(k){
-  const P = PANES.get(k); if (!P) return;
-  PANES.delete(k);
-  [...P.el.querySelectorAll('img.ph')].slice(0, PANE_IMG_MAX).forEach(poolPut);
-}
-// disegna (o ridisegna) la pagina: il nuovo HTML si prepara a parte, poi ogni foto già vista con lo stesso indirizzo
-// prende il posto della nuova, già scaricata e pronta: una foto già vista non lampeggia mai
+// La pagina mantiene il suo HTML finché è valido. Ridisegnandola crea immagini proprie, senza scambi.
 function buildPane(k){
-  const old = PANES.get(k);
+  const old = PANES.get(k), el = old ? old.el : document.createElement('div');
   collecting = true; CTX = [];
-  const html = viewHtml();
-  collecting = false;
-  const tpl = document.createElement('template'); tpl.innerHTML = html;   // nel modello le foto non partono
-  const frag = tpl.content;
-  const el = old ? old.el : document.createElement('div');
+  const html = viewHtml(); collecting = false;
   el.className = 'pane' + (k === 'sfoglia' ? ' sf-pane' : ''); el.dataset.k = k;
-  // Le foto vecchie non entrano mai nel modello (passando da un documento all'altro ripartirebbero):
-  // nel modello si segna dove vanno, si tolgono gli indirizzi alle foto nuove che verranno sostituite, e lo scambio si fa dopo, nella pagina.
-  const swaps = [];
-  // Se la fila non è cambiata, si conservano le card, le foto e lo scorrimento.
-  const od = old && el.querySelector('.carousel'), nd = frag.querySelector('.carousel');
-  let keepCarousel = false;
-  if (nd) {
-    const src = nd.outerHTML.replace(/ fetchpriority="high"/g, '');
-    if (od && od._src === src) { keepCarousel = true; nd.querySelectorAll('img').forEach(i => i.removeAttribute('src')); swaps.push([nd, od]); }
-    else nd._src = src;
-  }
-  const have = new Map();
-  if (old) el.querySelectorAll('img.ph').forEach(im => { if (keepCarousel && od.contains(im)) return; const s = im.getAttribute('src'); if (!have.has(s)) have.set(s, []); have.get(s).push(im); });
-  // in Sfoglia sempre foto nuove: su iOS una foto spostata qui da un'altra pagina può non essere ridipinta
-  if (!k.startsWith('sfoglia')) frag.querySelectorAll('img.ph').forEach(n => {
-    if (keepCarousel && nd.contains(n)) return;
-    const s = n.getAttribute('src'), list = have.get(s);
-    const o = (list && list.shift()) || POOL.get(s); if (!o) return;
-    POOL.delete(s);
-    // si aggiornano solo le etichette (titolo, storia): gli attributi dello scaricamento non si toccano, altrimenti la foto ripartirebbe
-    for (const a of n.attributes) if (!IMG_KEEP.has(a.name) && o.getAttribute(a.name) !== a.value) o.setAttribute(a.name, a.value);
-    for (const a of [...o.attributes]) if (!IMG_KEEP.has(a.name) && !n.hasAttribute(a.name)) o.removeAttribute(a.name);
-    o.classList.add('ph');
-    n.removeAttribute('src');
-    swaps.push([n, o]);
-  });
-  el.replaceChildren(frag);
-  swaps.forEach(([n, o]) => n.replaceWith(o));
-  readyImgs(el);
-  const P = {el, sig:paneSig(k), ctx:CTX};
-  PANES.set(k, P);
+  el.innerHTML = html; watchPhotos(el);
+  const P = {el, sig:paneSig(k), ctx:CTX}; PANES.set(k, P);
   return P;
-}
-// foto arrivate dopo: compaiono con una dissolvenza brevissima, quando sono già pronte (mai uno scatto né il grigio che lampeggia)
-function readyImgs(root){
-  root.querySelectorAll('img.ph').forEach(im => {
-    if (!im.getAttribute('src')) return;
-    if (im.complete) { if (im.naturalWidth) im.classList.remove('ld'); else imgFail(im); return; }
-    if (im.closest('.sf')) return;   // Sfoglia: foto sempre visibili, senza dissolvenza
-    if (im._ld) return;
-    im._ld = 1; im.classList.add('ld');
-    const on = () => im.classList.remove('ld');
-    // si mostra quando è pronta (decode) o al massimo 250 ms dopo l'arrivo: su Safari iOS decode() può non rispondere mai
-    im.addEventListener('load', () => { if (im.decode) im.decode().then(on, on); setTimeout(on, 250); }, {once:true});
-    setTimeout(() => { if (im.naturalWidth) on(); }, 4000);   // in ogni caso: arrivata e ancora nascosta dopo 4 s, si mostra
-    // foto che non arriva: copertina di riserva, anche se succede mentre la pagina è nascosta
-    im.addEventListener('error', () => { if (im.parentNode) imgFail(im); }, {once:true});
-  });
 }
 // mostra la pagina della sezione attuale: la stessa di prima se nulla di suo è cambiato; force la ridisegna comunque
 function render(force = true){
@@ -479,45 +453,19 @@ function render(force = true){
   const v = $('#view'), k = pageKey();
   let P = PANES.get(k);
   if (!P || force || P.sig !== paneSig(k)) P = buildPane(k);
-  else readyImgs(P.el);   // foto arrivate mentre la pagina era nascosta
+  const returning = v.querySelector('.pane:not(.pg-old)') !== P.el;
   if (PAGE_HOLD && PAGE_HOLD.el !== P.el) {
     if (P.el.parentNode !== v) v.appendChild(P.el);
   } else if (v.firstElementChild !== P.el || v.children.length > 1) v.replaceChildren(P.el);
   S.ctx = P.ctx;
-  // pagine nascoste: poche sotto-pagine, e nessuna con troppe foto
-  const subs = [...PANES.keys()].filter(x => x !== k && x !== PAGE_HOLD?.key && x.includes('|'));
-  while (subs.length > SUB_MAX) dropPane(subs.shift());
-  PANES.forEach((Q, x) => { if (x !== k && x !== PAGE_HOLD?.key && Q.el.querySelectorAll('img.ph').length > PANE_IMG_MAX) dropPane(x); });
-  PANES.delete(k); PANES.set(k, P);   // l'ultima vista va in fondo (le più vecchie si chiudono prima)
+  PANES.delete(k); PANES.set(k, P);
+  trimPanes(k);
+  resumePhotos(P.el, returning);
   const sfv = $('#sfv'); if (sfv && S.sfIdx && Math.abs(sfv.scrollTop - S.sfIdx * sfv.clientHeight) > 2) sfv.scrollTop = S.sfIdx * sfv.clientHeight;
+  primeSfPhotos(sfv);
   initCarousels();
   if (S.story && !$('#sheet').hidden && force) renderSheet(true);
   observeMore();
-}
-// preparare in anticipo, a telefono libero: le prime carte dei mazzi di Per te e le prime righe di ogni elenco (al massimo 20 foto)
-let prepDone = false;
-function prepareAhead(){
-  if (prepDone || !S.stories.length) return;
-  prepDone = true;
-  const c = navigator.connection; if (c && c.saveData) return;
-  const idle = window.requestIdleCallback || (f => setTimeout(f, 600));
-  idle(() => {
-    const urls = [], add = s => { if (s && hasImg(s)) { const u = imgUrl(s.img); if (u && !urls.includes(u)) urls.push(u); } };
-    S.prefs.topics.forEach(id => { const list = topicStories(id); add(byImportance(list.filter(hasImg))[0]); });
-    const {top, rest} = oggiLists(); top.slice(0, 3).forEach(add);
-    visible(S.stories).filter(s => hasTopic(s, 'napoli')).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt)).slice(0, 3).forEach(add);
-    rest.slice(0, 6).forEach(add);
-    savedItems().slice(0, 6).forEach(x => add(x.s));
-    const inDom = new Map(); PANES.forEach(P => P.el.querySelectorAll('img.ph').forEach(im => inDom.set(im.getAttribute('src'), im)));
-    urls.slice(0, 20).forEach(u => {
-      const d = inDom.get(u);
-      if (d) { if (d.decode) d.decode().catch(() => {}); return; }
-      if (POOL.has(u)) return;
-      const im = new Image(); im.referrerPolicy = 'no-referrer'; im.decoding = 'sync'; im.className = 'ph'; im.src = u;
-      if (im.decode) im.decode().catch(() => {});
-      poolPut(im);
-    });
-  }, {timeout:3000});
 }
 function renderEdPill(){
   updateRefreshUI();
@@ -557,7 +505,7 @@ function showMore(key){
   S.pages[key] = n1;
   const was = collecting; collecting = true; CTX = S.ctx || [];
   feed.insertAdjacentHTML('beforeend', list.slice(n0, n1).map(x => (PAGEDF[key] || nrow)(x)).join(''));
-  S.ctx = CTX; collecting = was; readyImgs(feed);
+  S.ctx = CTX; collecting = was; watchPhotos(feed);
   const btn = document.querySelector(`.more[data-pkey="${CSS.escape(key)}"]`);
   const rest = list.length - n1;
   if (btn) { if (rest > 0) btn.textContent = `Mostra altre ${rest} ${rest === 1 ? 'notizia' : 'notizie'}`; else btn.remove(); }
@@ -753,7 +701,7 @@ function carouselCard(s, i, opts){
   pushCtx(s.id);
   const t = opts.t || tcol(s), ids = outletsOf(s), n = ids.length;
   return `<article class="ccard" data-i="${i}" data-act="open" data-id="${esc(s.id)}" tabindex="0" style="--tg:${t.c};--tgt:${t.tx}" aria-label="${esc(s.headline)}">
-    <div class="cpic">${visual(s, 'wide', true, i === 0 ? 'high' : i < 3 ? 'eager' : 'lazy')}</div>
+    <div class="cpic">${visual(s, 'wide', true, i === 0 ? 'high' : 'lazy')}</div>
     <div class="cin"><span class="tag">${esc(opts.t && opts.t.id !== 'napoli' ? opts.t.name : kickName(s))}</span><h3>${esc(s.headline)}</h3>
       <div class="meta">${n > 1 || !opts.t ? `<span class="cov">${PAPER_S}${covText(n)}</span><span>${esc(ago(s.updatedAt))}</span>` : `<span>${n ? esc(outlet(ids[0]).name) + ' · ' : ''}${esc(ago(s.updatedAt))}</span>`}</div></div>
   </article>`;
@@ -1198,7 +1146,7 @@ function closeStory(fromPop, instant){
   finishPageTransition();
   S.story = null;
   const sh = $('#sheet');
-  const hide = () => { if (S.story) return; sh.hidden = true; sh.innerHTML = ''; sh.style.pointerEvents = ''; syncSfChrome(); };
+  const hide = () => { if (S.story) return; sh.hidden = true; sh.innerHTML = ''; sh.style.pointerEvents = ''; syncSfChrome(); resumePhotos($('#view > .pane:not(.pg-old)'), true); };
   if (!instant) {
     sh.style.pointerEvents = 'none';
     animatePages(sh, $('#view > .pane'), -1, hide);
@@ -1260,6 +1208,7 @@ function renderSheet(keepScroll){
       ${chapters ? `<p class="lab">Approfondisci</p><div class="box chs">${chapters}</div>` : ''}
     </div>
   </article>`;
+  watchPhotos(sh); resumePhotos(sh);
   sh.scrollTop = st;
 }
 function cleanAuthor(a, o){
@@ -1305,15 +1254,24 @@ function phraseOf(s){
   return x && x.u ? {t:titleIt(x) || x.t, o:outlet(x.o).name, u:x.u, tr:langOf(x) !== 'it' && !!titleIt(x)} : null;
 }
 const SF_STEP = 25;
-// foto di Sfoglia: semplici <img> scaricate subito (la notizia attuale con la precedenza) e sempre visibili:
-// niente dissolvenza, niente attesa di decode(), niente caricamento a distanza, niente foto riusate da altre pagine.
+// In Sfoglia sono anticipate solo la notizia attuale e le due successive.
+function primeSfPhotos(el){
+  if (!el) return;
+  const current = S.sfIdx || 0;
+  el.querySelectorAll('.sf').forEach(slide => {
+    const im = slide.querySelector('img.ph'); if (!im) return;
+    const i = +slide.dataset.i, load = i >= current && i <= current + 2 ? 'eager' : 'lazy';
+    if (im.loading !== load) im.loading = load;
+    im.fetchPriority = i === current ? 'high' : 'auto';
+  });
+}
 function sfSlide(s, i){
   pushCtx(s.id);
   const t = tcol(s), n = outletsOf(s).length, ph = phraseOf(s);
   const q = ph ? String(ph.t).replace(/^[«"“]+|[»"”]+$/g, '') : '';
   const topicInk = '#' + t.c.slice(1).match(/../g).map(v => Math.round(parseInt(v, 16) * .55 + 255 * .45).toString(16).padStart(2, '0')).join('');
   return `<article class="sf" data-act="open" data-id="${esc(s.id)}" data-i="${i}" tabindex="0" style="--tg:${t.c};--sf-topic:${topicInk}" aria-label="${esc(s.headline)}">
-    <div class="sfph">${visual(s, 'wide', true, i === (S.sfIdx || 0) ? 'high' : 'eager', 'async')}</div>
+    <div class="sfph">${visual(s, 'wide', true, i === (S.sfIdx || 0) ? 'high' : i > (S.sfIdx || 0) && i <= (S.sfIdx || 0) + 2 ? 'eager' : 'lazy')}</div>
     <div class="sftx"><p class="m2"><span>${esc(kickName(s))}</span> · ${covText(n)} · ${esc(ago(s.updatedAt))}</p>
       <h2>${esc(s.headline)}</h2>
       ${q ? `<p class="q"><span class="qt">«${esc(q)}»</span><span class="qo"><a href="${esc(ph.u)}" target="_blank" rel="noopener">${esc(ph.o)}</a>${ph.tr ? ' · tradotto' : ''}${n > 1 ? ` · e ${n === 2 ? 'un\'altra testata' : 'altre ' + (n - 1) + ' testate'}` : ''}</span></p>` : ''}</div>
@@ -1326,21 +1284,20 @@ function viewSfoglia(){
   S.sfN = Math.min(list.length, Math.max(S.sfN || 0, SF_STEP, (S.sfIdx || 0) + 5));
   return `<div class="sfshell"><div class="sfv" id="sfv" role="feed" aria-label="Sfoglia: una notizia per schermata">${list.slice(0, S.sfN).map(sfSlide).join('')}</div></div>`;
 }
-// diagnosi temporanea delle foto di Sfoglia: si accende con ?debug=foto nell'indirizzo
+// Diagnosi delle foto: ?debug=foto, con il conteggio delle copertine di riserva nella sessione.
 if (/[?&]debug=foto\b/.test(location.search)) {
   const box = document.createElement('div'); box.id = 'dbgfoto';
   box.style.cssText = 'position:fixed;left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom,0px) + 2px);z-index:99;padding:4px 8px;border-radius:8px;background:rgba(0,0,0,.82);color:#fff;font:600 12px/1.35 ui-monospace,Menlo,monospace;pointer-events:none;white-space:pre-wrap';
-  const put = () => { if (document.body && !box.isConnected) document.body.appendChild(box); };
-  put(); document.addEventListener('DOMContentLoaded', put);
+  document.body.appendChild(box);
   setInterval(() => {
-    put();
-    if (S.tab !== 'sfoglia') { box.textContent = 'debug foto: apri Sfoglia'; return; }
-    const sl = document.querySelectorAll('#sfv .sf')[S.sfIdx || 0];
-    const im = sl && sl.querySelector('img.ph');
-    if (!im) { box.textContent = `slide ${(S.sfIdx || 0) + 1} · nessuna foto` + (sl && sl.querySelector('.sfph svg, .sfph .art') ? ' · errore: sì (copertina di riserva)' : ''); return; }
-    const u = im.getAttribute('src');
-    const r = im.getBoundingClientRect(), f = im.parentNode.getBoundingClientRect();
-    box.textContent = `slide ${(S.sfIdx || 0) + 1} · src: ${u ? 'sì' : 'no'} · complete: ${im.complete} · naturalWidth: ${im.naturalWidth} · ld: ${im.classList.contains('ld') ? 'sì' : 'no'} · errore: ${u && BADIMG.has(u) ? 'sì' : 'no'} · foto ${Math.round(r.width)}×${Math.round(r.height)} · cornice ${Math.round(f.width)}×${Math.round(f.height)} · opacità ${getComputedStyle(im).opacity}`;
+    const page = $('#view > .pane:not(.pg-old)');
+    window.eddyPhotoDebug = {fallbacks:PHOTO_STATS.fallbacks, cachedPages:[...PANES.keys()], images:page ? page.querySelectorAll('img.ph').length : 0};
+    const summary = `copertine di riserva (sessione): ${PHOTO_STATS.fallbacks} · pagine conservate: ${PANES.size}`;
+    if (S.tab !== 'sfoglia') { box.textContent = `debug foto · ${summary}`; return; }
+    const slide = document.querySelectorAll('#sfv .sf')[S.sfIdx || 0], im = slide && slide.querySelector('img.ph');
+    if (!im) { box.textContent = `slide ${(S.sfIdx || 0) + 1} · nessuna foto · ${summary}`; return; }
+    const r = im.getBoundingClientRect(), frame = im.parentNode.getBoundingClientRect();
+    box.textContent = `slide ${(S.sfIdx || 0) + 1} · complete: ${im.complete} · naturalWidth: ${im.naturalWidth} · foto ${Math.round(r.width)}×${Math.round(r.height)} · cornice ${Math.round(frame.width)}×${Math.round(frame.height)} · ${summary}`;
   }, 400);
 }
 function sfMore(){
@@ -1349,11 +1306,12 @@ function sfMore(){
   const n1 = Math.min(list.length, S.sfN + SF_STEP);
   const was = collecting; collecting = true; CTX = S.ctx || [];
   el.insertAdjacentHTML('beforeend', list.slice(S.sfN, n1).map((s, i) => sfSlide(s, S.sfN + i)).join(''));
-  S.ctx = CTX; collecting = was; S.sfN = n1; readyImgs(el);
+  S.ctx = CTX; collecting = was; S.sfN = n1; watchPhotos(el); primeSfPhotos(el);
 }
 document.addEventListener('scroll', e => {
   const el = e.target; if (!el || el.id !== 'sfv') return;
   if (Date.now() - (S.sfKeyAt || 0) > 700) S.sfIdx = Math.round(el.scrollTop / Math.max(1, el.clientHeight));
+  primeSfPhotos(el);
   if (el.scrollTop + el.clientHeight * 4 > el.scrollHeight) sfMore();
 }, {capture:true, passive:true});
 document.addEventListener('keydown', e => {
@@ -1362,7 +1320,7 @@ document.addEventListener('keydown', e => {
   const el = $('#sfv'); if (!el) return;
   e.preventDefault();
   const i = Math.max(0, Math.min(el.children.length - 1, (S.sfIdx || 0) + (e.key === 'ArrowDown' || e.key === 'PageDown' ? 1 : -1)));
-  S.sfIdx = i; S.sfKeyAt = Date.now(); if (i + 4 > el.children.length) sfMore();
+  S.sfIdx = i; S.sfKeyAt = Date.now(); if (i + 4 > el.children.length) sfMore(); primeSfPhotos(el);
   el.scrollTo({top:i * el.clientHeight, behavior:'smooth'});
   const sl = el.children[i]; if (sl) sl.focus({preventScroll:true});
 });
@@ -1559,6 +1517,8 @@ function swapPage(dir, change){
     old.classList.remove('pg-old'); old.style.cssText = styles; old.inert = inert;
     if (aria === null) old.removeAttribute('aria-hidden'); else old.setAttribute('aria-hidden', aria);
     ids.forEach(([el, id]) => { el.id = id; });
+    if (old.dataset.k === 'sfoglia' && S.tab !== 'sfoglia') dropPane('sfoglia');
+    trimPanes();
   };
   if (old) {
     old.classList.add('pg-old'); old.inert = true; old.setAttribute('aria-hidden', 'true');
@@ -1718,7 +1678,6 @@ async function loadData(manual){
     if (before.size) S.stories.forEach(x => { const b = before.get(x.id); if (b === undefined) added++; else if (b !== (x.changedAt || x.updatedAt)) updated++; });
     if (S.pendingStory) { const p = S.pendingStory; S.pendingStory = null; if (S.byId.has(p)) setTimeout(() => openStory(p, {fromPop:true}), 0); }
     scheduleRender();
-    prepareAhead();
     if (!$('#onb').hidden && S.onbStep === 0) renderOnb();
     if (DL.offline) { DL.last = 0; return {ok:false, offline:true, added, updated}; }
     return {ok:true, added, updated};
@@ -1751,10 +1710,11 @@ window.EDDY_BUILD = BUILD; window.eddyCheckUpdate = checkUpdate;
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) { markSeen(); return; }
   const v = LS.get('seen'); if (v && Date.now() - v > 5 * 60000) { S.lastSeen = v; scheduleRender(); }
+  resumePhotos(S.story ? $('#sheet') : $('#view > .pane:not(.pg-old)'), true);
   if (Date.now() - DL.last > 2 * 60000) loadData(false);
 });
 window.addEventListener('pagehide', markSeen);
-window.addEventListener('online', () => { if (Date.now() - DL.last > 60000) loadData(false); });
+window.addEventListener('online', () => { resumePhotos(S.story ? $('#sheet') : $('#view > .pane:not(.pg-old)'), false, true); if (Date.now() - DL.last > 60000) loadData(false); });
 setInterval(() => { if (!document.hidden && Date.now() - DL.last > 5 * 60000) loadData(false); }, 30000);
 
 /* ---------- installazione, copia di sicurezza, nome ---------- */
