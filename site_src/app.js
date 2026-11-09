@@ -254,13 +254,16 @@ function imgUrl(img){
 function hasPlace(s){ return s && s.place && typeof s.place.lat === 'number' && typeof s.place.lon === 'number'; }
 function fallbackVisual(s, kind){ return hasPlace(s) ? mapSvg(s.place, kind) : art(s, kind); }
 // Ogni foto porta il credito della testata (sulle miniature è nel testo accanto e nel titolo dell'immagine).
-// load: 'lazy' (elenchi), 'eager' (carte del mazzo, scaricate subito) o 'high' (la carta davanti, con la precedenza)
+// load: 'lazy' (elenchi), 'eager' (carte del mazzo, scaricate subito) o 'high' (la carta davanti, con la precedenza).
+// decoding="sync": Safari prepara la foto prima di dipingerla. Con "async" (o lasciando decidere a lui) le foto grandi,
+// ogni volta che tornano visibili, vengono preparate in differita: per un attimo si vede il riquadro vuoto (il "lampo").
+// Le foto che arrivano dalla rete sono già preparate con decode() prima di comparire (readyImgs).
 const BADIMG = new Set();   // foto che non sono arrivate: ridisegnando la pagina si mostra subito la copertina di riserva
 function visual(s, kind, credit = true, load = 'lazy'){
   if (hasImg(s) && !BADIMG.has(imgUrl(s.img))) {
     const who = s.img.o ? outlet(s.img.o).name : '';
     const cr = credit && kind !== 'thumb' && who ? `<span class="pcred">Foto: ${esc(who)}</span>` : '';
-    const ld = load === 'lazy' ? 'loading="lazy" decoding="async"' : 'loading="eager"' + (load === 'high' ? ' fetchpriority="high"' : '');
+    const ld = (load === 'lazy' ? 'loading="lazy"' : 'loading="eager"' + (load === 'high' ? ' fetchpriority="high"' : '')) + ' decoding="sync"';
     return `<span class="vis k-${kind}"><img class="ph" src="${esc(imgUrl(s.img, kind))}" alt="" title="${who ? 'Foto: ' + esc(who) : ''}" ${ld} referrerpolicy="no-referrer" data-sid="${esc(s.id)}" data-kind="${kind}">${cr}</span>`;
   }
   return fallbackVisual(s, kind);
@@ -506,7 +509,7 @@ function prepareAhead(){
       const d = inDom.get(u);
       if (d) { if (d.decode) d.decode().catch(() => {}); return; }
       if (POOL.has(u)) return;
-      const im = new Image(); im.referrerPolicy = 'no-referrer'; im.className = 'ph'; im.src = u;
+      const im = new Image(); im.referrerPolicy = 'no-referrer'; im.decoding = 'sync'; im.className = 'ph'; im.src = u;
       if (im.decode) im.decode().catch(() => {});
       poolPut(im);
     });
