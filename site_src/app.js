@@ -693,6 +693,7 @@ function deckGo(step){
   document.addEventListener('pointercancel', end);
   document.addEventListener('keydown', e => {
     if (!e.target.closest || !e.target.closest('#deck')) return;
+    if (e.key === 'Enter' && e.target.id === 'deck') { e.preventDefault(); const c = $('#deck .dk.c0'); if (c) openStory(c.dataset.id); return; }
     if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
       e.preventDefault(); deckGo(e.key === 'ArrowRight' ? 1 : -1);
       const c = $('#deck .dk.c0'); if (c && e.target !== $('#deck')) c.focus();
@@ -979,12 +980,15 @@ function openStory(id, opts){
   document.body.classList.add('locked');
   renderSheet(false);
   sh.scrollTop = 0;
+  if (!wasOpen) S.storyBack = document.activeElement;
+  const cb = sh.querySelector('[data-act="close"]'); if (cb) cb.focus({preventScroll:true});
   if (!opts.fromPop) { try { if (wasOpen && history.state && history.state.story) history.replaceState({story:id}, '', '#s-' + id); else history.pushState({story:id}, '', '#s-' + id); } catch (e) {} }
 }
 function closeStory(fromPop){
   if (!S.story) return;
   S.story = null;
   $('#sheet').hidden = true; $('#sheet').innerHTML = '';
+  if (S.storyBack && S.storyBack.isConnected) S.storyBack.focus({preventScroll:true}); S.storyBack = null;
   document.body.classList.remove('locked');
   if (!fromPop) { try { if (history.state && history.state.story) history.back(); else history.replaceState(null, '', '#' + S.tab); } catch (e) {} }
 }
@@ -1096,7 +1100,7 @@ function sfMore(){
 }
 document.addEventListener('scroll', e => {
   const el = e.target; if (!el || el.id !== 'sfv') return;
-  S.sfIdx = Math.round(el.scrollTop / Math.max(1, el.clientHeight));
+  if (Date.now() - (S.sfKeyAt || 0) > 700) S.sfIdx = Math.round(el.scrollTop / Math.max(1, el.clientHeight));
   if (el.scrollTop + el.clientHeight * 4 > el.scrollHeight) sfMore();
 }, {capture:true, passive:true});
 document.addEventListener('keydown', e => {
@@ -1104,7 +1108,8 @@ document.addEventListener('keydown', e => {
   if (!['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp'].includes(e.key)) return;
   const el = $('#sfv'); if (!el) return;
   e.preventDefault();
-  const i = Math.max(0, (S.sfIdx || 0) + (e.key === 'ArrowDown' || e.key === 'PageDown' ? 1 : -1));
+  const i = Math.max(0, Math.min(el.children.length - 1, (S.sfIdx || 0) + (e.key === 'ArrowDown' || e.key === 'PageDown' ? 1 : -1)));
+  S.sfIdx = i; S.sfKeyAt = Date.now(); if (i + 4 > el.children.length) sfMore();
   el.scrollTo({top:i * el.clientHeight, behavior:'smooth'});
   const sl = el.children[i]; if (sl) sl.focus({preventScroll:true});
 });
