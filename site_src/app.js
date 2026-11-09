@@ -79,7 +79,27 @@ function hoursAgo(v){ const t = ts(v); return t ? Math.max(0, (Date.now() - t) /
 function hourNow(){ return Number(new Intl.DateTimeFormat('it-IT', {hour:'numeric', hourCycle:'h23', timeZone:TZ}).format(new Date())) % 24; }
 function light(){ const h = hourNow(); return h >= 5 && h < 12 ? 'mattino' : h >= 12 && h < 18 ? 'pomeriggio' : 'sera'; }
 function greeting(){ const l = light(); return l === 'mattino' ? 'Buongiorno' : l === 'pomeriggio' ? 'Buon pomeriggio' : 'Buonasera'; }
-function applyLight(){ const l = light(); if (document.documentElement.dataset.light !== l) document.documentElement.dataset.light = l; }
+const TOPCOL = {mattino:'#FBE6DA', pomeriggio:'#DFEBF6', sera:'#E6E4F4'};
+function applyLight(){ const l = light(); if (document.documentElement.dataset.light !== l) document.documentElement.dataset.light = l; applyChrome(); }
+// barra di stato e barra di Safari: colore di cima dell'ora; grigio nelle schermate a fondo grigio (Storia, Sfoglia) e in fondo alla pagina
+function applyChrome(){
+  const root = document.documentElement, l = root.dataset.light || light();
+  const grey = l === 'sera' ? '#F3F4F6' : '#F4F5F7';
+  const onbOpen = !$('#onb').hidden;
+  const c = !onbOpen && (S.story || S.tab === 'sfoglia' || root.hasAttribute('data-end')) ? grey : TOPCOL[l];
+  let m = document.querySelector('meta[name="theme-color"]');
+  if (!m) { m = document.createElement('meta'); m.name = 'theme-color'; document.head.appendChild(m); }
+  if (m.content !== c) m.content = c;
+}
+// controllo leggero sullo scorrimento: oltre metà pagina il rimbalzo in fondo mostra il grigio, in cima il colore dell'ora
+function checkEnd(){
+  const y = window.scrollY, max = document.documentElement.scrollHeight - window.innerHeight;
+  const end = max > 0 ? y > max / 2 : y > 0;
+  const root = document.documentElement;
+  if (end !== root.hasAttribute('data-end')) { if (end) root.setAttribute('data-end', ''); else root.removeAttribute('data-end'); applyChrome(); }
+}
+window.addEventListener('scroll', checkEnd, {passive:true});
+window.addEventListener('resize', checkEnd, {passive:true});
 function dayLabel(){ return cap(fmtWD.format(new Date()).replace(/\.(?=\s)/, '')); }
 const LOGO = '<span class="logo" role="img" aria-label="Eddy"><svg viewBox="0 0 70 50" aria-hidden="true"><rect x="0" y="0" width="50" height="12" rx="6" fill="#D0021B"/><rect x="10" y="19" width="50" height="12" rx="6" fill="#3D5FC4"/><rect x="20" y="38" width="50" height="12" rx="6" fill="#C25400"/></svg><span aria-hidden="true">eddy</span></span>';
 const LS = {
@@ -372,6 +392,7 @@ function render(animate){
   const sfv = $('#sfv'); if (sfv && S.sfIdx) sfv.scrollTop = S.sfIdx * sfv.clientHeight;
   if (animate) { v.classList.remove('fade'); void v.offsetWidth; v.classList.add('fade'); }
   layoutDeck();
+  checkEnd(); applyChrome();
   if (S.story && !$('#sheet').hidden) renderSheet(true);
   observeMore();
 }
@@ -996,6 +1017,7 @@ function openStory(id, opts){
   document.body.classList.add('locked');
   renderSheet(false);
   sh.scrollTop = 0;
+  applyChrome();
   if (!wasOpen) S.storyBack = document.activeElement;
   const cb = sh.querySelector('[data-act="close"]'); if (cb) cb.focus({preventScroll:true});
   if (!opts.fromPop) { try { if (wasOpen && history.state && history.state.story) history.replaceState({story:id}, '', '#s-' + id); else history.pushState({story:id}, '', '#s-' + id); } catch (e) {} }
@@ -1005,6 +1027,7 @@ function closeStory(fromPop){
   S.story = null;
   $('#sheet').hidden = true; $('#sheet').innerHTML = '';
   if (S.storyBack && S.storyBack.isConnected) S.storyBack.focus({preventScroll:true}); S.storyBack = null;
+  applyChrome();
   document.body.classList.remove('locked');
   if (!fromPop) { try { if (history.state && history.state.story) history.back(); else history.replaceState(null, '', '#' + S.tab); } catch (e) {} }
 }
@@ -1161,8 +1184,8 @@ function applyReaderSize(){ document.body.classList.remove('size-s', 'size-m', '
 const ARROW_R = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 const ARROW_L = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>';
 function maybeOnboard(){ if (S.onbShown || S.prefs.onboarded) return; S.onbShown = true; openOnb(0); }
-function openOnb(step){ S.onbStep = step; $('#onb').hidden = false; document.body.classList.add('locked'); renderOnb(); $('#onb').scrollTop = 0; }
-function closeOnb(){ $('#onb').hidden = true; if (!S.story) document.body.classList.remove('locked'); }
+function openOnb(step){ S.onbStep = step; $('#onb').hidden = false; applyChrome(); document.body.classList.add('locked'); renderOnb(); $('#onb').scrollTop = 0; }
+function closeOnb(){ $('#onb').hidden = true; applyChrome(); if (!S.story) document.body.classList.remove('locked'); }
 function onbGreet(){ return `${greeting()}${S.firstName ? `, <em>${esc(S.firstName)}</em>` : ''}`; }
 function finishOnb(){
   S.prefs.onboarded = true; persist('prefs', 0); closeOnb();

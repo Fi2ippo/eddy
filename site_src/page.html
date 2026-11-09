@@ -26,6 +26,7 @@
   --sh-nav:0 8px 24px rgba(10,15,30,.08);
   /* luce che cambia con l'ora (la imposta app.js con data-light) */
   --page-bg:linear-gradient(180deg,#FBE6DA 0,#F6F0EC 300px,#F4F5F7 620px);
+  --top:#FBE6DA;          /* colore di cima della sfumatura: fondo di html, rimbalzo in cima e barra di stato */
   --name:#B0502A;
   --font:'Schibsted Grotesk',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --map-sea:#DCE7F0;--map-land:#FAFAFB;--map-line:#B9BEC8;--map-hl:#D7DEEF;--map-grid:rgba(17,18,22,.06);
@@ -33,11 +34,13 @@
   --nav-h:68px;
   color-scheme:light;
 }
-:root[data-light="pomeriggio"]{--page-bg:linear-gradient(180deg,#DFEBF6 0,#EAF0F6 300px,#F4F5F7 620px);--name:#2F6496}
-:root[data-light="sera"]{--page-bg:linear-gradient(180deg,#E6E4F4 0,#EEEFF5 300px,#F3F4F6 620px);--name:#5B4CA0;--bg:#F3F4F6}
+:root[data-light="pomeriggio"]{--page-bg:linear-gradient(180deg,#DFEBF6 0,#EAF0F6 300px,#F4F5F7 620px);--name:#2F6496;--top:#DFEBF6}
+:root[data-light="sera"]{--page-bg:linear-gradient(180deg,#E6E4F4 0,#EEEFF5 300px,#F3F4F6 620px);--name:#5B4CA0;--bg:#F3F4F6;--top:#E6E4F4}
 *{box-sizing:border-box}
-html{background:var(--bg)}
-body{background:var(--page-bg) var(--bg) no-repeat;color:var(--ink)}
+/* sopra la pagina (rimbalzo in cima, barra di stato) il colore di cima della sfumatura; oltre metà pagina il grigio di fondo */
+html{background:var(--top)}
+html[data-end]{background:var(--bg)}
+body{min-height:100vh;min-height:100dvh;background:var(--page-bg) var(--bg) no-repeat;color:var(--ink)}
 body{margin:0;font-family:var(--font);font-size:15px;line-height:1.45;letter-spacing:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;-webkit-tap-highlight-color:transparent;text-rendering:optimizeLegibility;overflow-x:clip;padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 40px)}
 body.locked{overflow:hidden}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;touch-action:manipulation;letter-spacing:inherit}
