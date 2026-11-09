@@ -23,6 +23,7 @@ Riferimento: `docs/design-definitivo/` (deciso da Filippo schermata per schermat
 - [x] **Temi a pillole per famiglia** nel primo avvio e nel pannello del Profilo (9/11).
 - [x] **Fondo in cima alla pagina:** html e barra di stato nel colore di cima della luce dell'ora, niente più fascia grigia nel rimbalzo; grigio in fondo, in Storia e in Sfoglia (9/11).
 - [x] **Nuovo Per te** (9/11): un mazzo per ogni tema scelto con le notizie nuove (dall'ultima apertura del tema, salvata nel browser), "Altri temi", pagina del tema con "Sfoglia le N notizie" e "Nei tuoi temi". Sfoglia dalla barra mostra prima i tuoi temi. Tolti "Si sono mosse", "Collegate" e il primo giorno.
+- [x] **Spazi sull'iPhone** (9/11): barra a 16px dal fondo, circa 22px dal bordo sull'iPhone (`--nav-gap`), usata anche per fondo pagina, toast, Sfoglia e pannelli; mazzo di Oggi alto quanto lo schermo permette (380–500px) con carta e puntini sopra la barra; colore della barra di stato già nell'`<head>`; spazi di Per te, tema, Salvati, cartella, Profilo e primo avvio allineati ai riferimenti (entro 4px).
 
 ## Nuova app (6 novembre 2026)
 Filippo ha deciso di rifare Eddy sulla base di un'app di un amico che gli piace in tutto (codice riusato con il suo permesso, nessuna citazione). Lavoro fatto sul ramo `nuova-app` e poi portato su `main`:

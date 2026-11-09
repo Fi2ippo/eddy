@@ -99,7 +99,8 @@ function checkEnd(){
   if (end !== root.hasAttribute('data-end')) { if (end) root.setAttribute('data-end', ''); else root.removeAttribute('data-end'); applyChrome(); }
 }
 window.addEventListener('scroll', checkEnd, {passive:true});
-window.addEventListener('resize', checkEnd, {passive:true});
+window.addEventListener('resize', () => { checkEnd(); sizeDeck(); }, {passive:true});
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(sizeDeck);
 function dayLabel(){ return cap(fmtWD.format(new Date()).replace(/\.(?=\s)/, '')); }
 const LOGO = '<span class="logo" role="img" aria-label="Eddy"><svg viewBox="0 0 70 50" aria-hidden="true"><rect x="0" y="0" width="50" height="12" rx="6" fill="#D0021B"/><rect x="10" y="19" width="50" height="12" rx="6" fill="#3D5FC4"/><rect x="20" y="38" width="50" height="12" rx="6" fill="#C25400"/></svg><span aria-hidden="true">eddy</span></span>';
 const LS = {
@@ -674,8 +675,15 @@ function layoutDeck(){
     c.tabIndex = d === 0 ? 0 : -1;
     if (d === 0) c.removeAttribute('aria-hidden'); else c.setAttribute('aria-hidden', 'true');
   });
+  sizeDeck();
   const n = $('#deckN'); if (n) n.textContent = (idx + 1) + ' di ' + cards.length;
   document.querySelectorAll('#dots i').forEach((d, j) => d.classList.toggle('on', j === idx));
+}
+// dove comincia il mazzo nella pagina: serve al CSS per farlo stare tutto sopra la barra
+function sizeDeck(){
+  const deck = $('#deck'); if (!deck) return;
+  const top = Math.round(deck.getBoundingClientRect().top + window.scrollY) + 'px';
+  if (deck.style.getPropertyValue('--deck-top') !== top) deck.style.setProperty('--deck-top', top);
 }
 function deckGo(step){
   const deck = $('#deck'); if (!deck) return false;
@@ -795,10 +803,10 @@ function viewPerTe(){
   const nNew = st ? 0 : mine.reduce((n, t) => n + topicNew(t.id), 0);
   let h = `<header class="phead"><h1>Per te</h1><span class="psub">${mine.length ? `I tuoi ${mine.length === 1 ? 'tema' : mine.length + ' temi'}${nNew ? ` · <b>${nNew} ${nNew === 1 ? 'notizia nuova' : 'notizie nuove'}</b>` : ''}` : 'I temi che ti interessano'}</span></header>`;
   if (st) return h + st;
-  if (mine.length) h += `<div class="sec"><h2>I tuoi temi</h2><button class="lnk" data-act="panel" data-v="temi">Modifica</button></div><div class="mz">${mine.map(topicDeck).join('')}</div>`;
+  if (mine.length) h += `<div class="sec tsec"><h2>I tuoi temi</h2><button class="lnk" data-act="panel" data-v="temi">Modifica</button></div><div class="mz">${mine.map(topicDeck).join('')}</div>`;
   else h += `<div class="empty"><span class="eico">${NAVI.perte}</span><h3>Scegli i tuoi temi</h3><p>Scegli i temi che ti interessano: qui avrai un mazzo per ognuno.</p><button class="cta" data-act="panel" data-v="temi">Scegli i temi</button></div>`;
   const others = TOPICS.filter(t => !S.prefs.topics.includes(t.id)).map(t => ({t, n:topicStories(t.id).length})).sort((a, b) => b.n - a.n);
-  if (others.length) h += `<div class="sec"><h2>Altri temi</h2><span>Tocca per sfogliarli</span></div><div class="ot">${others.map(x => otherTopic(x.t, x.n)).join('')}</div>`;
+  if (others.length) h += `<div class="sec tsec"><h2>Altri temi</h2><span>Tocca per sfogliarli</span></div><div class="ot">${others.map(x => otherTopic(x.t, x.n)).join('')}</div>`;
   return h;
 }
 const SFOGLIA_I = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M3.5 6v12M20.5 6v12"/></svg>';
@@ -871,7 +879,7 @@ function viewSalvati(){
 function viewFolder(items){
   const id = S.folder, all = id === 'tutte', t = all ? {c:'#111216', tx:'#111216'} : TMAP[id] || {c:'#9A9DA5', tx:'#6B6E76'};
   const list = all ? items : items.filter(x => x.s.topic === id);
-  let h = `<button class="bk" data-act="folder" data-id="">${SBI.back}Salvati</button>
+  let h = `<button class="bk fbk" data-act="folder" data-id="">${SBI.back}Salvati</button>
     <header class="phead fhead"><h1 style="color:${t.tx}">${esc(all ? 'Tutte' : folderName(id))}</h1><span class="psub">${list.length} ${list.length === 1 ? 'storia salvata' : 'storie salvate'}</span></header>`;
   if (!list.length) return h + `<div class="empty"><span class="eico">${SBI.save}</span><h3>Cartella vuota</h3><p>Le storie di questo tema che salvi compaiono qui.</p></div>`;
   return h + `<div class="nlist ftop" style="--tg:${t.c}">${list.map(x => nrow(x.s, {kick:all, meta:`<span>${esc(relDay('Salvata', x.at))}</span>`})).join('')}</div>`;
