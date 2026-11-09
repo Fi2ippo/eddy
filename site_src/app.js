@@ -255,8 +255,9 @@ function hasPlace(s){ return s && s.place && typeof s.place.lat === 'number' && 
 function fallbackVisual(s, kind){ return hasPlace(s) ? mapSvg(s.place, kind) : art(s, kind); }
 // Ogni foto porta il credito della testata (sulle miniature è nel testo accanto e nel titolo dell'immagine).
 // load: 'lazy' (elenchi), 'eager' (carte del mazzo, scaricate subito) o 'high' (la carta davanti, con la precedenza)
+const BADIMG = new Set();   // foto che non sono arrivate: ridisegnando la pagina si mostra subito la copertina di riserva
 function visual(s, kind, credit = true, load = 'lazy'){
-  if (hasImg(s)) {
+  if (hasImg(s) && !BADIMG.has(imgUrl(s.img))) {
     const who = s.img.o ? outlet(s.img.o).name : '';
     const cr = credit && kind !== 'thumb' && who ? `<span class="pcred">Foto: ${esc(who)}</span>` : '';
     const ld = load === 'lazy' ? 'loading="lazy" decoding="async"' : 'loading="eager"' + (load === 'high' ? ' fetchpriority="high"' : '');
@@ -267,12 +268,17 @@ function visual(s, kind, credit = true, load = 'lazy'){
 document.addEventListener('error', e => {
   const t = e.target;
   if (!t || t.tagName !== 'IMG' || !t.classList.contains('ph')) return;
+  imgFail(t);
+}, true);
+// foto che non arriva: al suo posto la copertina generata (o la mappa)
+function imgFail(t){
+  BADIMG.add(t.getAttribute('src'));
   const s = getStory(t.dataset.sid) || {id:t.dataset.sid, topic:'mondo'};
   const holder = t.parentNode;
   t.remove();
   if (holder) holder.querySelectorAll('.pcred').forEach(c => c.remove());
   if (holder) holder.insertAdjacentHTML('beforeend', fallbackVisual(Object.assign({}, s, {img:null}), t.dataset.kind || 'thumb'));
-}, true);
+}
 
 /* ---------- stato ---------- */
 const defaultPrefs = () => ({topics:[], follow:[], mute:[], dossiers:[], onboarded:false, size:'m', rate:1});
@@ -354,35 +360,157 @@ function persist(name, delay){
 }
 /* ---------- render ---------- */
 let raf = 0, collecting = false, CTX = [];
-// i render in arrivo da soli (dati nuovi, aggiornamento) aspettano la fine del gesto sul mazzo
-function scheduleRender(){ if (raf) return; raf = requestAnimationFrame(() => { raf = 0; if (deckBusy()) { DKR = true; return; } render(); }); }
+let SRP = false;   // un aggiornamento arrivato con una storia aperta: si fa quando la chiudi
+// i render in arrivo da soli (dati nuovi, aggiornamento, salvataggi) aspettano la fine del gesto sul mazzo e la chiusura della storia,
+// e ridisegnano la pagina solo se è cambiato qualcosa che la riguarda
+function scheduleRender(){ if (raf) return; raf = requestAnimationFrame(() => { raf = 0; if (deckBusy()) { DKR = true; return; } if (S.story) { SRP = true; return; } render(false); }); }
 function pushCtx(id){ if (collecting && !CTX.includes(id)) CTX.push(id); }
 
-function render(){
+/* ----- pagine tenute pronte: ogni sezione (e ogni sotto-pagina) ha il suo contenitore, che resta com'era quando cambi sezione.
+   Le pagine nascoste stanno fuori dal documento (così gli id non si ripetono) con le foto già scaricate. ----- */
+const PANES = new Map();   // chiave della pagina → {el, sig, ctx}
+const POOL = new Map();    // foto pronte senza pagina (preparate in anticipo o di pagine chiuse), per indirizzo
+const IMG_KEEP = new Set(['src', 'srcset', 'sizes', 'class', 'loading', 'fetchpriority', 'decoding', 'referrerpolicy', 'crossorigin']);
+const POOL_MAX = 220, PANE_IMG_MAX = 200, SUB_MAX = 3;
+function subOf(tab){ return tab === 'perte' ? S.topicPage : tab === 'salvati' ? S.folder : null; }
+function pageKey(){ const sub = subOf(S.tab); return S.tab + (sub ? (S.tab === 'perte' ? '|tema:' : '|cartella:') + sub : ''); }
+// da cosa dipende ogni pagina: se cambia, la pagina si ridisegna (quando la mostri, mai mentre è nascosta)
+function dataSig(){ return [S.dbState, S.meta && S.meta.runAt, DL.archAt, S.stories.length, JSON.stringify(HID).length, Object.keys(SUMOFF).length].join('|'); }
+function savedSig(){ return Object.keys(S.saved).join(','); }
+function histSig(){ const h = S.history[0]; return S.history.length + (h ? h.id + h.at : ''); }
+function paneSig(k){
+  const tab = k.split('|')[0], p = S.prefs, top = p.topics.join(',');
+  if (tab === 'oggi') return [dataSig(), light(), S.firstName, !!S.napAll, deckHint()].join('#');
+  if (tab === 'perte' || tab === 'sfoglia') return [dataSig(), top].join('#');
+  if (tab === 'salvati') return [dataSig(), top, savedSig(), histSig(), S.savedSeg].join('#');
+  return [p.name, top, p.size, histSig(), !!S.editName].join('#');
+}
+function viewHtml(){
+  if (S.tab === 'oggi') return viewOggi();
+  if (S.tab === 'perte') return viewPerTe();
+  if (S.tab === 'sfoglia') return viewSfoglia();
+  if (S.tab === 'salvati') return viewSalvati();
+  return viewProfilo();
+}
+function poolPut(im){
+  const k = im.getAttribute('src'); if (!k || POOL.has(k)) return;
+  POOL.set(k, im);
+  while (POOL.size > POOL_MAX) POOL.delete(POOL.keys().next().value);
+}
+// chiude una pagina nascosta: le prime foto restano pronte per quando la riapri
+function dropPane(k){
+  const P = PANES.get(k); if (!P) return;
+  PANES.delete(k);
+  [...P.el.querySelectorAll('img.ph')].slice(0, PANE_IMG_MAX).forEach(poolPut);
+}
+// disegna (o ridisegna) la pagina: il nuovo HTML si prepara a parte, poi ogni foto già vista con lo stesso indirizzo
+// prende il posto della nuova, già scaricata e pronta: una foto già vista non lampeggia mai
+function buildPane(k){
+  const old = PANES.get(k);
+  collecting = true; CTX = [];
+  const html = viewHtml();
+  collecting = false;
+  const tpl = document.createElement('template'); tpl.innerHTML = html;   // nel modello le foto non partono
+  const frag = tpl.content;
+  const el = old ? old.el : document.createElement('div');
+  el.className = 'pane'; el.dataset.k = k;
+  // Le foto vecchie non entrano mai nel modello (passando da un documento all'altro ripartirebbero):
+  // nel modello si segna dove vanno, si tolgono gli indirizzi alle foto nuove che verranno sostituite, e lo scambio si fa dopo, nella pagina.
+  const swaps = [];
+  // il mazzo non è cambiato: si tengono le carte di prima, così come sono
+  const od = old && el.querySelector('#deck'), nd = frag.querySelector('#deck');
+  let keepDeck = false;
+  if (nd) {
+    const src = nd.outerHTML.replace(/ fetchpriority="high"/g, '');
+    if (od && od._src === src) { keepDeck = true; nd.querySelectorAll('img').forEach(i => i.removeAttribute('src')); swaps.push([nd, od]); }
+    else nd._src = src;
+  }
+  const have = new Map();
+  if (old) el.querySelectorAll('img.ph').forEach(im => { if (keepDeck && od.contains(im)) return; const s = im.getAttribute('src'); if (!have.has(s)) have.set(s, []); have.get(s).push(im); });
+  frag.querySelectorAll('img.ph').forEach(n => {
+    if (keepDeck && nd.contains(n)) return;
+    const s = n.getAttribute('src'), list = have.get(s);
+    const o = (list && list.shift()) || POOL.get(s); if (!o) return;
+    POOL.delete(s);
+    // si aggiornano solo le etichette (titolo, storia): gli attributi dello scaricamento non si toccano, altrimenti la foto ripartirebbe
+    for (const a of n.attributes) if (!IMG_KEEP.has(a.name) && o.getAttribute(a.name) !== a.value) o.setAttribute(a.name, a.value);
+    for (const a of [...o.attributes]) if (!IMG_KEEP.has(a.name) && !n.hasAttribute(a.name)) o.removeAttribute(a.name);
+    o.classList.add('ph');
+    n.removeAttribute('src');
+    swaps.push([n, o]);
+  });
+  el.replaceChildren(frag);
+  swaps.forEach(([n, o]) => n.replaceWith(o));
+  readyImgs(el);
+  const P = {el, sig:paneSig(k), ctx:CTX};
+  PANES.set(k, P);
+  return P;
+}
+// foto arrivate dopo: compaiono con una dissolvenza brevissima, quando sono già pronte (mai uno scatto né il grigio che lampeggia)
+function readyImgs(root){
+  root.querySelectorAll('img.ph').forEach(im => {
+    if (im.complete) { if (im.naturalWidth) im.classList.remove('ld'); else if (im.getAttribute('src')) imgFail(im); return; }
+    if (im._ld) return;
+    im._ld = 1; im.classList.add('ld');
+    im.addEventListener('load', () => { const on = () => im.classList.remove('ld'); if (im.decode) im.decode().then(on, on); else on(); }, {once:true});
+  });
+}
+// mostra la pagina della sezione attuale: la stessa di prima se nulla di suo è cambiato; force la ridisegna comunque
+function render(force = true){
   if (DKA) DKA.done();   // un render chiesto dall'utente chiude subito il volo della carta
   applyLight();
   document.querySelectorAll('.tabs button').forEach(b => { if (b.dataset.tab === S.tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   syncInd();
   document.body.classList.toggle('sf-on', S.tab === 'sfoglia');
   renderEdPill();
-  const v = $('#view');
-  collecting = true; CTX = [];
-  let html = '';
-  if (S.tab === 'oggi') html = viewOggi();
-  else if (S.tab === 'perte') html = viewPerTe();
-  else if (S.tab === 'sfoglia') html = viewSfoglia();
-  else if (S.tab === 'salvati') html = viewSalvati();
-  else html = viewProfilo();
-  collecting = false; S.ctx = CTX;
-  const od = $('#deck');
-  v.innerHTML = html;
-  // se il mazzo non è cambiato si tengono le carte di prima, con le foto già scaricate e preparate (niente lampo)
-  const nd = $('#deck');
-  if (nd) { const src = nd.outerHTML.replace(/ fetchpriority="high"/g, ''); if (od && od._src === src) nd.replaceWith(od); else nd._src = src; }
-  const sfv = $('#sfv'); if (sfv && S.sfIdx) sfv.scrollTop = S.sfIdx * sfv.clientHeight;
+  const v = $('#view'), k = pageKey();
+  let P = PANES.get(k);
+  if (!P || force || P.sig !== paneSig(k)) P = buildPane(k);
+  else readyImgs(P.el);   // foto arrivate mentre la pagina era nascosta
+  if (v.firstElementChild !== P.el || v.children.length > 1) v.replaceChildren(P.el);
+  S.ctx = P.ctx;
+  // pagine nascoste: poche sotto-pagine, e nessuna con troppe foto
+  const subs = [...PANES.keys()].filter(x => x !== k && x.includes('|'));
+  while (subs.length > SUB_MAX) dropPane(subs.shift());
+  PANES.forEach((Q, x) => { if (x !== k && Q.el.querySelectorAll('img.ph').length > PANE_IMG_MAX) dropPane(x); });
+  PANES.delete(k); PANES.set(k, P);   // l'ultima vista va in fondo (le più vecchie si chiudono prima)
+  const sfv = $('#sfv'); if (sfv && S.sfIdx && Math.abs(sfv.scrollTop - S.sfIdx * sfv.clientHeight) > 2) sfv.scrollTop = S.sfIdx * sfv.clientHeight;
   layoutDeck();
-  if (S.story && !$('#sheet').hidden) renderSheet(true);
+  if (S.story && !$('#sheet').hidden && force) renderSheet(true);
   observeMore();
+}
+// passaggio di pagina: aspetta (al massimo un attimo) che le foto visibili della pagina nuova siano pronte
+function paneReady(){
+  const v = $('#view'), h = window.innerHeight;
+  const ims = [...v.querySelectorAll('img.ph')].filter(im => { if (!im.complete || !im.naturalWidth || !im.decode) return false; const r = im.getBoundingClientRect(); return r.bottom > 0 && r.top < h && r.width; }).slice(0, 12);
+  if (!ims.length) return Promise.resolve();
+  return Promise.race([Promise.all(ims.map(im => im.decode().catch(() => {}))), new Promise(r => setTimeout(r, 120))]);
+}
+// preparare in anticipo, a telefono libero: le prime carte dei mazzi di Per te e le prime righe di ogni elenco (al massimo 20 foto)
+let prepDone = false;
+function prepareAhead(){
+  if (prepDone || !S.stories.length) return;
+  prepDone = true;
+  const c = navigator.connection; if (c && c.saveData) return;
+  const idle = window.requestIdleCallback || (f => setTimeout(f, 600));
+  idle(() => {
+    const urls = [], add = s => { if (s && hasImg(s)) { const u = imgUrl(s.img); if (u && !urls.includes(u)) urls.push(u); } };
+    S.prefs.topics.forEach(id => { const list = topicStories(id); add(byImportance(list.filter(hasImg))[0]); });
+    const {top, rest} = oggiLists(); top.slice(0, 3).forEach(add);
+    visible(S.stories).filter(s => hasTopic(s, 'napoli')).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt)).slice(0, 3).forEach(add);
+    rest.slice(0, 6).forEach(add);
+    sfogliaList().slice(0, 6).forEach(add);
+    savedItems().slice(0, 6).forEach(x => add(x.s));
+    const inDom = new Map(); PANES.forEach(P => P.el.querySelectorAll('img.ph').forEach(im => inDom.set(im.getAttribute('src'), im)));
+    urls.slice(0, 20).forEach(u => {
+      const d = inDom.get(u);
+      if (d) { if (d.decode) d.decode().catch(() => {}); return; }
+      if (POOL.has(u)) return;
+      const im = new Image(); im.referrerPolicy = 'no-referrer'; im.className = 'ph'; im.src = u;
+      if (im.decode) im.decode().catch(() => {});
+      poolPut(im);
+    });
+  }, {timeout:3000});
 }
 function renderEdPill(){
   updateRefreshUI();
@@ -421,7 +549,7 @@ function showMore(key){
   S.pages[key] = n1;
   const was = collecting; collecting = true; CTX = S.ctx || [];
   feed.insertAdjacentHTML('beforeend', list.slice(n0, n1).map(x => (PAGEDF[key] || nrow)(x)).join(''));
-  S.ctx = CTX; collecting = was;
+  S.ctx = CTX; collecting = was; readyImgs(feed);
   const btn = document.querySelector(`.more[data-pkey="${CSS.escape(key)}"]`);
   const rest = list.length - n1;
   if (btn) { if (rest > 0) btn.textContent = `Mostra altre ${rest} ${rest === 1 ? 'notizia' : 'notizie'}`; else btn.remove(); }
@@ -1120,7 +1248,7 @@ function viewProfilo(){
 /* pannello che sale dal basso (temi, dimensione del testo, edizione, privacy) */
 let panelBack = null;
 function openPanel(kind){ S.panel = kind; panelBack = document.activeElement; renderPanel(); const el = $('#panel'); el.hidden = false; document.body.classList.add('locked'); const f = el.querySelector('.psheet button, .psheet a'); if (f) f.focus(); }
-function closePanel(){ if (!S.panel) return; S.panel = null; const el = $('#panel'); el.hidden = true; el.innerHTML = ''; if (!S.story) document.body.classList.remove('locked'); render(); if (panelBack && panelBack.isConnected) panelBack.focus(); else { const b = document.querySelector(`[data-act="panel"]`); if (b) b.focus(); } }
+function closePanel(){ if (!S.panel) return; S.panel = null; const el = $('#panel'); el.hidden = true; el.innerHTML = ''; if (!S.story) document.body.classList.remove('locked'); render(false); if (panelBack && panelBack.isConnected) panelBack.focus(); else { const b = document.querySelector(`[data-act="panel"]`); if (b) b.focus(); } }
 function renderPanel(){
   const k = S.panel, p = S.prefs, m = S.meta || {};
   let title = '', body = '';
@@ -1202,6 +1330,7 @@ function closeStory(fromPop, instant){
   if (S.storyBack && S.storyBack.isConnected) S.storyBack.focus({preventScroll:true}); S.storyBack = null;
   document.body.classList.remove('locked');
   if (!fromPop) { try { if (history.state && history.state.story) history.back(); else history.replaceState(null, '', '#' + S.tab); } catch (e) {} }
+  if (SRP) { SRP = false; scheduleRender(); }
 }
 const CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
 const SBI = {
@@ -1313,7 +1442,7 @@ function sfMore(){
   const n1 = Math.min(list.length, S.sfN + SF_STEP);
   const was = collecting; collecting = true; CTX = S.ctx || [];
   el.insertAdjacentHTML('beforeend', list.slice(S.sfN, n1).map(sfSlide).join(''));
-  S.ctx = CTX; collecting = was; S.sfN = n1;
+  S.ctx = CTX; collecting = was; S.sfN = n1; readyImgs(el);
 }
 document.addEventListener('scroll', e => {
   const el = e.target; if (!el || el.id !== 'sfv') return;
@@ -1337,10 +1466,11 @@ function toggleSave(id, btn){
   if (S.saved[id]) { delete S.saved[id]; toast('Rimossa dai salvati'); }
   else { S.saved[id] = {at:new Date().toISOString(), s:snap(s)}; toast('Salvata nella tua lista'); }
   const on = !!S.saved[id];
-  document.querySelectorAll(`[data-act="save"][data-id="${CSS.escape(id)}"]`).forEach(b => { b.setAttribute('aria-pressed', on); b.setAttribute('aria-label', on ? 'Rimuovi dai salvati' : 'Salva'); });
+  const sel = `[data-act="save"][data-id="${CSS.escape(id)}"]`;
+  [...document.querySelectorAll(sel)].concat(...[...PANES.values()].filter(P => !P.el.isConnected).map(P => [...P.el.querySelectorAll(sel)])).forEach(b => { b.setAttribute('aria-pressed', on); b.setAttribute('aria-label', on ? 'Rimuovi dai salvati' : 'Salva'); });
   if (btn && on) { btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop'); }
   persist('saved', 200);
-  if (S.tab === 'salvati') scheduleRender();
+  scheduleRender();
 }
 function addHistory(s){
   S.history = [{id:s.id, at:new Date().toISOString(), s:{headline:s.headline, topic:s.topic, zona:s.zona || null, dossier:s.dossier || null, tags:(s.tags || []).slice(0, 8), updatedAt:s.updatedAt, img:s.img || null, place:s.place || null, sources:(s.sources || []).slice(0, 6).map(x => ({o:x.o, t:x.t, u:x.u, d:x.d}))}}].concat(S.history.filter(x => x.id !== s.id)).slice(0, 80);
@@ -1367,7 +1497,8 @@ function closeOnb(){ $('#onb').hidden = true; if (!S.story) document.body.classL
 function onbGreet(){ return `${greeting()}${S.firstName ? `, <em>${esc(S.firstName)}</em>` : ''}`; }
 function finishOnb(){
   S.prefs.onboarded = true; persist('prefs', 0); closeOnb();
-  S.deckIdx = 0; setTab('oggi');
+  S.deckIdx = 0;
+  if (S.tab === 'oggi' && !S.story) render(false); else setTab('oggi');   // già su Oggi: si aggiorna solo se nome o temi sono cambiati
 }
 function renderOnb(){
   const p = S.prefs, el = $('#onb'), st = S.onbStep;
@@ -1475,7 +1606,7 @@ function swapPage(dir, change){
   if (document.startViewTransition) {
     root.dataset.vt = kind;
     let t;
-    try { t = document.startViewTransition(() => { change(); }); } catch (e) { delete root.dataset.vt; change(); return; }
+    try { t = document.startViewTransition(() => { change(); return paneReady(); }); } catch (e) { delete root.dataset.vt; change(); return; }
     const me = {end:() => { try { t.skipTransition(); } catch (e) {} }};
     PGT = me;
     t.ready.catch(() => {}); t.updateCallbackDone.catch(() => {});
@@ -1503,7 +1634,7 @@ function swapPage(dir, change){
 function subPage(dir, mutate, focusSel, top){
   const from = pageKey(); SCROLLS[from] = window.scrollY;
   swapPage(dir, () => {
-    mutate(); render();
+    mutate(); render(false);
     window.scrollTo(0, dir > 0 || top ? 0 : (SCROLLS[pageKey()] || 0));
     if (focusSel) { const b = typeof focusSel === 'function' ? focusSel() : $(focusSel); if (b) b.focus({preventScroll:true}); }
   });
@@ -1513,7 +1644,7 @@ function setTab(tab){
   const same = S.tab === tab && !S.story;
   // secondo tocco sulla voce attiva: in cima con uno scorrimento morbido (e fuori dal tema o dalla cartella)
   if (same) {
-    if (S.topicPage || S.folder) { subPage(-1, () => { S.topicPage = null; S.folder = null; }, null, true); return; }
+    if (subOf(S.tab)) { subPage(-1, () => { if (S.tab === 'perte') S.topicPage = null; else S.folder = null; }, null, true); return; }
     window.scrollTo({top:0, behavior:reduceMotion() ? 'auto' : 'smooth'});
     return;
   }
@@ -1522,11 +1653,9 @@ function setTab(tab){
   navMorph(tab);
   swapPage(S.story ? -1 : dir, () => {
     if (S.story) { S.pendingHash = tab; closeStory(false, true); }
-    if (tab !== 'salvati') S.folder = null;
-    if (tab !== 'perte') S.topicPage = null;
-    S.tab = tab;
+    S.tab = tab;   // tema e cartella aperti restano: tornando trovi la sezione com'era
     try { history.replaceState(null, '', '#' + tab); } catch (e) {}
-    render();
+    render(false);
     window.scrollTo(0, SCROLLS[pageKey()] || 0);
   });
 }
@@ -1644,6 +1773,7 @@ async function loadData(manual){
     if (before.size) S.stories.forEach(x => { const b = before.get(x.id); if (b === undefined) added++; else if (b !== (x.changedAt || x.updatedAt)) updated++; });
     if (S.pendingStory) { const p = S.pendingStory; S.pendingStory = null; if (S.byId.has(p)) setTimeout(() => openStory(p, {fromPop:true}), 0); }
     scheduleRender();
+    prepareAhead();
     if (!$('#onb').hidden && S.onbStep === 0) renderOnb();
     if (DL.offline) { DL.last = 0; return {ok:false, offline:true, added, updated}; }
     return {ok:true, added, updated};
