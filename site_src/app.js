@@ -80,8 +80,6 @@ function hourNow(){ return Number(new Intl.DateTimeFormat('it-IT', {hour:'numeri
 function light(){ const h = hourNow(); return h >= 5 && h < 12 ? 'mattino' : h >= 12 && h < 18 ? 'pomeriggio' : 'sera'; }
 function greeting(){ const l = light(); return l === 'mattino' ? 'Buongiorno' : l === 'pomeriggio' ? 'Buon pomeriggio' : 'Buonasera'; }
 function applyLight(){ const l = light(); if (document.documentElement.dataset.light !== l) document.documentElement.dataset.light = l; }
-window.addEventListener('resize', sizeDeck, {passive:true});
-if (document.fonts && document.fonts.ready) document.fonts.ready.then(sizeDeck);
 function dayLabel(){ return cap(fmtWD.format(new Date()).replace(/\.(?=\s)/, '')); }
 const LOGO = '<span class="logo" role="img" aria-label="Eddy"><svg viewBox="0 0 70 50" aria-hidden="true"><rect x="0" y="0" width="50" height="12" rx="6" fill="#D0021B"/><rect x="10" y="19" width="50" height="12" rx="6" fill="#3D5FC4"/><rect x="20" y="38" width="50" height="12" rx="6" fill="#C25400"/></svg><span aria-hidden="true">eddy</span></span>';
 const LS = {
@@ -364,9 +362,9 @@ function persist(name, delay){
 /* ---------- render ---------- */
 let raf = 0, collecting = false, CTX = [];
 let SRP = false;   // un aggiornamento arrivato con una storia aperta: si fa quando la chiudi
-// i render in arrivo da soli (dati nuovi, aggiornamento, salvataggi) aspettano la fine del gesto sul mazzo e la chiusura della storia,
+// i render in arrivo da soli (dati nuovi, aggiornamento, salvataggi) aspettano la chiusura della storia,
 // e ridisegnano la pagina solo se è cambiato qualcosa che la riguarda
-function scheduleRender(){ if (raf) return; raf = requestAnimationFrame(() => { raf = 0; if (deckBusy()) { DKR = true; return; } if (S.story) { SRP = true; return; } render(false); }); }
+function scheduleRender(){ if (raf) return; raf = requestAnimationFrame(() => { raf = 0; if (S.story) { SRP = true; return; } render(false); }); }
 function pushCtx(id){ if (collecting && !CTX.includes(id)) CTX.push(id); }
 
 /* ----- pagine tenute pronte: ogni sezione (e ogni sotto-pagina) ha il suo contenitore, che resta com'era quando cambi sezione.
@@ -383,7 +381,7 @@ function savedSig(){ return Object.keys(S.saved).join(','); }
 function histSig(){ const h = S.history[0]; return S.history.length + (h ? h.id + h.at : ''); }
 function paneSig(k){
   const tab = k.split('|')[0], p = S.prefs, top = p.topics.join(',');
-  if (tab === 'oggi') return [dataSig(), light(), S.firstName, !!S.napAll, deckHint()].join('#');
+  if (tab === 'oggi') return [dataSig(), light(), S.firstName, !!S.napAll, !!p.onboarded].join('#');
   if (tab === 'perte' || tab === 'sfoglia') return [dataSig(), top].join('#');
   if (tab === 'salvati') return [dataSig(), top, savedSig(), histSig(), S.savedSeg].join('#');
   return [p.name, top, p.size, histSig(), !!S.editName].join('#');
@@ -420,18 +418,18 @@ function buildPane(k){
   // Le foto vecchie non entrano mai nel modello (passando da un documento all'altro ripartirebbero):
   // nel modello si segna dove vanno, si tolgono gli indirizzi alle foto nuove che verranno sostituite, e lo scambio si fa dopo, nella pagina.
   const swaps = [];
-  // il mazzo non è cambiato: si tengono le carte di prima, così come sono
-  const od = old && el.querySelector('#deck'), nd = frag.querySelector('#deck');
-  let keepDeck = false;
+  // Se la fila non è cambiata, si conservano le card, le foto e lo scorrimento.
+  const od = old && el.querySelector('.carousel'), nd = frag.querySelector('.carousel');
+  let keepCarousel = false;
   if (nd) {
     const src = nd.outerHTML.replace(/ fetchpriority="high"/g, '');
-    if (od && od._src === src) { keepDeck = true; nd.querySelectorAll('img').forEach(i => i.removeAttribute('src')); swaps.push([nd, od]); }
+    if (od && od._src === src) { keepCarousel = true; nd.querySelectorAll('img').forEach(i => i.removeAttribute('src')); swaps.push([nd, od]); }
     else nd._src = src;
   }
   const have = new Map();
-  if (old) el.querySelectorAll('img.ph').forEach(im => { if (keepDeck && od.contains(im)) return; const s = im.getAttribute('src'); if (!have.has(s)) have.set(s, []); have.get(s).push(im); });
+  if (old) el.querySelectorAll('img.ph').forEach(im => { if (keepCarousel && od.contains(im)) return; const s = im.getAttribute('src'); if (!have.has(s)) have.set(s, []); have.get(s).push(im); });
   frag.querySelectorAll('img.ph').forEach(n => {
-    if (keepDeck && nd.contains(n)) return;
+    if (keepCarousel && nd.contains(n)) return;
     const s = n.getAttribute('src'), list = have.get(s);
     const o = (list && list.shift()) || POOL.get(s); if (!o) return;
     POOL.delete(s);
@@ -460,7 +458,6 @@ function readyImgs(root){
 }
 // mostra la pagina della sezione attuale: la stessa di prima se nulla di suo è cambiato; force la ridisegna comunque
 function render(force = true){
-  if (DKA) DKA.done();   // un render chiesto dall'utente chiude subito il volo della carta
   applyLight();
   document.querySelectorAll('.tabs button').forEach(b => { if (b.dataset.tab === S.tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   syncInd();
@@ -479,7 +476,7 @@ function render(force = true){
   PANES.forEach((Q, x) => { if (x !== k && Q.el.querySelectorAll('img.ph').length > PANE_IMG_MAX) dropPane(x); });
   PANES.delete(k); PANES.set(k, P);   // l'ultima vista va in fondo (le più vecchie si chiudono prima)
   const sfv = $('#sfv'); if (sfv && S.sfIdx && Math.abs(sfv.scrollTop - S.sfIdx * sfv.clientHeight) > 2) sfv.scrollTop = S.sfIdx * sfv.clientHeight;
-  layoutDeck();
+  initCarousels();
   if (S.story && !$('#sheet').hidden && force) renderSheet(true);
   observeMore();
 }
@@ -745,15 +742,22 @@ function nrow(s, opts){
     <div class="rm">${opts.rm || `<b>${PAPER_S}${covText(n)}</b>${opts.meta || `<span>${whoLine(s)}</span>`}`}</div></div>
     <div class="th">${visual(s, 'thumb')}</div></article>`;
 }
-function leadOf(s){ return s.dek || String(s.summary || '').split(/\n{2,}/)[0].replace(/\s\(([^()]{2,80})\)\s*$/, '') || ''; }
-function deckCard(s, i, opts){
+function carouselCard(s, i, opts){
   pushCtx(s.id);
-  const t = (opts && opts.t) || tcol(s), ids = outletsOf(s), n = ids.length, lead = opts && opts.lead === false ? '' : leadOf(s);
-  return `<article class="dk" data-i="${i}" data-act="open" data-id="${esc(s.id)}" style="--tg:${t.c};--tgt:${t.tx}" aria-label="${esc(s.headline)}">
-    <div class="ph">${visual(s, 'wide', true, opts && opts.cur === i ? 'high' : 'eager')}</div>
-    <div class="cin"><span class="tag">${esc(opts && opts.t && opts.t.id !== 'napoli' ? opts.t.name : kickName(s))}</span><h3>${esc(s.headline)}</h3>${lead ? `<p class="lead">${esc(lead)}</p>` : ''}
+  const t = opts.t || tcol(s), ids = outletsOf(s), n = ids.length, phrase = opts.lead ? phraseOf(s) : null;
+  return `<article class="ccard" data-i="${i}" data-act="open" data-id="${esc(s.id)}" tabindex="0" style="--tg:${t.c};--tgt:${t.tx}" aria-label="${esc(s.headline)}">
+    <div class="cpic">${visual(s, 'wide', true, i === 0 ? 'high' : i < 3 ? 'eager' : 'lazy')}</div>
+    <div class="cin"><span class="tag">${esc(opts.t && opts.t.id !== 'napoli' ? opts.t.name : kickName(s))}</span><h3>${esc(s.headline)}</h3>${phrase ? `<p class="clead">${esc(phrase.t)}</p><a class="csource" href="${esc(phrase.u)}" target="_blank" rel="noopener">${esc(phrase.o)}${phrase.tr ? ' · tradotto' : ''}</a>` : ''}
       <div class="meta">${n > 1 || !(opts && opts.lead === false) ? `<span class="cov">${PAPER_S}${covText(n)}</span><span>${esc(ago(s.updatedAt))}</span>` : `<span>${n ? esc(outlet(ids[0]).name) + ' · ' : ''}${esc(ago(s.updatedAt))}</span>`}</div></div>
   </article>`;
+}
+function carousel(list, title, label, key, opts){
+  const i = Math.min(CAR_INDEX.get(key) || 0, list.length - 1), hint = key === 'oggi' && list.length > 1 && (carouselHintPending() || carHintVisible);
+  if (hint) carHintVisible = true;
+  return `<div class="sec car-sec"><h2 id="${label}">${title}</h2><span id="carCount">${i + 1} di ${list.length}</span></div>
+    ${hint ? '<p class="car-hint" id="carHint">Scorri per le altre →</p>' : ''}
+    <div class="carousel" tabindex="0" role="region" aria-roledescription="carosello" aria-labelledby="${label}" aria-describedby="carHelp" data-key="${esc(key)}">${list.map((s, j) => carouselCard(s, j, opts)).join('')}</div>
+    <p class="sr" id="carHelp">Scorri di lato per le altre notizie. Con la tastiera usa le frecce sinistra e destra; Invio apre la notizia.</p>`;
 }
 function viewOggi(){
   const m = S.meta;
@@ -767,11 +771,7 @@ function viewOggi(){
   if (st) return h + st;
   const {top, rest} = oggiLists();
   if (top.length) {
-    S.deckIdx = Math.min(S.deckIdx || 0, top.length - 1);
-    h += `<div class="sec deck-sec"><h2 id="ppT">Prima pagina</h2><span id="deckN">${S.deckIdx + 1} di ${top.length}</span></div>
-      <div class="deck${deckHint() ? ' hinting' : ''}" id="deck" tabindex="0" role="region" aria-roledescription="mazzo di carte" aria-labelledby="ppT" aria-describedby="deckHelp">${top.map((x, i) => deckCard(x, i, {cur:S.deckIdx})).join('')}</div>
-      <p class="sr" id="deckHelp">Trascina la carta a sinistra per la prossima notizia, a destra per tornare indietro; con la tastiera usa le frecce. Invio apre la notizia.</p>
-      ${deckHint() ? `<div class="hintp" id="deckHintP">${ARROW_L} Trascina per la prossima</div>` : `<div class="pg" id="dots" aria-hidden="true">${top.map((_, i) => `<i class="${i === S.deckIdx ? 'on' : ''}"></i>`).join('')}</div>`}`;
+    h += carousel(top, 'Prima pagina', 'ppT', 'oggi', {lead:true});
   }
   const nap = vis.filter(s => hasTopic(s, 'napoli')).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt));
   if (nap.length) {
@@ -783,255 +783,106 @@ function viewOggi(){
   return h + paged('oggi|ultime', rest, nrow, 'nlist');
 }
 
-/* mazzi di carte (Prima pagina di Oggi e pagina del tema): si trascina a sinistra per la prossima, a destra per tornare indietro.
-   Durante il gesto e il volo si usano solo stili in linea; indice, classi, puntini e contatore cambiano a fine animazione. */
-let deckSuppress = 0;
-const DK_POS = {c0:[0, 1], b1:[-8, .96], b2:[-16, .92]};   // posizione a riposo: spostamento in alto e scala
-const DK_FLY = 'cubic-bezier(.2,.8,.3,1)', DK_BOUNCE = 'cubic-bezier(.34,1.56,.64,1)', DK_SOFT = 'cubic-bezier(.22,1,.36,1)';
+/* Caroselli nativi: durante lo scorrimento non si cambiano card, foto o classi. */
 const reduceMotion = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-let DKA = null;   // animazione in corso: {deck, timer, done}
-let DKG = null;   // dito sul mazzo
-let DKR = false;  // un aggiornamento della pagina è arrivato durante il gesto: si fa a fine animazione
-// mazzo occupato: un render a metà gesto ricostruirebbe le carte e ricaricherebbe le foto (il "lampo")
-function deckBusy(){ return !!DKA || !!(DKG && Date.now() - DKG.t < 10000); }
-function deckFlush(){ if (DKR && !deckBusy()) { DKR = false; scheduleRender(); } }
-function layoutDeck(){
-  const deck = $('#deck'); if (!deck) return;
-  const cards = deck.querySelectorAll('.dk'), idx = S[deckKey(deck)] || 0, n = cards.length;
-  // il mazzo è un giro: dopo l'ultima carta vengono di nuovo la prima e la seconda
-  cards.forEach((c, j) => {
-    const d = (j - idx + n) % n;
-    c.className = 'dk ' + (d === 0 ? 'c0' : d === 1 ? 'b1' : d === 2 ? 'b2' : d === 3 || j > idx ? 'bx' : 'out');
-    c.tabIndex = d === 0 ? 0 : -1;
-    if (d === 0) c.removeAttribute('aria-hidden'); else c.setAttribute('aria-hidden', 'true');
-  });
-  sizeDeck();
-  const cn = $('#deckN'); if (cn) cn.textContent = (idx + 1) + ' di ' + n;
-  document.querySelectorAll('#dots i').forEach((d, j) => d.classList.toggle('on', j === idx));
-  deckPrep(deck);
+const CAR_INDEX = new Map();
+let carResize = null, carHintStarted = false, carHintVisible = false;
+function carouselIndex(row){
+  const r = row.getBoundingClientRect(), cards = [...row.children];
+  const i = cards.findIndex(c => { const b = c.getBoundingClientRect(); return Math.min(b.right, r.right) - Math.max(b.left, r.left) > b.width / 2; });
+  return i < 0 ? (CAR_INDEX.get(row.dataset.key) || 0) : i;
 }
-// foto pronte in anticipo: la carta davanti, le tre dietro e la precedente vengono scaricate e preparate (decode) prima di essere mostrate
-function deckPrep(deck){
-  const cards = deck.querySelectorAll('.dk'), n = cards.length, i = S[deckKey(deck)] || 0;
-  [0, 1, 2, 3, -1].forEach(k => {
-    if (k > 0 && k >= n) return;
-    const c = cards[(i + k + n) % n], im = c && c.querySelector('img.ph');
-    if (im && !im._dec && im.decode) { im._dec = 1; im.decode().catch(() => {}); }
+function carouselCount(row){
+  const i = carouselIndex(row);
+  CAR_INDEX.set(row.dataset.key, i);
+  const count = row.parentNode.querySelector('#carCount');
+  if (count) count.textContent = (i + 1) + ' di ' + row.children.length;
+}
+function carouselLeft(row, i){
+  return row.scrollLeft + row.children[i].getBoundingClientRect().left - row.getBoundingClientRect().left - 20;
+}
+function sizeCarousel(row){
+  if (!row.isConnected) return;
+  row.querySelectorAll('h3').forEach(h => {
+    h.classList.remove('compact');
+    if (h.getBoundingClientRect().height > parseFloat(getComputedStyle(h).lineHeight) * 5 + 1) h.classList.add('compact');
   });
 }
-// dove comincia il mazzo nella pagina: serve al CSS per farlo stare tutto sopra la barra
-function sizeDeck(){
-  const deck = $('#deck'); if (!deck) return;
-  const top = Math.round(deck.getBoundingClientRect().top + window.scrollY) + 'px';
-  if (deck.style.getPropertyValue('--deck-top') !== top) deck.style.setProperty('--deck-top', top);
+function stopCarouselHint(row){
+  if (!row._hintRun) return;
+  cancelAnimationFrame(row._hintRun);
+  row._hintRun = 0;
+  row.style.scrollSnapType = '';
+  row._hintUntil = performance.now() + 100;
 }
-// ogni mazzo ricorda la sua carta: la Prima pagina in S.deckIdx, il mazzo del tema in S.tdeckIdx
-function deckKey(deck){ return (deck && deck.dataset.k) || 'deckIdx'; }
-// le carte che si muovono in un gesto: quella davanti, le due dietro, la quarta che compare e la precedente che rientra
-function deckParts(deck){
-  const cards = [...deck.querySelectorAll('.dk')], i = S[deckKey(deck)] || 0, n = cards.length;
-  const at = k => n > k ? cards[(i + k) % n] : null;   // in giro: all'ultima carta dietro ci sono la prima e la seconda
-  return {cards, i, n, prev:cards[i - 1] || null, c0:cards[i] || null, b1:at(1), b2:at(2), b3:at(3)};
-}
-const lerp = (a, b, t) => a + (b - a) * t;
-const DK_BG = {c0:[255, 255, 255], b1:[250, 250, 251], b2:[243, 244, 246]};   // fondo delle carte a riposo (come nel CSS)
-function dkStack(el, from, to, t){
-  const y = lerp(DK_POS[from][0], DK_POS[to][0], t), s = lerp(DK_POS[from][1], DK_POS[to][1], t);
-  el.style.background = `rgb(${DK_BG[from].map((v, k) => Math.round(lerp(v, DK_BG[to][k], t))).join(',')})`;
-  return `translate3d(0,${y.toFixed(2)}px,0) scale(${s.toFixed(4)})`;
-}
-function dkContent(el, o){ for (const x of el.children) x.style.opacity = o; }
-// mette in posa le carte per un progresso p (0 a riposo, 1 quando la carta davanti è partita): dir -1 avanti, +1 indietro.
-// Ogni proprietà (posizione, fondo, contenuto, ombra) arriva al valore delle classi di fine animazione.
-function deckPose(P, p, dir){
-  if (dir < 0) {
-    if (P.b1) { P.b1.style.transform = dkStack(P.b1, 'b1', 'c0', p); dkContent(P.b1, (.6 + .4 * p).toFixed(3)); P.b1.style.setProperty('--sh', p.toFixed(3)); }
-    if (P.b2) { P.b2.style.transform = dkStack(P.b2, 'b2', 'b1', p); dkContent(P.b2, (.6 * p).toFixed(3)); }
-    if (P.b3) P.b3.style.opacity = p.toFixed(3);
-  } else {
-    // con poche carte la precedente può essere anche una di quelle dietro: quella la muove il gesto, non la pila
-    const b1 = P.b1 !== P.prev ? P.b1 : null, b2 = P.b2 !== P.prev ? P.b2 : null;
-    if (P.prev) P.prev.style.setProperty('--sh', p.toFixed(3));
-    if (P.c0) { P.c0.style.transform = dkStack(P.c0, 'c0', 'b1', p); dkContent(P.c0, (1 - .4 * p).toFixed(3)); P.c0.style.setProperty('--sh', (1 - p).toFixed(3)); }
-    if (b1) { b1.style.transform = dkStack(b1, 'b1', 'b2', p); dkContent(b1, (.6 * (1 - p)).toFixed(3)); }
-    if (b2) b2.style.opacity = (1 - p).toFixed(3);
-  }
-}
-// la carta precedente si prepara a rientrare da sinistra: piena, bianca, sopra il mazzo
-function dkPrevIn(c, W){
-  c.style.transition = 'none'; c.style.transformOrigin = '50% 130%'; c.style.opacity = '1'; c.style.zIndex = '6';
-  c.style.background = 'var(--card)'; for (const x of c.children) { x.style.transition = 'none'; x.style.opacity = '1'; }
-  c.style.transform = deckBackPose(W, 0);
-}
-function deckMoving(P, on){ [P.prev, P.c0, P.b1, P.b2, P.b3].forEach(c => { if (c) c.style.willChange = on ? 'transform' : ''; }); }
-const DK_INLINE = ['transform', 'transform-origin', 'z-index', 'opacity', 'visibility', 'background', 'will-change', '--sh', '--shd', '--lift'];
-function dkClear(c){ DK_INLINE.forEach(k => c.style.removeProperty(k)); for (const x of c.children) x.style.opacity = ''; }
-const dkOff = c => { c.style.transition = 'none'; c.style.setProperty('--lfd', '0ms'); for (const x of c.children) x.style.transition = 'none'; };
-const dkOn = c => { if (c.style.transition === 'none') c.style.transition = ''; c.style.removeProperty('--lfd'); for (const x of c.children) if (x.style.transition === 'none') x.style.transition = ''; };
-// fine di un'animazione: tutto passa agli stili delle classi (che coincidono con la posa finale) senza un solo fotogramma di differenza
-function deckSettle(deck, P, to, away){
-  if (DKA) { clearTimeout(DKA.timer); DKA = null; }
-  const all = [...new Set([P.prev, P.c0, P.b1, P.b2, P.b3])].filter(Boolean);
-  all.forEach(dkOff);                                   // transizioni spente (anche quelle delle ombre)
-  if (to !== undefined) S[deckKey(deck)] = to;
-  layoutDeck();                                         // 1. le classi nuove (gli stili in linea, ancora lì, tengono ferma la posa)
-  all.forEach(dkClear);                                 // 2. via gli stili in linea
-  void deck.offsetWidth;                                // 3. ricalcolo: le classi valgono già, nulla si anima
-  requestAnimationFrame(() => all.forEach(dkOn));       // 4. transizioni riaccese al fotogramma dopo
-  // con 2 o 3 carte la carta rimasta fuori dallo schermo (volata via, o la precedente che non è rientrata) torna subito dietro al mazzo: compare piano invece di spuntare
-  if (away && (away.classList.contains('b1') || away.classList.contains('b2')) && away.animate && !reduceMotion()) away.animate([{opacity:0}, {opacity:1}], {duration:220, easing:'ease'});
-  if (to !== undefined) deckHintDone();
-  deckFlush();
-}
-function deckAnimate(deck, P, ms, ease, done, lead){
-  const tr = `transform ${ms}ms ${ease},opacity ${ms}ms ${ease}`;
-  [P.prev, P.c0, P.b1, P.b2, P.b3].forEach(c => { if (c) { c.style.transition = tr; c.style.setProperty('--shd', ms + 'ms'); for (const x of c.children) x.style.transition = `opacity ${ms}ms ${ease}`; } });
-  // ogni animazione ha il suo segno: un timer o un transitionend rimasto da un gesto precedente non la chiude
-  const A = {deck, P, done};
-  const te = e => { if (e.target === lead && e.propertyName === 'transform') finish(); };
-  const finish = () => { if (lead) lead.removeEventListener('transitionend', te); if (DKA !== A) return; done(); };
-  A.timer = setTimeout(finish, ms + 80);
-  DKA = A;
-  if (lead) lead.addEventListener('transitionend', te);
-}
-// la carta davanti vola via (avanti): dalla posizione e velocità reali del gesto, o con velocità standard per la tastiera
-function deckFly(deck, P, g){
-  if (reduceMotion()) return deckFade(deck, P, 1);
-  const s = -1, W = g.vw, x0 = g.x, y0 = g.y;
-  const tx = s * 1.4 * W, dist = Math.abs(tx - x0), v = Math.max(Math.abs(g.vx), .5);
-  const ms = Math.round(Math.max(180, Math.min(320, 320 - (v - .5) * 90)));
-  const ty = y0 + Math.max(-160, Math.min(160, (g.vy / v) * dist * .3));
-  const rot = s * Math.max(18, Math.min(28, Math.abs(g.r) + 14));
-  requestAnimationFrame(() => {
-    deckAnimate(deck, P, ms, DK_FLY, () => deckSettle(deck, P, (P.i + 1) % P.n, P.c0), P.c0);
-    P.c0.style.transform = `translate3d(${tx.toFixed(1)}px,${ty.toFixed(1)}px,0) rotate(${rot.toFixed(2)}deg) scale(1.02)`;
-    deckPose(P, 1, -1);
-  });
-}
-// la carta precedente rientra da sinistra con l'arco al contrario e si appoggia sopra il mazzo
-function deckBack(deck, P, g){
-  if (reduceMotion()) return deckFade(deck, P, -1);
-  const c = P.prev;
-  if (!g) { dkPrevIn(c, deck._dkW || deck.offsetWidth); void c.offsetWidth; }
-  requestAnimationFrame(() => {
-    deckAnimate(deck, P, 380, DK_SOFT, () => deckSettle(deck, P, P.i - 1), c);
-    c.style.transform = 'translate3d(0,0,0) rotate(0deg)';
-    deckPose(P, 1, 1);
-  });
-}
-function deckBackPose(W, q){ const x = -(1 - q) * W * 1.15, r = -(1 - q) * 14; return `translate3d(${x.toFixed(1)}px,${(Math.abs(x) * .06).toFixed(1)}px,0) rotate(${r.toFixed(2)}deg)`; }
-// niente lancio: tutto torna al suo posto con un piccolo rimbalzo
-function deckReturn(deck, P, dir){
-  requestAnimationFrame(() => {
-    deckAnimate(deck, P, 450, DK_BOUNCE, () => deckSettle(deck, P, undefined, dir > 0 ? P.prev : null), dir > 0 && P.prev ? P.prev : P.c0);
-    if (P.c0) { P.c0.style.transform = 'translate3d(0,0,0) rotate(0deg) scale(1)'; P.c0.style.setProperty('--lift', '0'); }
-    if (dir > 0 && P.prev) P.prev.style.transform = deckBackPose(deck._dkW || deck.offsetWidth, 0);
-    deckPose(P, 0, dir > 0 && P.prev ? 1 : -1);
-  });
-}
-// "riduci movimento": la carta sfuma e appare l'altra, senza voli né rotazioni
-function deckFade(deck, P, step){
-  const c = P.c0;
-  requestAnimationFrame(() => {
-    deckAnimate(deck, P, 140, 'ease', () => {
-      deckSettle(deck, P, (P.i + step + P.n) % P.n);
-      const n = deck.querySelector('.dk.c0'); if (!n) return;
-      n.style.opacity = '0'; void n.offsetWidth; n.style.transition = 'opacity 140ms ease'; n.style.opacity = '1';
-      setTimeout(() => { n.style.transition = ''; n.style.opacity = ''; }, 200);
-    }, c);
-    c.style.transform = 'none'; c.style.opacity = '0';
-  });
-}
-// tastiera (e chi chiama da codice): stessi lanci e rientri, con velocità standard
-function deckGo(step){
-  const deck = $('#deck'); if (!deck) return false;
-  if (DKA) DKA.done();
-  const P = deckParts(deck);
-  if (step > 0 && P.b1) { deckMoving(P, true); P.c0.style.transformOrigin = '50% 130%'; P.c0.style.zIndex = '5'; deckFly(deck, P, {x:0, y:0, vx:-1.2, vy:0, r:0, vw:window.innerWidth}); return true; }
-  if (step < 0 && P.prev) { deckMoving(P, true); deckBack(deck, P, null); return true; }
-  return false;
-}
-(function(){
-  let G = null, raf = 0;
-  const frame = () => {
-    raf = 0; if (!G || !G.drag) return;
-    const P = G.P, dx = G.dx, dy = G.dy, rm = reduceMotion();
-    if (G.dir < 0 || !G.canBack) {
-      // avanti (o resistenza ai bordi): la carta segue il dito, ruota attorno a un perno sotto di sé e si alza un poco
-      const edge = (dx < 0 && !P.b1) || (dx > 0 && !P.prev);
-      const x = edge ? dx * .25 : dx, y = edge ? 0 : dy * .3;
-      const r = rm ? 0 : Math.max(-12, Math.min(12, x / G.w * 14));
-      const lift = 1 + .02 * Math.min(1, Math.abs(dx) / 40);
-      G.x = x; G.y = y; G.r = r;
-      P.c0.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) rotate(${r.toFixed(2)}deg) scale(${lift.toFixed(4)})`;
-      if (!edge && dx < 0) deckPose(P, Math.min(1, Math.abs(dx) / 160), -1);
-    } else {
-      // indietro: la precedente rientra da sinistra seguendo il dito, le altre arretrano
-      const q = Math.max(0, Math.min(1, dx * 1.8 / (G.w * 1.15)));
-      P.prev.style.transform = deckBackPose(G.w, q);
-      deckPose(P, Math.min(1, dx / 160), 1);
-    }
+function startCarouselHint(row){
+  if (!row.parentNode.querySelector('#carHint') || carHintStarted) return;
+  carHintStarted = true;
+  LS.set('carouselHintSeen', 1);
+  if (reduceMotion()) return;
+  const start = performance.now() + 600;
+  row.style.scrollSnapType = 'none';
+  const frame = now => {
+    if (!row.isConnected || S.tab !== 'oggi' || S.story || !$('#onb').hidden) { stopCarouselHint(row); return; }
+    const p = Math.max(0, Math.min(1, (now - start) / 2000));
+    row.scrollLeft = 48 * Math.sin(p * Math.PI * 2) ** 2;
+    if (p < 1) row._hintRun = requestAnimationFrame(frame);
+    else { row.scrollLeft = 0; stopCarouselHint(row); }
   };
-  const sched = () => { if (!raf) raf = requestAnimationFrame(frame); };
-  document.addEventListener('pointerdown', e => {
-    const deck = e.target.closest && e.target.closest('#deck'); if (!deck || e.button > 0) return;
-    if (DKA) DKA.done();   // un nuovo gesto conclude subito il volo e riprende la carta successiva
-    const P = deckParts(deck); if (!P.c0) return;
-    deck.classList.remove('hinting');
-    const w = deck.offsetWidth; deck._dkW = w;
-    G = DKG = {t:Date.now(), deck, P, w, vw:window.innerWidth, x0:e.clientX, y0:e.clientY, dx:0, dy:0, x:0, y:0, r:0, drag:false, dir:0, canBack:!!P.prev, pid:e.pointerId, pts:[[e.timeStamp, e.clientX, e.clientY]]};
-  });
-  document.addEventListener('pointermove', e => {
-    if (!G || e.pointerId !== G.pid || G.vert) return;
-    const mx = e.clientX - G.x0, my = e.clientY - G.y0;
-    if (!G.drag) {
-      if (Math.abs(mx) <= 6 || Math.abs(mx) < Math.abs(my)) { if (Math.abs(my) > 10) G.vert = true; return; }
-      G.drag = true; G.dir = mx < 0 ? -1 : 1;
-      const P = G.P;
-      try { P.c0.setPointerCapture(G.pid); } catch (err) {}
-      deckMoving(P, true);
-      if (G.dir < 0 || !G.canBack) { P.c0.style.transition = 'none'; P.c0.style.transformOrigin = '50% 130%'; P.c0.style.zIndex = '5'; P.c0.style.setProperty('--lift', '1'); }
-      else dkPrevIn(P.prev, G.w);
-      [P.b1, P.b2, P.b3].forEach(c => { if (c) c.style.transition = 'none'; });
+  row._hintRun = requestAnimationFrame(frame);
+}
+function initCarousels(){
+  if (carResize) carResize.disconnect();
+  document.querySelectorAll('#view .carousel').forEach(row => {
+    if (!row._carReady) {
+      row._carReady = true;
+      row.addEventListener('scroll', () => {
+        if (row._hintRun || performance.now() < (row._hintUntil || 0) || row._scrollFrame) return;
+        row._scrollFrame = requestAnimationFrame(() => {
+          row._scrollFrame = 0;
+          if (!row.isConnected) return;
+          if (row.scrollLeft > 2) { carHintVisible = false; const hint = row.parentNode.querySelector('#carHint'); if (hint) hint.remove(); }
+          carouselCount(row);
+        });
+      }, {passive:true});
+      row.addEventListener('wheel', () => { stopCarouselHint(row); row._hintUntil = 0; }, {passive:true});
     }
-    G.dx = mx; G.dy = my;
-    G.pts.push([e.timeStamp, e.clientX, e.clientY]); if (G.pts.length > 12) G.pts.shift();
-    sched();
-  });
-  const end = e => {
-    if (!G || (e && e.pointerId !== G.pid)) return;
-    const g = G; G = DKG = null;
-    if (raf) { cancelAnimationFrame(raf); raf = 0; frame.call(null); }
-    if (g.vert) { deckSuppress = Date.now() + 350; deckFlush(); return; }
-    if (!g.drag) { deckFlush(); return; }
-    deckSuppress = Date.now() + 350;
-    const P = g.P, deck = g.deck;
-    // velocità del dito sugli ultimi ~80 ms
-    const now = g.pts[g.pts.length - 1]; let a = now;
-    for (let k = g.pts.length - 1; k >= 0; k--) { a = g.pts[k]; if (now[0] - a[0] >= 80) break; }
-    const dt = Math.max(1, now[0] - a[0]), vx = (now[1] - a[1]) / dt, vy = (now[2] - a[2]) / dt;
-    const cancel = e && e.type === 'pointercancel';
-    if (g.dir < 0 || !g.canBack) {
-      const go = !cancel && P.b1 && g.dx < 0 && (g.dx < -.3 * g.w || vx < -.5);
-      if (go) deckFly(deck, P, {x:g.x, y:g.y, vx, vy, r:g.r, vw:g.vw});
-      else deckReturn(deck, P, -1);
-    } else {
-      const go = !cancel && g.dx > 0 && (g.dx > .3 * g.w || vx > .5);
-      if (go) deckBack(deck, P, g); else deckReturn(deck, P, 1);
+    sizeCarousel(row);
+    const i = Math.min(CAR_INDEX.get(row.dataset.key) || 0, row.children.length - 1);
+    row.scrollLeft = carouselLeft(row, i);
+    carouselCount(row);
+    if (window.ResizeObserver) {
+      carResize = new ResizeObserver(() => { sizeCarousel(row); carouselCount(row); });
+      carResize.observe(row);
     }
-  };
-  document.addEventListener('pointerup', end);
-  document.addEventListener('pointercancel', end);
-  document.addEventListener('keydown', e => {
-    if (!e.target.closest || !e.target.closest('#deck')) return;
-    if (e.key === 'Enter' && e.target.id === 'deck') { e.preventDefault(); const c = $('#deck .dk.c0'); if (c) openStory(c.dataset.id); return; }
-    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-      e.preventDefault(); const was = e.target !== $('#deck');
-      deckGo(e.key === 'ArrowRight' ? 1 : -1);
-      if (was) setTimeout(() => { const c = $('#deck .dk.c0'); if (c) c.focus({preventScroll:true}); }, 420);
-    }
+    startCarouselHint(row);
   });
-})();
+}
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => document.querySelectorAll('.carousel').forEach(sizeCarousel));
+document.addEventListener('keydown', e => {
+  const row = e.target.closest && e.target.closest('.carousel'); if (!row) return;
+  if (e.key === 'Enter' && e.target === row) { e.preventDefault(); openStory(row.children[carouselIndex(row)].dataset.id); return; }
+  if (!['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+  e.preventDefault(); stopCarouselHint(row); row._hintUntil = 0;
+  const focused = e.target.closest('.ccard'), from = focused ? +focused.dataset.i : carouselIndex(row);
+  const i = Math.max(0, Math.min(row.children.length - 1, from + (e.key === 'ArrowRight' ? 1 : -1)));
+  row.scrollBy({left:carouselLeft(row, i) - row.scrollLeft, behavior:reduceMotion() ? 'auto' : 'smooth'});
+  row.children[i].focus({preventScroll:true});
+});
+// Il browser gestisce il gesto; si scartano soltanto i tocchi che erano uno scorrimento.
+let carGesture = null;
+document.addEventListener('pointerdown', e => {
+  const row = e.target.closest && e.target.closest('.carousel'); if (!row) return;
+  stopCarouselHint(row); row._hintUntil = 0; row._suppressClick = false;
+  carGesture = {row, x:e.clientX, y:e.clientY, id:e.pointerId};
+}, {passive:true});
+const endCarouselGesture = e => {
+  const g = carGesture; if (!g || e.pointerId !== g.id) return;
+  g.row._suppressClick = e.type === 'pointercancel' || Math.hypot(e.clientX - g.x, e.clientY - g.y) > 8;
+  carGesture = null;
+};
+document.addEventListener('pointerup', endCarouselGesture, {passive:true});
+document.addEventListener('pointercancel', endCarouselGesture, {passive:true});
 
 /* ----- aggiornamento: la redazione automatica gira ogni 15 minuti, il pulsante scarica subito ----- */
 function etaText(t){
@@ -1117,9 +968,9 @@ function viewPerTe(){
 const PLUS_I = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
 function openTopic(id){
   if (!TMAP[id]) return;
-  subPage(1, () => { S.topicPage = id; S.tdeckIdx = 0; S.pages['tema|' + id] = 0; }, '.bk');
+  subPage(1, () => { S.topicPage = id; CAR_INDEX.set('tema|' + id, 0); S.pages['tema|' + id] = 0; }, '.bk');
 }
-// pagina di un tema: luce del colore del tema, mazzo delle notizie nuove, poi tutte le altre dalla più recente
+// pagina di un tema: fila delle notizie nuove, poi tutte le altre dalla più recente
 function viewTopic(id){
   const t = TMAP[id], list = topicStories(id), n = list.length, on = S.prefs.topics.includes(id);
   const fresh = byCoverage(list.filter(isNew)), nw = fresh.length;
@@ -1127,11 +978,7 @@ function viewTopic(id){
     <header class="tti"><h1 id="tpT"><span style="color:${t.tx}">${tIcon(id).replace('width="18" height="18"', 'width="30" height="30"')}</span>${esc(t.name)}</h1><p>${n} ${n === 1 ? 'notizia' : 'notizie'}${n ? ` · <b>${nw} ${nw === 1 ? 'nuova' : 'nuove'}</b>` : ''}</p></header>`;
   if (!n) return h + `<div class="state"><h3>Nessuna notizia, per ora</h3><p>In questi giorni non ci sono notizie su questo tema. La raccolta gira più volte all'ora: torna più tardi.</p></div>`;
   if (nw) {
-    S.tdeckIdx = Math.min(S.tdeckIdx || 0, nw - 1);
-    h += `<p class="sr" id="tdT">Notizie nuove: ${nw}</p>
-      <div class="deck tdeck" id="deck" data-k="tdeckIdx" tabindex="0" role="region" aria-roledescription="mazzo di carte" aria-labelledby="tdT" aria-describedby="deckHelp">${fresh.map((x, i) => deckCard(x, i, {lead:false, t, cur:S.tdeckIdx})).join('')}</div>
-      <p class="sr" id="deckHelp">Trascina la carta a sinistra per la prossima notizia, a destra per tornare indietro; con la tastiera usa le frecce. Invio apre la notizia.</p>
-      <div class="pg" id="dots" aria-hidden="true">${fresh.map((_, i) => `<i class="${i === S.tdeckIdx ? 'on' : ''}"></i>`).join('')}</div>`;
+    h += carousel(fresh, 'Nuove', 'tdT', 'tema|' + id, {lead:false, t});
   } else h += `<p class="tnone">Nessuna notizia nuova nelle ultime 12 ore</p>`;
   const rest = list.filter(x => !isNew(x)).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt));
   if (!rest.length) return h;
@@ -1506,16 +1353,15 @@ function togglePref(key, id){
 }
 function applyReaderSize(){ document.body.classList.remove('size-s', 'size-m', 'size-l'); document.body.classList.add('size-' + (S.prefs.size || 'm')); }
 
-/* ---------- primo avvio: benvenuto, temi, nome; poi in Oggi la carta che si muove da sola ---------- */
+/* ---------- primo avvio: benvenuto, temi, nome e suggerimento del carosello ---------- */
 const ARROW_R = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-const ARROW_L = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>';
 function maybeOnboard(){ if (S.onbShown || S.prefs.onboarded) return; S.onbShown = true; openOnb(0); }
 function openOnb(step){ S.onbStep = step; $('#onb').hidden = false; syncSfChrome(); document.body.classList.add('locked'); renderOnb(); $('#onb').scrollTop = 0; }
 function closeOnb(){ $('#onb').hidden = true; syncSfChrome(); if (!S.story) document.body.classList.remove('locked'); }
 function onbGreet(){ return `${greeting()}${S.firstName ? `, <em>${esc(S.firstName)}</em>` : ''}`; }
 function finishOnb(){
   S.prefs.onboarded = true; persist('prefs', 0); closeOnb();
-  S.deckIdx = 0;
+  CAR_INDEX.set('oggi', 0);
   if (S.tab === 'oggi' && !S.story) render(false); else setTab('oggi');   // già su Oggi: si aggiorna solo se nome o temi sono cambiati
 }
 function renderOnb(){
@@ -1524,7 +1370,7 @@ function renderOnb(){
   let h = '';
   if (st === 0) {
     const n = Object.keys(S.outlets).length || 145;
-    h = `${top}<div class="ostack" aria-hidden="true"><div class="sc" style="top:0;transform:scale(.9);border-top-color:#C25400;opacity:.9"></div><div class="sc" style="top:14px;transform:scale(.95);border-top-color:#3D5FC4"></div><div class="sc" style="top:30px;border-top-color:#D0021B"><span class="p"></span><span class="l1"></span><span class="l2"></span><span class="l3"></span></div></div>
+    h = `${top}<div class="opreview" aria-hidden="true">${['#3D5FC4', '#D0021B', '#C25400'].map(c => `<div class="sc" style="border-top-color:${c}"><span class="p"></span><span class="l1"></span><span class="l2"></span><span class="l3"></span></div>`).join('')}</div>
       <div class="obx"><h1 id="onbT">Ciao, benvenuto in <em>Eddy</em></h1><p class="olead">Ogni giorno leggiamo per te ${n} testate e mettiamo insieme gli articoli che raccontano lo stesso fatto.</p><p class="olead" style="margin-top:8px">Una notizia, tutte le voci, in un posto solo.</p></div>
       <button class="cta" data-act="onb-next">Iniziamo ${ARROW_R}</button>`;
   } else if (st === 1) {
@@ -1545,9 +1391,8 @@ function updateCounters(){
   const k = S.prefs.topics.length;
   const b = $('#onbNext'); if (b) b.textContent = k ? `Avanti · ${k} ${k === 1 ? 'tema' : 'temi'}` : 'Avanti';
 }
-// la prima volta in Oggi la carta in primo piano si muove da sola: finisce appena sposti il mazzo
-function deckHint(){ return !!S.prefs.onboarded && !LS.get('deckHint'); }
-function deckHintDone(){ if (!deckHint()) return; LS.set('deckHint', 1); const d = $('#deck'); if (d) d.classList.remove('hinting'); const hp = $('#deckHintP'); if (hp) hp.outerHTML = `<div class="pg" id="dots" aria-hidden="true">${[...document.querySelectorAll('#deck .dk')].map((_, i) => `<i class="${i === (S.deckIdx || 0) ? 'on' : ''}"></i>`).join('')}</div>`; }
+// Il suggerimento si presenta una sola volta, anche se si rivede l’introduzione.
+function carouselHintPending(){ return !!S.prefs.onboarded && !LS.get('carouselHintSeen'); }
 
 /* ---------- toast ---------- */
 let toastT = 0;
@@ -1692,7 +1537,7 @@ window.addEventListener('popstate', () => {
 
 /* ---------- eventi ---------- */
 document.addEventListener('click', e => {
-  if (e.target.closest('.sf .qo a')) return;
+  if (e.target.closest('.sf .qo a, .carousel a')) return;
   const el = e.target.closest('[data-act]'); if (!el) return;
   const a = el.dataset.act, id = el.dataset.id;
   if (a === 'save') { e.stopPropagation(); toggleSave(id, el); return; }
@@ -1701,7 +1546,7 @@ document.addEventListener('click', e => {
     case 'flag-src': flagSource(el); break;
     case 'flag-sum': flagSummary(el); break;
     case 'unhide': HID = {}; SUMOFF = {}; LS.set('hid', HID); LS.set('sumoff', SUMOFF); toast('Correzioni locali annullate'); render(); break;
-    case 'open': if (Date.now() < deckSuppress) break; openStory(id); break;
+    case 'open': if (el.closest('.carousel')?._suppressClick) break; openStory(id); break;
     case 'crono-all': S.cronoAll = !S.cronoAll; renderSheet(true); break;
     case 'close': closeStory(); break;
     case 'napoli-all': S.napAll = !S.napAll; render(); break;
@@ -1733,7 +1578,7 @@ document.addEventListener('click', e => {
       break;
     }
     case 'export': exportData(); break;
-    case 'onb-open': if (S.panel) closePanel(); LS.set('deckHint', 0); openOnb(Number(el.dataset.step || 0)); break;
+    case 'onb-open': if (S.panel) closePanel(); openOnb(Number(el.dataset.step || 0)); break;
     case 'onb-next': S.onbStep = Math.min(2, S.onbStep + 1); renderOnb(); $('#onb').scrollTop = 0; break;
     case 'onb-back': S.onbStep = Math.max(0, S.onbStep - 1); renderOnb(); $('#onb').scrollTop = 0; break;
     case 'onb-done': finishOnb(); break;
