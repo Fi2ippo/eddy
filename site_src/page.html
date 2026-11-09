@@ -79,7 +79,7 @@ svg.f{fill:currentColor;stroke:none}
 /* ombre come strati a parte: si anima solo la loro opacità (a riposo sulla prima carta, più profonda quando la sollevi) */
 .dk::before,.dk::after{content:"";position:absolute;top:-6px;left:-1px;right:-1px;bottom:-1px;border-radius:inherit;pointer-events:none}
 .dk::before{box-shadow:var(--sh-lift);opacity:var(--sh);transition:opacity var(--shd,0ms) ease}
-.dk::after{box-shadow:0 22px 44px rgba(10,15,30,.16);opacity:var(--lift,0);transition:opacity .2s ease}
+.dk::after{box-shadow:0 22px 44px rgba(10,15,30,.16);opacity:var(--lift,0);transition:opacity var(--lfd,.2s) ease}
 .dk>.ph{border-radius:calc(var(--r-card) - 1px) calc(var(--r-card) - 1px) 0 0 / calc(var(--r-card) - 6px) calc(var(--r-card) - 6px) 0 0}
 .dk>.cin{border-radius:0 0 calc(var(--r-card) - 1px) calc(var(--r-card) - 1px)}
 /* la foto non si trascina da sola: il gesto sposta la carta */
@@ -88,10 +88,10 @@ svg.f{fill:currentColor;stroke:none}
 .dk.b1{z-index:3;transform:translateY(-8px) scale(.96);background:#FAFAFB}
 .dk.b1>.ph,.dk.b1>.cin{opacity:.6}
 .dk.b2{z-index:2;transform:translateY(-16px) scale(.92);background:#F3F4F6}
-.dk.bx{z-index:1;transform:translateY(-16px) scale(.92);opacity:0}
-.dk.out{visibility:hidden;opacity:0;pointer-events:none}
-/* la seconda carta ha già foto e testo (attenuati); dalla terza in poi restano nascosti */
-.dk.b2>.ph,.dk.b2>.cin,.dk.bx>.ph,.dk.bx>.cin{visibility:hidden}
+.dk.bx{z-index:1;transform:translateY(-16px) scale(.92);opacity:0;background:#F3F4F6}
+.dk.out{z-index:0;opacity:0;pointer-events:none}
+/* la seconda carta ha già foto e testo (attenuati); dalla terza in poi sono trasparenti ma già caricati e disegnati, così quando la carta avanza la foto è pronta */
+.dk.b2>.ph,.dk.b2>.cin,.dk.bx>.ph,.dk.bx>.cin{opacity:0}
 .dk>.ph{position:absolute;left:0;right:0;top:0;height:320px;background:#B8BCC6;overflow:hidden}
 .dk .cin{flex:0 1 auto;min-height:0;overflow:hidden;position:relative;margin-top:auto;display:flex;flex-direction:column;padding:84px 18px 18px;background:linear-gradient(180deg,rgba(255,255,255,0) 0,rgba(255,255,255,.9) 52px,#FFFFFF 80px)}
 .tag{align-self:flex-start;display:inline-flex;align-items:center;background:var(--tgt,var(--tg));color:#fff;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:var(--r-tag);line-height:1.2}

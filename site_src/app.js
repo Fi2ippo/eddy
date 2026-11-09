@@ -254,11 +254,13 @@ function imgUrl(img){
 function hasPlace(s){ return s && s.place && typeof s.place.lat === 'number' && typeof s.place.lon === 'number'; }
 function fallbackVisual(s, kind){ return hasPlace(s) ? mapSvg(s.place, kind) : art(s, kind); }
 // Ogni foto porta il credito della testata (sulle miniature è nel testo accanto e nel titolo dell'immagine).
-function visual(s, kind, credit = true){
+// load: 'lazy' (elenchi), 'eager' (carte del mazzo, scaricate subito) o 'high' (la carta davanti, con la precedenza)
+function visual(s, kind, credit = true, load = 'lazy'){
   if (hasImg(s)) {
     const who = s.img.o ? outlet(s.img.o).name : '';
     const cr = credit && kind !== 'thumb' && who ? `<span class="pcred">Foto: ${esc(who)}</span>` : '';
-    return `<span class="vis k-${kind}"><img class="ph" src="${esc(imgUrl(s.img, kind))}" alt="" title="${who ? 'Foto: ' + esc(who) : ''}" loading="lazy" decoding="async" referrerpolicy="no-referrer" data-sid="${esc(s.id)}" data-kind="${kind}">${cr}</span>`;
+    const ld = load === 'lazy' ? 'loading="lazy" decoding="async"' : 'loading="eager"' + (load === 'high' ? ' fetchpriority="high"' : '');
+    return `<span class="vis k-${kind}"><img class="ph" src="${esc(imgUrl(s.img, kind))}" alt="" title="${who ? 'Foto: ' + esc(who) : ''}" ${ld} referrerpolicy="no-referrer" data-sid="${esc(s.id)}" data-kind="${kind}">${cr}</span>`;
   }
   return fallbackVisual(s, kind);
 }
@@ -352,10 +354,12 @@ function persist(name, delay){
 }
 /* ---------- render ---------- */
 let raf = 0, collecting = false, CTX = [];
-function scheduleRender(){ if (raf) return; raf = requestAnimationFrame(() => { raf = 0; render(); }); }
+// i render in arrivo da soli (dati nuovi, aggiornamento) aspettano la fine del gesto sul mazzo
+function scheduleRender(){ if (raf) return; raf = requestAnimationFrame(() => { raf = 0; if (deckBusy()) { DKR = true; return; } render(); }); }
 function pushCtx(id){ if (collecting && !CTX.includes(id)) CTX.push(id); }
 
 function render(animate){
+  if (DKA) DKA.done();   // un render chiesto dall'utente chiude subito il volo della carta
   applyLight();
   document.querySelectorAll('.tabs button').forEach(b => { if (b.dataset.tab === S.tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   document.body.classList.toggle('sf-on', S.tab === 'sfoglia');
@@ -369,7 +373,11 @@ function render(animate){
   else if (S.tab === 'salvati') html = viewSalvati();
   else html = viewProfilo();
   collecting = false; S.ctx = CTX;
+  const od = $('#deck');
   v.innerHTML = html;
+  // se il mazzo non è cambiato si tengono le carte di prima, con le foto già scaricate e preparate (niente lampo)
+  const nd = $('#deck');
+  if (nd) { const src = nd.outerHTML.replace(/ fetchpriority="high"/g, ''); if (od && od._src === src) nd.replaceWith(od); else nd._src = src; }
   const sfv = $('#sfv'); if (sfv && S.sfIdx) sfv.scrollTop = S.sfIdx * sfv.clientHeight;
   if (animate) { v.classList.remove('fade'); void v.offsetWidth; v.classList.add('fade'); }
   layoutDeck();
@@ -610,7 +618,7 @@ function deckCard(s, i, opts){
   pushCtx(s.id);
   const t = (opts && opts.t) || tcol(s), ids = outletsOf(s), n = ids.length, lead = opts && opts.lead === false ? '' : leadOf(s);
   return `<article class="dk" data-i="${i}" data-act="open" data-id="${esc(s.id)}" style="--tg:${t.c};--tgt:${t.tx}" aria-label="${esc(s.headline)}">
-    <div class="ph">${visual(s, 'wide')}</div>
+    <div class="ph">${visual(s, 'wide', true, opts && opts.cur === i ? 'high' : 'eager')}</div>
     <div class="cin"><span class="tag">${esc(opts && opts.t && opts.t.id !== 'napoli' ? opts.t.name : kickName(s))}</span><h3>${esc(s.headline)}</h3>${lead ? `<p class="lead">${esc(lead)}</p>` : ''}
       <div class="meta">${n > 1 || !(opts && opts.lead === false) ? `<span class="cov">${PAPER_S}${covText(n)}</span><span>${esc(ago(s.updatedAt))}</span>` : `<span>${n ? esc(outlet(ids[0]).name) + ' · ' : ''}${esc(ago(s.updatedAt))}</span>`}</div></div>
   </article>`;
@@ -629,7 +637,7 @@ function viewOggi(){
   if (top.length) {
     S.deckIdx = Math.min(S.deckIdx || 0, top.length - 1);
     h += `<div class="sec deck-sec"><h2 id="ppT">Prima pagina</h2><span id="deckN">${S.deckIdx + 1} di ${top.length}</span></div>
-      <div class="deck${deckHint() ? ' hinting' : ''}" id="deck" tabindex="0" role="region" aria-roledescription="mazzo di carte" aria-labelledby="ppT" aria-describedby="deckHelp">${top.map(deckCard).join('')}</div>
+      <div class="deck${deckHint() ? ' hinting' : ''}" id="deck" tabindex="0" role="region" aria-roledescription="mazzo di carte" aria-labelledby="ppT" aria-describedby="deckHelp">${top.map((x, i) => deckCard(x, i, {cur:S.deckIdx})).join('')}</div>
       <p class="sr" id="deckHelp">Trascina la carta a sinistra per la prossima notizia, a destra per tornare indietro; con la tastiera usa le frecce. Invio apre la notizia.</p>
       ${deckHint() ? `<div class="hintp" id="deckHintP">${ARROW_L} Trascina per la prossima</div>` : `<div class="pg" id="dots" aria-hidden="true">${top.map((_, i) => `<i class="${i === S.deckIdx ? 'on' : ''}"></i>`).join('')}</div>`}`;
   }
@@ -650,18 +658,34 @@ const DK_POS = {c0:[0, 1], b1:[-8, .96], b2:[-16, .92]};   // posizione a riposo
 const DK_FLY = 'cubic-bezier(.2,.8,.3,1)', DK_BOUNCE = 'cubic-bezier(.34,1.56,.64,1)', DK_SOFT = 'cubic-bezier(.22,1,.36,1)';
 const reduceMotion = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
 let DKA = null;   // animazione in corso: {deck, timer, done}
+let DKG = null;   // dito sul mazzo
+let DKR = false;  // un aggiornamento della pagina è arrivato durante il gesto: si fa a fine animazione
+// mazzo occupato: un render a metà gesto ricostruirebbe le carte e ricaricherebbe le foto (il "lampo")
+function deckBusy(){ return !!DKA || !!(DKG && Date.now() - DKG.t < 10000); }
+function deckFlush(){ if (DKR && !deckBusy()) { DKR = false; scheduleRender(); } }
 function layoutDeck(){
   const deck = $('#deck'); if (!deck) return;
-  const cards = deck.querySelectorAll('.dk'), idx = S[deckKey(deck)] || 0;
+  const cards = deck.querySelectorAll('.dk'), idx = S[deckKey(deck)] || 0, n = cards.length;
+  // il mazzo è un giro: dopo l'ultima carta vengono di nuovo la prima e la seconda
   cards.forEach((c, j) => {
-    const d = j - idx;
-    c.className = 'dk ' + (d < 0 ? 'out' : d === 0 ? 'c0' : d === 1 ? 'b1' : d === 2 ? 'b2' : 'bx');
+    const d = (j - idx + n) % n;
+    c.className = 'dk ' + (d === 0 ? 'c0' : d === 1 ? 'b1' : d === 2 ? 'b2' : d === 3 || j > idx ? 'bx' : 'out');
     c.tabIndex = d === 0 ? 0 : -1;
     if (d === 0) c.removeAttribute('aria-hidden'); else c.setAttribute('aria-hidden', 'true');
   });
   sizeDeck();
-  const n = $('#deckN'); if (n) n.textContent = (idx + 1) + ' di ' + cards.length;
+  const cn = $('#deckN'); if (cn) cn.textContent = (idx + 1) + ' di ' + n;
   document.querySelectorAll('#dots i').forEach((d, j) => d.classList.toggle('on', j === idx));
+  deckPrep(deck);
+}
+// foto pronte in anticipo: la carta davanti, le tre dietro e la precedente vengono scaricate e preparate (decode) prima di essere mostrate
+function deckPrep(deck){
+  const cards = deck.querySelectorAll('.dk'), n = cards.length, i = S[deckKey(deck)] || 0;
+  [0, 1, 2, 3, -1].forEach(k => {
+    if (k > 0 && k >= n) return;
+    const c = cards[(i + k + n) % n], im = c && c.querySelector('img.ph');
+    if (im && !im._dec && im.decode) { im._dec = 1; im.decode().catch(() => {}); }
+  });
 }
 // dove comincia il mazzo nella pagina: serve al CSS per farlo stare tutto sopra la barra
 function sizeDeck(){
@@ -673,37 +697,59 @@ function sizeDeck(){
 function deckKey(deck){ return (deck && deck.dataset.k) || 'deckIdx'; }
 // le carte che si muovono in un gesto: quella davanti, le due dietro, la quarta che compare e la precedente che rientra
 function deckParts(deck){
-  const cards = [...deck.querySelectorAll('.dk')], i = S[deckKey(deck)] || 0;
-  return {cards, i, prev:cards[i - 1] || null, c0:cards[i] || null, b1:cards[i + 1] || null, b2:cards[i + 2] || null, b3:cards[i + 3] || null};
+  const cards = [...deck.querySelectorAll('.dk')], i = S[deckKey(deck)] || 0, n = cards.length;
+  const at = k => n > k ? cards[(i + k) % n] : null;   // in giro: all'ultima carta dietro ci sono la prima e la seconda
+  return {cards, i, n, prev:cards[i - 1] || null, c0:cards[i] || null, b1:at(1), b2:at(2), b3:at(3)};
 }
 const lerp = (a, b, t) => a + (b - a) * t;
-function dkStack(el, from, to, t){ const y = lerp(DK_POS[from][0], DK_POS[to][0], t), s = lerp(DK_POS[from][1], DK_POS[to][1], t); return `translate3d(0,${y.toFixed(2)}px,0) scale(${s.toFixed(4)})`; }
+const DK_BG = {c0:[255, 255, 255], b1:[250, 250, 251], b2:[243, 244, 246]};   // fondo delle carte a riposo (come nel CSS)
+function dkStack(el, from, to, t){
+  const y = lerp(DK_POS[from][0], DK_POS[to][0], t), s = lerp(DK_POS[from][1], DK_POS[to][1], t);
+  el.style.background = `rgb(${DK_BG[from].map((v, k) => Math.round(lerp(v, DK_BG[to][k], t))).join(',')})`;
+  return `translate3d(0,${y.toFixed(2)}px,0) scale(${s.toFixed(4)})`;
+}
 function dkContent(el, o){ for (const x of el.children) x.style.opacity = o; }
-// mette in posa le carte per un progresso p (0 a riposo, 1 quando la carta davanti è partita): dir -1 avanti, +1 indietro
+// mette in posa le carte per un progresso p (0 a riposo, 1 quando la carta davanti è partita): dir -1 avanti, +1 indietro.
+// Ogni proprietà (posizione, fondo, contenuto, ombra) arriva al valore delle classi di fine animazione.
 function deckPose(P, p, dir){
   if (dir < 0) {
     if (P.b1) { P.b1.style.transform = dkStack(P.b1, 'b1', 'c0', p); dkContent(P.b1, (.6 + .4 * p).toFixed(3)); P.b1.style.setProperty('--sh', p.toFixed(3)); }
-    if (P.b2) P.b2.style.transform = dkStack(P.b2, 'b2', 'b1', p);
+    if (P.b2) { P.b2.style.transform = dkStack(P.b2, 'b2', 'b1', p); dkContent(P.b2, (.6 * p).toFixed(3)); }
     if (P.b3) P.b3.style.opacity = p.toFixed(3);
   } else {
+    // con poche carte la precedente può essere anche una di quelle dietro: quella la muove il gesto, non la pila
+    const b1 = P.b1 !== P.prev ? P.b1 : null, b2 = P.b2 !== P.prev ? P.b2 : null;
+    if (P.prev) P.prev.style.setProperty('--sh', p.toFixed(3));
     if (P.c0) { P.c0.style.transform = dkStack(P.c0, 'c0', 'b1', p); dkContent(P.c0, (1 - .4 * p).toFixed(3)); P.c0.style.setProperty('--sh', (1 - p).toFixed(3)); }
-    if (P.b1) P.b1.style.transform = dkStack(P.b1, 'b1', 'b2', p);
-    if (P.b2) P.b2.style.opacity = (1 - p).toFixed(3);
+    if (b1) { b1.style.transform = dkStack(b1, 'b1', 'b2', p); dkContent(b1, (.6 * (1 - p)).toFixed(3)); }
+    if (b2) b2.style.opacity = (1 - p).toFixed(3);
   }
 }
+// la carta precedente si prepara a rientrare da sinistra: piena, bianca, sopra il mazzo
+function dkPrevIn(c, W){
+  c.style.transition = 'none'; c.style.transformOrigin = '50% 130%'; c.style.opacity = '1'; c.style.zIndex = '6';
+  c.style.background = 'var(--card)'; for (const x of c.children) { x.style.transition = 'none'; x.style.opacity = '1'; }
+  c.style.transform = deckBackPose(W, 0);
+}
 function deckMoving(P, on){ [P.prev, P.c0, P.b1, P.b2, P.b3].forEach(c => { if (c) c.style.willChange = on ? 'transform' : ''; }); }
-const DK_INLINE = ['transform', 'transition', 'transform-origin', 'z-index', 'opacity', 'visibility', 'will-change', '--sh', '--shd', '--lift'];
-function dkClear(c){ if (!c) return; DK_INLINE.forEach(k => c.style.removeProperty(k)); for (const x of c.children) x.style.opacity = ''; }
-// fine di un'animazione: tutto torna agli stili delle classi (che coincidono con la posa finale), senza transizioni
-function deckSettle(deck, P, to){
+const DK_INLINE = ['transform', 'transform-origin', 'z-index', 'opacity', 'visibility', 'background', 'will-change', '--sh', '--shd', '--lift'];
+function dkClear(c){ DK_INLINE.forEach(k => c.style.removeProperty(k)); for (const x of c.children) x.style.opacity = ''; }
+const dkOff = c => { c.style.transition = 'none'; c.style.setProperty('--lfd', '0ms'); for (const x of c.children) x.style.transition = 'none'; };
+const dkOn = c => { if (c.style.transition === 'none') c.style.transition = ''; c.style.removeProperty('--lfd'); for (const x of c.children) if (x.style.transition === 'none') x.style.transition = ''; };
+// fine di un'animazione: tutto passa agli stili delle classi (che coincidono con la posa finale) senza un solo fotogramma di differenza
+function deckSettle(deck, P, to, away){
   if (DKA) { clearTimeout(DKA.timer); DKA = null; }
-  [P.prev, P.c0, P.b1, P.b2, P.b3].forEach(c => { if (c) { c.style.transition = 'none'; for (const x of c.children) x.style.transition = 'none'; } });
+  const all = [...new Set([P.prev, P.c0, P.b1, P.b2, P.b3])].filter(Boolean);
+  all.forEach(dkOff);                                   // transizioni spente (anche quelle delle ombre)
   if (to !== undefined) S[deckKey(deck)] = to;
-  layoutDeck();
-  [P.prev, P.c0, P.b1, P.b2, P.b3].forEach(dkClear);
-  void deck.offsetWidth;
-  [P.prev, P.c0, P.b1, P.b2, P.b3].forEach(c => { if (c) { c.style.transition = ''; for (const x of c.children) x.style.transition = ''; } });
+  layoutDeck();                                         // 1. le classi nuove (gli stili in linea, ancora lì, tengono ferma la posa)
+  all.forEach(dkClear);                                 // 2. via gli stili in linea
+  void deck.offsetWidth;                                // 3. ricalcolo: le classi valgono già, nulla si anima
+  requestAnimationFrame(() => all.forEach(dkOn));       // 4. transizioni riaccese al fotogramma dopo
+  // con 2 o 3 carte la carta rimasta fuori dallo schermo (volata via, o la precedente che non è rientrata) torna subito dietro al mazzo: compare piano invece di spuntare
+  if (away && (away.classList.contains('b1') || away.classList.contains('b2')) && away.animate && !reduceMotion()) away.animate([{opacity:0}, {opacity:1}], {duration:220, easing:'ease'});
   if (to !== undefined) deckHintDone();
+  deckFlush();
 }
 function deckAnimate(deck, P, ms, ease, done, lead){
   const tr = `transform ${ms}ms ${ease},opacity ${ms}ms ${ease}`;
@@ -725,7 +771,7 @@ function deckFly(deck, P, g){
   const ty = y0 + Math.max(-160, Math.min(160, (g.vy / v) * dist * .3));
   const rot = s * Math.max(18, Math.min(28, Math.abs(g.r) + 14));
   requestAnimationFrame(() => {
-    deckAnimate(deck, P, ms, DK_FLY, () => deckSettle(deck, P, P.i + 1), P.c0);
+    deckAnimate(deck, P, ms, DK_FLY, () => deckSettle(deck, P, (P.i + 1) % P.n, P.c0), P.c0);
     P.c0.style.transform = `translate3d(${tx.toFixed(1)}px,${ty.toFixed(1)}px,0) rotate(${rot.toFixed(2)}deg) scale(1.02)`;
     deckPose(P, 1, -1);
   });
@@ -734,7 +780,7 @@ function deckFly(deck, P, g){
 function deckBack(deck, P, g){
   if (reduceMotion()) return deckFade(deck, P, -1);
   const c = P.prev;
-  if (!g) { c.style.transition = 'none'; c.style.transformOrigin = '50% 130%'; c.style.visibility = 'visible'; c.style.opacity = '1'; c.style.zIndex = '6'; c.style.transform = deckBackPose(deck._dkW || deck.offsetWidth, 0); void c.offsetWidth; }
+  if (!g) { dkPrevIn(c, deck._dkW || deck.offsetWidth); void c.offsetWidth; }
   requestAnimationFrame(() => {
     deckAnimate(deck, P, 380, DK_SOFT, () => deckSettle(deck, P, P.i - 1), c);
     c.style.transform = 'translate3d(0,0,0) rotate(0deg)';
@@ -745,7 +791,7 @@ function deckBackPose(W, q){ const x = -(1 - q) * W * 1.15, r = -(1 - q) * 14; r
 // niente lancio: tutto torna al suo posto con un piccolo rimbalzo
 function deckReturn(deck, P, dir){
   requestAnimationFrame(() => {
-    deckAnimate(deck, P, 450, DK_BOUNCE, () => deckSettle(deck, P), dir > 0 && P.prev ? P.prev : P.c0);
+    deckAnimate(deck, P, 450, DK_BOUNCE, () => deckSettle(deck, P, undefined, dir > 0 ? P.prev : null), dir > 0 && P.prev ? P.prev : P.c0);
     if (P.c0) { P.c0.style.transform = 'translate3d(0,0,0) rotate(0deg) scale(1)'; P.c0.style.setProperty('--lift', '0'); }
     if (dir > 0 && P.prev) P.prev.style.transform = deckBackPose(deck._dkW || deck.offsetWidth, 0);
     deckPose(P, 0, dir > 0 && P.prev ? 1 : -1);
@@ -756,7 +802,7 @@ function deckFade(deck, P, step){
   const c = P.c0;
   requestAnimationFrame(() => {
     deckAnimate(deck, P, 140, 'ease', () => {
-      deckSettle(deck, P, P.i + step);
+      deckSettle(deck, P, (P.i + step + P.n) % P.n);
       const n = deck.querySelector('.dk.c0'); if (!n) return;
       n.style.opacity = '0'; void n.offsetWidth; n.style.transition = 'opacity 140ms ease'; n.style.opacity = '1';
       setTimeout(() => { n.style.transition = ''; n.style.opacity = ''; }, 200);
@@ -801,7 +847,7 @@ function deckGo(step){
     const P = deckParts(deck); if (!P.c0) return;
     deck.classList.remove('hinting');
     const w = deck.offsetWidth; deck._dkW = w;
-    G = {deck, P, w, vw:window.innerWidth, x0:e.clientX, y0:e.clientY, dx:0, dy:0, x:0, y:0, r:0, drag:false, dir:0, canBack:!!P.prev, pid:e.pointerId, pts:[[e.timeStamp, e.clientX, e.clientY]]};
+    G = DKG = {t:Date.now(), deck, P, w, vw:window.innerWidth, x0:e.clientX, y0:e.clientY, dx:0, dy:0, x:0, y:0, r:0, drag:false, dir:0, canBack:!!P.prev, pid:e.pointerId, pts:[[e.timeStamp, e.clientX, e.clientY]]};
   });
   document.addEventListener('pointermove', e => {
     if (!G || e.pointerId !== G.pid || G.vert) return;
@@ -813,7 +859,7 @@ function deckGo(step){
       try { P.c0.setPointerCapture(G.pid); } catch (err) {}
       deckMoving(P, true);
       if (G.dir < 0 || !G.canBack) { P.c0.style.transition = 'none'; P.c0.style.transformOrigin = '50% 130%'; P.c0.style.zIndex = '5'; P.c0.style.setProperty('--lift', '1'); }
-      else { const c = P.prev; c.style.transition = 'none'; c.style.transformOrigin = '50% 130%'; c.style.visibility = 'visible'; c.style.opacity = '1'; c.style.zIndex = '6'; c.style.transform = deckBackPose(G.w, 0); }
+      else dkPrevIn(P.prev, G.w);
       [P.b1, P.b2, P.b3].forEach(c => { if (c) c.style.transition = 'none'; });
     }
     G.dx = mx; G.dy = my;
@@ -822,10 +868,10 @@ function deckGo(step){
   });
   const end = e => {
     if (!G || (e && e.pointerId !== G.pid)) return;
-    const g = G; G = null;
+    const g = G; G = DKG = null;
     if (raf) { cancelAnimationFrame(raf); raf = 0; frame.call(null); }
-    if (g.vert) { deckSuppress = Date.now() + 350; return; }
-    if (!g.drag) return;
+    if (g.vert) { deckSuppress = Date.now() + 350; deckFlush(); return; }
+    if (!g.drag) { deckFlush(); return; }
     deckSuppress = Date.now() + 350;
     const P = g.P, deck = g.deck;
     // velocità del dito sugli ultimi ~80 ms
@@ -953,7 +999,7 @@ function viewTopic(id){
   if (nw) {
     S.tdeckIdx = Math.min(S.tdeckIdx || 0, nw - 1);
     h += `<p class="sr" id="tdT">Notizie nuove: ${nw}</p>
-      <div class="deck tdeck" id="deck" data-k="tdeckIdx" tabindex="0" role="region" aria-roledescription="mazzo di carte" aria-labelledby="tdT" aria-describedby="deckHelp">${fresh.map((x, i) => deckCard(x, i, {lead:false, t})).join('')}</div>
+      <div class="deck tdeck" id="deck" data-k="tdeckIdx" tabindex="0" role="region" aria-roledescription="mazzo di carte" aria-labelledby="tdT" aria-describedby="deckHelp">${fresh.map((x, i) => deckCard(x, i, {lead:false, t, cur:S.tdeckIdx})).join('')}</div>
       <p class="sr" id="deckHelp">Trascina la carta a sinistra per la prossima notizia, a destra per tornare indietro; con la tastiera usa le frecce. Invio apre la notizia.</p>
       <div class="pg" id="dots" aria-hidden="true">${fresh.map((_, i) => `<i class="${i === S.tdeckIdx ? 'on' : ''}"></i>`).join('')}</div>`;
   } else h += `<p class="tnone">Nessuna notizia nuova nelle ultime 12 ore</p>`;
