@@ -477,6 +477,7 @@ function render(force = true){
   PANES.delete(k); PANES.set(k, P);   // l'ultima vista va in fondo (le più vecchie si chiudono prima)
   const sfv = $('#sfv'); if (sfv && S.sfIdx && Math.abs(sfv.scrollTop - S.sfIdx * sfv.clientHeight) > 2) sfv.scrollTop = S.sfIdx * sfv.clientHeight;
   initCarousels();
+  initSfoglia();
   if (S.story && !$('#sheet').hidden && force) renderSheet(true);
   observeMore();
 }
@@ -1281,37 +1282,70 @@ function phraseOf(s){
   return x && x.u ? {t:titleIt(x) || x.t, o:outlet(x.o).name, u:x.u, tr:langOf(x) !== 'it' && !!titleIt(x)} : null;
 }
 const SF_STEP = 25;
-function sfSlide(s){
+function sfSlide(s, i){
   pushCtx(s.id);
   const t = tcol(s), n = outletsOf(s).length, ph = phraseOf(s);
   const q = ph ? String(ph.t).replace(/^[«"“]+|[»"”]+$/g, '') : '';
   const topicInk = '#' + t.c.slice(1).match(/../g).map(v => Math.round(parseInt(v, 16) * .55 + 255 * .45).toString(16).padStart(2, '0')).join('');
-  return `<article class="sf" data-act="open" data-id="${esc(s.id)}" tabindex="0" style="--tg:${t.c};--sf-topic:${topicInk}" aria-label="${esc(s.headline)}"><div class="sfpanel">
-    <div class="sfamb" aria-hidden="true">${visual(s, 'wide', false)}</div><span class="sfgrab" aria-hidden="true"></span>
+  return `<article class="sf" data-act="open" data-id="${esc(s.id)}" data-i="${i}" tabindex="0" style="--tg:${t.c};--sf-topic:${topicInk}" aria-label="${esc(s.headline)}">
     <div class="sfph">${visual(s, 'wide')}</div>
     <div class="sftx"><p class="m2"><span>${esc(kickName(s))}</span> · ${covText(n)} · ${esc(ago(s.updatedAt))}</p>
       <h2>${esc(s.headline)}</h2>
       ${q ? `<p class="q"><span class="qt">«${esc(q)}»</span><span class="qo"><a href="${esc(ph.u)}" target="_blank" rel="noopener">${esc(ph.o)}</a>${ph.tr ? ' · tradotto' : ''}${n > 1 ? ` · e ${n === 2 ? 'un\'altra testata' : 'altre ' + (n - 1) + ' testate'}` : ''}</span></p>` : ''}</div>
-  </div></article>`;
+  </article>`;
 }
 function viewSfoglia(){
   const st = feedState(false); if (st) return st;
   const list = sfogliaList();
   if (!list.length) return `<div class="state"><h3>Niente da sfogliare, per ora</h3><p>Appena la redazione automatica pubblica le notizie, qui le trovi una per schermata.</p></div>`;
   S.sfN = Math.min(list.length, Math.max(S.sfN || 0, SF_STEP, (S.sfIdx || 0) + 5));
-  return `<div class="sfv" id="sfv" role="feed" aria-label="Sfoglia: una notizia per schermata">${list.slice(0, S.sfN).map(sfSlide).join('')}</div>`;
+  return `<div class="sfshell"><div class="sfamb" aria-hidden="true"></div><div class="sfv" id="sfv" role="feed" aria-label="Sfoglia: una notizia per schermata">${list.slice(0, S.sfN).map(sfSlide).join('')}</div></div>`;
+}
+let sfObserver = null;
+function sfAtmosphere(el, slide){
+  const host = el.parentNode.querySelector('.sfamb');
+  if (!host || !slide || host.dataset.id === slide.dataset.id) return;
+  const s = getStory(slide.dataset.id); if (!s) return;
+  host.dataset.id = s.id;
+  // Due immagini dirette si sovrappongono solo per la dissolvenza, in un unico livello fermo.
+  host.querySelectorAll('.sfglow:not(.on)').forEach(n => n.remove());
+  const previous = host.querySelector('.sfglow.on');
+  const next = document.createElement('div'); next.className = 'sfglow';
+  next.style.setProperty('--tg', tcol(s).c);
+  next.innerHTML = visual(s, 'wide', false, 'eager');
+  host.appendChild(next); readyImgs(next);
+  if (!previous) next.classList.add('on');
+  else {
+    void next.offsetWidth;
+    next.classList.add('on'); previous.classList.remove('on');
+    setTimeout(() => previous.remove(), 450);
+  }
+}
+function initSfoglia(){
+  if (sfObserver) { sfObserver.disconnect(); sfObserver = null; }
+  const el = $('#sfv'); if (!el) return;
+  sfAtmosphere(el, el.children[Math.min(S.sfIdx || 0, el.children.length - 1)]);
+  if (!window.IntersectionObserver) return;
+  sfObserver = new IntersectionObserver(entries => {
+    const current = entries.find(e => e.isIntersecting && e.intersectionRatio >= .6);
+    if (!current || !el.isConnected) return;
+    if (Date.now() - (S.sfKeyAt || 0) > 700) S.sfIdx = +current.target.dataset.i;
+    sfAtmosphere(el, current.target);
+  }, {root:el, threshold:.6});
+  [...el.children].forEach(slide => sfObserver.observe(slide));
 }
 function sfMore(){
   const el = $('#sfv'); if (!el) return;
   const list = sfogliaList(); if (S.sfN >= list.length) return;
   const n1 = Math.min(list.length, S.sfN + SF_STEP);
   const was = collecting; collecting = true; CTX = S.ctx || [];
-  el.insertAdjacentHTML('beforeend', list.slice(S.sfN, n1).map(sfSlide).join(''));
+  el.insertAdjacentHTML('beforeend', list.slice(S.sfN, n1).map((s, i) => sfSlide(s, S.sfN + i)).join(''));
+  if (sfObserver) [...el.children].slice(S.sfN).forEach(slide => sfObserver.observe(slide));
   S.ctx = CTX; collecting = was; S.sfN = n1; readyImgs(el);
 }
 document.addEventListener('scroll', e => {
   const el = e.target; if (!el || el.id !== 'sfv') return;
-  if (Date.now() - (S.sfKeyAt || 0) > 700) S.sfIdx = Math.round(el.scrollTop / Math.max(1, el.clientHeight));
+  if (!sfObserver) { S.sfIdx = Math.round(el.scrollTop / Math.max(1, el.clientHeight)); sfAtmosphere(el, el.children[S.sfIdx]); }
   if (el.scrollTop + el.clientHeight * 4 > el.scrollHeight) sfMore();
 }, {capture:true, passive:true});
 document.addEventListener('keydown', e => {
