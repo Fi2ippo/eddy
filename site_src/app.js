@@ -477,7 +477,6 @@ function render(force = true){
   PANES.delete(k); PANES.set(k, P);   // l'ultima vista va in fondo (le più vecchie si chiudono prima)
   const sfv = $('#sfv'); if (sfv && S.sfIdx && Math.abs(sfv.scrollTop - S.sfIdx * sfv.clientHeight) > 2) sfv.scrollTop = S.sfIdx * sfv.clientHeight;
   initCarousels();
-  initSfoglia();
   if (S.story && !$('#sheet').hidden && force) renderSheet(true);
   observeMore();
 }
@@ -1255,9 +1254,9 @@ function srow(x, canFlag){
 }
 const QSTOP = new Set('il lo la i gli le un uno una di a da in con su per tra fra e o ma che chi cosa come dove quando perche perché quale quali quanto quanti quante è e sono era stato sta stanno ha hanno ho del dello della dei degli delle al allo alla ai agli alle dal dalla dai nel nella nei sul sulla sui si ci ne non piu più mi ti me te lui lei loro questo questa questi queste quello quella sapere dimmi spiega spiegami cosa è successo succede oggi notizia storia'.split(' '));
 /* ---------- sfoglia: una notizia per schermata ---------- */
-// Il colore del browser segue Sfoglia. Su iOS dalla Home si conserva la barra di stato predefinita.
+// Sfoglia è un'unica superficie scura: pagina, rimbalzo e colore del browser (theme-color, anche nell'app aperta dalla Home).
 function syncSfChrome(){
-  const dark = S.tab === 'sfoglia' && !S.story && $('#sheet').hidden && $('#onb').hidden && !navigator.standalone;
+  const dark = S.tab === 'sfoglia' && !S.story && $('#sheet').hidden && $('#onb').hidden;
   document.documentElement.classList.toggle('sf-chrome', dark);
   const meta = $('meta[name="theme-color"]');
   if (meta) meta.content = dark ? '#14151A' : '#FFFFFF';
@@ -1299,40 +1298,7 @@ function viewSfoglia(){
   const list = sfogliaList();
   if (!list.length) return `<div class="state"><h3>Niente da sfogliare, per ora</h3><p>Appena la redazione automatica pubblica le notizie, qui le trovi una per schermata.</p></div>`;
   S.sfN = Math.min(list.length, Math.max(S.sfN || 0, SF_STEP, (S.sfIdx || 0) + 5));
-  return `<div class="sfshell"><div class="sfamb" aria-hidden="true"></div><div class="sfv" id="sfv" role="feed" aria-label="Sfoglia: una notizia per schermata">${list.slice(0, S.sfN).map(sfSlide).join('')}</div></div>`;
-}
-let sfObserver = null;
-function sfAtmosphere(el, slide){
-  const host = el.parentNode.querySelector('.sfamb');
-  if (!host || !slide || host.dataset.id === slide.dataset.id) return;
-  const s = getStory(slide.dataset.id); if (!s) return;
-  host.dataset.id = s.id;
-  // Due immagini dirette si sovrappongono solo per la dissolvenza, in un unico livello fermo.
-  host.querySelectorAll('.sfglow:not(.on)').forEach(n => n.remove());
-  const previous = host.querySelector('.sfglow.on');
-  const next = document.createElement('div'); next.className = 'sfglow';
-  next.style.setProperty('--tg', tcol(s).c);
-  next.innerHTML = visual(s, 'wide', false, 'eager');
-  host.appendChild(next); readyImgs(next);
-  if (!previous) next.classList.add('on');
-  else {
-    void next.offsetWidth;
-    next.classList.add('on'); previous.classList.remove('on');
-    setTimeout(() => previous.remove(), 450);
-  }
-}
-function initSfoglia(){
-  if (sfObserver) { sfObserver.disconnect(); sfObserver = null; }
-  const el = $('#sfv'); if (!el) return;
-  sfAtmosphere(el, el.children[Math.min(S.sfIdx || 0, el.children.length - 1)]);
-  if (!window.IntersectionObserver) return;
-  sfObserver = new IntersectionObserver(entries => {
-    const current = entries.find(e => e.isIntersecting && e.intersectionRatio >= .6);
-    if (!current || !el.isConnected) return;
-    if (Date.now() - (S.sfKeyAt || 0) > 700) S.sfIdx = +current.target.dataset.i;
-    sfAtmosphere(el, current.target);
-  }, {root:el, threshold:.6});
-  [...el.children].forEach(slide => sfObserver.observe(slide));
+  return `<div class="sfshell"><div class="sfv" id="sfv" role="feed" aria-label="Sfoglia: una notizia per schermata">${list.slice(0, S.sfN).map(sfSlide).join('')}</div></div>`;
 }
 function sfMore(){
   const el = $('#sfv'); if (!el) return;
@@ -1340,12 +1306,11 @@ function sfMore(){
   const n1 = Math.min(list.length, S.sfN + SF_STEP);
   const was = collecting; collecting = true; CTX = S.ctx || [];
   el.insertAdjacentHTML('beforeend', list.slice(S.sfN, n1).map((s, i) => sfSlide(s, S.sfN + i)).join(''));
-  if (sfObserver) [...el.children].slice(S.sfN).forEach(slide => sfObserver.observe(slide));
   S.ctx = CTX; collecting = was; S.sfN = n1; readyImgs(el);
 }
 document.addEventListener('scroll', e => {
   const el = e.target; if (!el || el.id !== 'sfv') return;
-  if (!sfObserver) { S.sfIdx = Math.round(el.scrollTop / Math.max(1, el.clientHeight)); sfAtmosphere(el, el.children[S.sfIdx]); }
+  if (Date.now() - (S.sfKeyAt || 0) > 700) S.sfIdx = Math.round(el.scrollTop / Math.max(1, el.clientHeight));
   if (el.scrollTop + el.clientHeight * 4 > el.scrollHeight) sfMore();
 }, {capture:true, passive:true});
 document.addEventListener('keydown', e => {
