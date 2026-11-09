@@ -878,9 +878,25 @@ function viewFolder(items){
 const CHECK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const PEN = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>';
 // pulsante di un tema da scegliere (primo avvio e Profilo): quadratino o riga del colore pieno, spunta quando è scelto
-function topicPick(t, sq){
+// scelta dei temi (primo avvio e Profilo): pillole divise per famiglia; scelte si accendono del colore pieno del tema
+const FAMS = ['Attualità', 'Luoghi', 'Sapere', 'Cultura', 'Tempo libero'];
+const PICK_ORDER = ['italia', 'cronaca', 'salute', 'napoli', 'mondo', 'economia', 'scienza', 'tech', 'clima', 'cultura', 'design', 'architettura', 'arte', 'sport', 'motori', 'spettacoli'];
+function lum(hex){ return hexRgb(hex).map(v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }).reduce((a, v, i) => a + v * [.2126, .7152, .0722][i], 0); }
+function contrast(a, b){ const x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); }
+// testo sul colore pieno: bianco o inchiostro, quello che si legge meglio
+function onColor(c){ return contrast(c, '#FFFFFF') > contrast(c, '#111216') ? '#FFFFFF' : '#111216'; }
+function tIcon(id){ return `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${TICON[id] || ''}</svg>`; }
+function topicPill(t){
   const on = S.prefs.topics.includes(t.id);
-  return `<button class="tb${sq ? ' sq' : ''}" data-act="ttopic" data-id="${t.id}" aria-pressed="${on}"><i style="background:${t.c}"></i><span>${esc(t.name)}</span><span class="ck">${on ? CHECK : ''}</span></button>`;
+  return `<button class="tpl" data-act="ttopic" data-id="${t.id}" aria-pressed="${on}" style="--c:${t.c};--tx:${t.tx};--on:${onColor(t.c)}">${tIcon(t.id)}${esc(t.name)}</button>`;
+}
+function topicFamilies(prefix){
+  const order = PICK_ORDER.map(id => TMAP[id]).filter(Boolean).concat(TOPICS.filter(t => !PICK_ORDER.includes(t.id)));
+  return `<div class="fams">${FAMS.map((f, i) => {
+    const list = order.filter(t => t.fam === f); if (!list.length) return '';
+    const lid = prefix + 'Fam' + i;
+    return `<p class="fml" id="${lid}">${esc(f)}</p><div class="tpls" role="group" aria-labelledby="${lid}">${list.map(topicPill).join('')}</div>`;
+  }).join('')}</div>`;
 }
 const SIZES = [['s', 'Piccola'], ['m', 'Media'], ['l', 'Grande']];
 // i temi più letti: dalle storie aperte (cronologia delle letture)
@@ -923,7 +939,7 @@ function renderPanel(){
   let title = '', body = '';
   if (k === 'temi') {
     title = 'I tuoi temi';
-    body = `<p class="plede">Decidono le cartelle di Salvati e cosa trovi in Per te. Oggi mostra sempre tutto.</p><div class="tgr">${TOPICS.map(t => topicPick(t)).join('')}</div>`;
+    body = `<p class="plede">Tocca i temi: si accendono del loro colore. Decidono le cartelle di Salvati e cosa trovi in Per te; Oggi mostra sempre tutto.</p>${topicFamilies('pan')}`;
   } else if (k === 'testo') {
     title = 'Dimensione del testo';
     body = `<p class="plede">Vale per il testo delle storie.</p><div class="opts" role="radiogroup" aria-label="Dimensione del testo">${SIZES.map(([v, l]) => `<button role="radio" class="opt" data-act="size" data-v="${v}" aria-checked="${p.size === v}"><span style="font-size:${v === 's' ? 15.5 : v === 'm' ? 17 : 19}px">${l}</span><span class="ck">${p.size === v ? CHECK : ''}</span></button>`).join('')}</div>`;
@@ -1163,8 +1179,8 @@ function renderOnb(){
       <button class="cta" data-act="onb-next">Iniziamo ${ARROW_R}</button>`;
   } else if (st === 1) {
     const k = p.topics.length;
-    h = `${top}<h1 id="onbT" class="oh2">Cosa ti interessa?</h1><p class="olead sm">Scegline quanti vuoi. Li puoi cambiare dal Profilo.</p>
-      <div class="tgr otg">${TOPICS.map(t => topicPick(t)).join('')}</div>
+    h = `${top}<h1 id="onbT" class="oh2">Cosa ti interessa?</h1><p class="olead sm">Tocca i temi: si accendono del loro colore.</p>
+      <div class="otg">${topicFamilies('onb')}</div>
       <div class="obot"><button class="cta" data-act="onb-next" id="onbNext">${k ? `Avanti · ${k} ${k === 1 ? 'tema' : 'temi'}` : 'Avanti'}</button></div>`;
   } else {
     h = `${top}<div class="obx" style="margin-top:70px"><h1 id="onbT">Come ti dobbiamo chiamare?</h1><p class="olead">Solo per salutarti. Il nome resta su questo telefono.</p>
@@ -1172,7 +1188,7 @@ function renderOnb(){
       <div class="oprev" aria-live="polite"><small>Così ti saluteremo</small><b id="onbGreet">${onbGreet()}</b></div></div>
       <button class="cta" data-act="onb-done">Inizia a leggere</button>`;
   }
-  el.innerHTML = `<div class="ob">${h}</div>`;
+  el.innerHTML = `<div class="ob${st === 1 ? ' fixh' : ''}">${h}</div>`;
   const f = el.querySelector('#onbT'); if (f) { f.tabIndex = -1; f.focus({preventScroll:true}); }
 }
 function updateCounters(){
@@ -1225,7 +1241,7 @@ document.addEventListener('click', e => {
     case 'napoli-all': S.napAll = !S.napAll; render(); break;
     case 'ttopic': {
       const on = togglePref('topics', id);
-      document.querySelectorAll(`[data-act="ttopic"][data-id="${CSS.escape(id)}"]`).forEach(b => { b.setAttribute('aria-pressed', on); const c = b.querySelector('.ck'); if (c) c.innerHTML = on ? CHECK : ''; });
+      document.querySelectorAll(`[data-act="ttopic"][data-id="${CSS.escape(id)}"]`).forEach(b => b.setAttribute('aria-pressed', on));
       updateCounters();
       break;
     }
