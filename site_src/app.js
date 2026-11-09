@@ -256,9 +256,9 @@ function fallbackVisual(s, kind){ return hasPlace(s) ? mapSvg(s.place, kind) : a
 // decoding="sync": Safari prepara la foto prima di dipingerla. Con "async" (o lasciando decidere a lui) le foto grandi,
 // ogni volta che tornano visibili, vengono preparate in differita: per un attimo si vede il riquadro vuoto (il "lampo").
 // Le foto che arrivano dalla rete sono già preparate con decode() prima di comparire (readyImgs).
-const BADIMG = new Set();   // foto che non sono arrivate: ridisegnando la pagina si mostra subito la copertina di riserva
+const BADIMG = new Map();   // foto che non sono arrivate (e quando): ridisegnando la pagina si mostra subito la copertina di riserva; dopo 2 minuti si riprova
 function visual(s, kind, credit = true, load = 'lazy'){
-  if (hasImg(s) && !BADIMG.has(imgUrl(s.img))) {
+  if (hasImg(s) && !(Date.now() - (BADIMG.get(imgUrl(s.img)) || 0) < 120000)) {
     const who = s.img.o ? outlet(s.img.o).name : '';
     const cr = credit && kind !== 'thumb' && who ? `<span class="pcred">Foto: ${esc(who)}</span>` : '';
     const ld = (load === 'lazy' ? 'loading="lazy"' : 'loading="eager"' + (load === 'high' ? ' fetchpriority="high"' : '')) + ' decoding="sync"';
@@ -273,7 +273,7 @@ document.addEventListener('error', e => {
 }, true);
 // foto che non arriva: al suo posto la copertina generata (o la mappa)
 function imgFail(t){
-  BADIMG.add(t.getAttribute('src'));
+  BADIMG.set(t.getAttribute('src'), Date.now());
   const s = getStory(t.dataset.sid) || {id:t.dataset.sid, topic:'mondo'};
   const holder = t.parentNode;
   t.remove();
@@ -454,6 +454,8 @@ function readyImgs(root){
     if (im._ld) return;
     im._ld = 1; im.classList.add('ld');
     im.addEventListener('load', () => { const on = () => im.classList.remove('ld'); if (im.decode) im.decode().then(on, on); else on(); }, {once:true});
+    // foto che non arriva: copertina di riserva, anche se succede mentre la pagina è nascosta
+    im.addEventListener('error', () => { if (im.parentNode) imgFail(im); }, {once:true});
   });
 }
 // mostra la pagina della sezione attuale: la stessa di prima se nulla di suo è cambiato; force la ridisegna comunque
@@ -1281,13 +1283,15 @@ function phraseOf(s){
   return x && x.u ? {t:titleIt(x) || x.t, o:outlet(x.o).name, u:x.u, tr:langOf(x) !== 'it' && !!titleIt(x)} : null;
 }
 const SF_STEP = 25;
+// le foto di Sfoglia si scaricano subito (eager): su Safari iOS quelle "lazy" dentro il contenitore che scorre non partono mai;
+// la notizia da cui riparti ha la precedenza
 function sfSlide(s, i){
   pushCtx(s.id);
   const t = tcol(s), n = outletsOf(s).length, ph = phraseOf(s);
   const q = ph ? String(ph.t).replace(/^[«"“]+|[»"”]+$/g, '') : '';
   const topicInk = '#' + t.c.slice(1).match(/../g).map(v => Math.round(parseInt(v, 16) * .55 + 255 * .45).toString(16).padStart(2, '0')).join('');
   return `<article class="sf" data-act="open" data-id="${esc(s.id)}" data-i="${i}" tabindex="0" style="--tg:${t.c};--sf-topic:${topicInk}" aria-label="${esc(s.headline)}">
-    <div class="sfph">${visual(s, 'wide')}</div>
+    <div class="sfph">${visual(s, 'wide', true, i === (S.sfIdx || 0) ? 'high' : 'eager')}</div>
     <div class="sftx"><p class="m2"><span>${esc(kickName(s))}</span> · ${covText(n)} · ${esc(ago(s.updatedAt))}</p>
       <h2>${esc(s.headline)}</h2>
       ${q ? `<p class="q"><span class="qt">«${esc(q)}»</span><span class="qo"><a href="${esc(ph.u)}" target="_blank" rel="noopener">${esc(ph.o)}</a>${ph.tr ? ' · tradotto' : ''}${n > 1 ? ` · e ${n === 2 ? 'un\'altra testata' : 'altre ' + (n - 1) + ' testate'}` : ''}</span></p>` : ''}</div>
