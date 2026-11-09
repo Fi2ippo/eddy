@@ -46,7 +46,9 @@ body.locked{overflow:hidden}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;touch-action:manipulation;letter-spacing:inherit}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:10px}
-.wrap{max-width:680px;margin:0 auto;padding-inline:16px}
+.pane{max-width:680px;margin:0 auto;padding-inline:16px;background:var(--bg)}
+.pane.sf-pane{max-width:none;min-height:100vh;min-height:100dvh;background:#14151A}
+body.sf-on{padding-bottom:0}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 svg.i{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 svg.f{fill:currentColor;stroke:none}
@@ -286,8 +288,6 @@ body.sf-on .tind{opacity:.12}
 body.sf-on .tind i{background:#FFFFFF}
 /* storia aperta */
 .sheet{position:fixed;inset:0;z-index:50;background:var(--bg);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-@media (prefers-reduced-motion:no-preference){.sheet.enter{animation:pgInR .3s cubic-bezier(.22,1,.36,1) both}}
-@media (prefers-reduced-motion:reduce){.sheet.enter{animation:pgFadeIn .12s ease both}}
 .sbar{position:sticky;top:0;z-index:3;display:flex;align-items:center;padding:calc(env(safe-area-inset-top,0px) + 13px) 8px 0;background:linear-gradient(var(--tg),var(--tg)) top/100% calc(env(safe-area-inset-top,0px) + 5px) no-repeat,rgba(255,255,255,.94);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
 .sbar .grow{flex:1}
 .ib{width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:22px;color:var(--ink);background:transparent;flex:none}
@@ -462,30 +462,14 @@ button.cov:active{background:var(--pill)}
 .cmpg p{margin:4px 0 0;font-size:14px;line-height:1.45;color:var(--ink-2)}
 .cmpg p b{color:var(--ink);font-weight:700;margin-right:4px}
 @keyframes abin{from{opacity:0;transform:translateY(-12px)}}
-/* passaggio tra le pagine: la nuova entra dal lato verso cui vai, la vecchia esce dall'altro (View Transitions, o copia della pagina dove non ci sono) */
-.tabs{view-transition-name:tabbar}
-::view-transition{pointer-events:none}
-::view-transition-group(tabbar){animation:none}
-::view-transition-old(tabbar){display:none}
-::view-transition-new(tabbar){animation:none}
-html[data-vt="fwd"]::view-transition-old(root){animation:pgOutL 160ms cubic-bezier(.22,1,.36,1) both}
-html[data-vt="fwd"]::view-transition-new(root){animation:pgInR 300ms cubic-bezier(.22,1,.36,1) both}
-html[data-vt="back"]::view-transition-old(root){animation:pgOutR 160ms cubic-bezier(.22,1,.36,1) both}
-html[data-vt="back"]::view-transition-new(root){animation:pgInL 300ms cubic-bezier(.22,1,.36,1) both}
-html[data-vt="fade"]::view-transition-old(root){animation:pgFadeOut 120ms ease both}
-html[data-vt="fade"]::view-transition-new(root){animation:pgFadeIn 120ms ease both}
-@keyframes pgOutL{to{opacity:0;transform:translateX(-28px)}}
-@keyframes pgOutR{to{opacity:0;transform:translateX(28px)}}
-@keyframes pgInR{from{opacity:0;transform:translateX(28px)}}
-@keyframes pgInL{from{opacity:0;transform:translateX(-28px)}}
-@keyframes pgFadeOut{to{opacity:0}}
-@keyframes pgFadeIn{from{opacity:0}}
-.pghost{position:fixed;inset:0;z-index:2;overflow:hidden;pointer-events:none}
-.pghost>*{will-change:transform,opacity}
+/* Si animano le pagine vere: la vecchia resta ferma nello scorrimento, la barra è sopra entrambe. */
+.pg-old{position:fixed;z-index:2;pointer-events:none;overflow:clip}
+.pg-new{position:relative;z-index:1}
+.nav-debug{position:fixed;left:8px;right:8px;bottom:calc(var(--nav-h) + var(--nav-gap) + 8px);z-index:100;max-width:680px;margin:0 auto;padding:7px 9px;border-radius:8px;background:rgba(0,0,0,.85);color:#fff;font:600 12px/1.35 ui-monospace,Menlo,monospace;pointer-events:none;white-space:pre-wrap}
 </style>
 
 
-<main id="view" class="wrap"></main>
+<main id="view"></main>
 
 <nav class="tabs" aria-label="Sezioni">
   <span class="tind" aria-hidden="true"><i class="ta"></i><i class="tm"></i><i class="tb"></i></span>

@@ -366,7 +366,7 @@ let raf = 0, collecting = false, CTX = [];
 let SRP = false;   // un aggiornamento arrivato con una storia aperta: si fa quando la chiudi
 // i render in arrivo da soli (dati nuovi, aggiornamento, salvataggi) aspettano la chiusura della storia,
 // e ridisegnano la pagina solo se è cambiato qualcosa che la riguarda
-function scheduleRender(){ if (raf) return; raf = requestAnimationFrame(() => { raf = 0; if (S.story) { SRP = true; return; } render(false); }); }
+function scheduleRender(){ if (raf) return; raf = requestAnimationFrame(() => { raf = 0; if (S.story) { SRP = true; return; } if (PGT) { PGT.refresh = true; return; } render(false); }); }
 function pushCtx(id){ if (collecting && !CTX.includes(id)) CTX.push(id); }
 
 /* ----- pagine tenute pronte: ogni sezione (e ogni sotto-pagina) ha il suo contenitore, che resta com'era quando cambi sezione.
@@ -417,7 +417,7 @@ function buildPane(k){
   const tpl = document.createElement('template'); tpl.innerHTML = html;   // nel modello le foto non partono
   const frag = tpl.content;
   const el = old ? old.el : document.createElement('div');
-  el.className = 'pane'; el.dataset.k = k;
+  el.className = 'pane' + (k === 'sfoglia' ? ' sf-pane' : ''); el.dataset.k = k;
   // Le foto vecchie non entrano mai nel modello (passando da un documento all'altro ripartirebbero):
   // nel modello si segna dove vanno, si tolgono gli indirizzi alle foto nuove che verranno sostituite, e lo scambio si fa dopo, nella pagina.
   const swaps = [];
@@ -469,6 +469,7 @@ function readyImgs(root){
 }
 // mostra la pagina della sezione attuale: la stessa di prima se nulla di suo è cambiato; force la ridisegna comunque
 function render(force = true){
+  if (PGT && !PAGE_HOLD) PGT.end();
   applyLight();
   document.querySelectorAll('.tabs button').forEach(b => { if (b.dataset.tab === S.tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   syncInd();
@@ -479,24 +480,19 @@ function render(force = true){
   let P = PANES.get(k);
   if (!P || force || P.sig !== paneSig(k)) P = buildPane(k);
   else readyImgs(P.el);   // foto arrivate mentre la pagina era nascosta
-  if (v.firstElementChild !== P.el || v.children.length > 1) v.replaceChildren(P.el);
+  if (PAGE_HOLD && PAGE_HOLD.el !== P.el) {
+    if (P.el.parentNode !== v) v.appendChild(P.el);
+  } else if (v.firstElementChild !== P.el || v.children.length > 1) v.replaceChildren(P.el);
   S.ctx = P.ctx;
   // pagine nascoste: poche sotto-pagine, e nessuna con troppe foto
-  const subs = [...PANES.keys()].filter(x => x !== k && x.includes('|'));
+  const subs = [...PANES.keys()].filter(x => x !== k && x !== PAGE_HOLD?.key && x.includes('|'));
   while (subs.length > SUB_MAX) dropPane(subs.shift());
-  PANES.forEach((Q, x) => { if (x !== k && Q.el.querySelectorAll('img.ph').length > PANE_IMG_MAX) dropPane(x); });
+  PANES.forEach((Q, x) => { if (x !== k && x !== PAGE_HOLD?.key && Q.el.querySelectorAll('img.ph').length > PANE_IMG_MAX) dropPane(x); });
   PANES.delete(k); PANES.set(k, P);   // l'ultima vista va in fondo (le più vecchie si chiudono prima)
   const sfv = $('#sfv'); if (sfv && S.sfIdx && Math.abs(sfv.scrollTop - S.sfIdx * sfv.clientHeight) > 2) sfv.scrollTop = S.sfIdx * sfv.clientHeight;
   initCarousels();
   if (S.story && !$('#sheet').hidden && force) renderSheet(true);
   observeMore();
-}
-// passaggio di pagina: aspetta (al massimo un attimo) che le foto visibili della pagina nuova siano pronte
-function paneReady(){
-  const v = $('#view'), h = window.innerHeight;
-  const ims = [...v.querySelectorAll('img.ph')].filter(im => { if (!im.complete || !im.naturalWidth || !im.decode) return false; const r = im.getBoundingClientRect(); return r.bottom > 0 && r.top < h && r.width; }).slice(0, 12);
-  if (!ims.length) return Promise.resolve();
-  return Promise.race([Promise.all(ims.map(im => im.decode().catch(() => {}))), new Promise(r => setTimeout(r, 120))]);
 }
 // preparare in anticipo, a telefono libero: le prime carte dei mazzi di Per te e le prime righe di ogni elenco (al massimo 20 foto)
 let prepDone = false;
@@ -571,7 +567,7 @@ function observeMore(){
   if (!('IntersectionObserver' in window)) return;
   if (!moreObs) moreObs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) showMore(e.target.dataset.pkey); }), {rootMargin:'700px 0px'});
   moreObs.disconnect();
-  document.querySelectorAll('.more[data-pkey]').forEach(b => moreObs.observe(b));
+  document.querySelectorAll('.pane:not(.pg-old) .more[data-pkey]').forEach(b => moreObs.observe(b));
 }
 /* ---------- fonti: chi le riprende, confronto, cronologia, segnalazioni ---------- */
 const AGN = {ansa:'ANSA', agi:'AGI', adnkronos:'Adnkronos', lapresse:'LaPresse', askanews:'Askanews', italpress:'Italpress', dire:'Dire', reuters:'Reuters', afp:'AFP', ap:'AP', dpa:'dpa', efe:'EFE'};
@@ -843,7 +839,7 @@ function startCarouselHint(row){
 }
 function initCarousels(){
   if (carResize) carResize.disconnect();
-  document.querySelectorAll('#view .carousel').forEach(row => {
+  document.querySelectorAll('#view > .pane:not(.pg-old) .carousel').forEach(row => {
     if (!row._carReady) {
       row._carReady = true;
       row.addEventListener('scroll', () => {
@@ -1178,6 +1174,7 @@ function getStory(id){ return S.byId.get(id) || (S.saved[id] && S.saved[id].s &&
 function openStory(id, opts){
   opts = opts || {};
   const s = getStory(id); if (!s) return;
+  finishPageTransition();
   if (opts.ctx) S.storyCtx = opts.ctx.slice();
   else if (!opts.keepCtx) S.storyCtx = S.ctx.slice();
   const wasOpen = !!S.story;
@@ -1185,27 +1182,26 @@ function openStory(id, opts){
   S.story = id;
   addHistory(s);
   const sh = $('#sheet');
-  if (sh.getAnimations) sh.getAnimations().forEach(a => a.cancel());   // una chiusura ancora in corso si annulla
   sh.style.pointerEvents = '';
   sh.hidden = false;
   syncSfChrome();
-  if (!wasOpen) { sh.classList.remove('enter'); void sh.offsetWidth; sh.classList.add('enter'); }
   document.body.classList.add('locked');
   renderSheet(false);
   sh.scrollTop = 0;
   if (!wasOpen) S.storyBack = document.activeElement;
   const cb = sh.querySelector('[data-act="close"]'); if (cb) cb.focus({preventScroll:true});
+  animatePages(wasOpen ? null : $('#view > .pane'), sh, 1);
   if (!opts.fromPop) { try { if (wasOpen && history.state && history.state.story) history.replaceState({story:id}, '', '#s-' + id); else history.pushState({story:id}, '', '#s-' + id); } catch (e) {} }
 }
 function closeStory(fromPop, instant){
   if (!S.story) return;
+  finishPageTransition();
   S.story = null;
   const sh = $('#sheet');
   const hide = () => { if (S.story) return; sh.hidden = true; sh.innerHTML = ''; sh.style.pointerEvents = ''; syncSfChrome(); };
-  if (!instant && sh.animate) {
+  if (!instant) {
     sh.style.pointerEvents = 'none';
-    const a = sh.animate(reduceMotion() ? [{opacity:1}, {opacity:0}] : [{opacity:1, transform:'none'}, {opacity:0, transform:'translate3d(28px,0,0)'}], {duration:reduceMotion() ? 120 : 160, easing:PG_EASE, fill:'forwards'});
-    a.onfinish = () => { hide(); a.cancel(); };
+    animatePages(sh, $('#view > .pane'), -1, hide);
   } else hide();
   if (S.storyBack && S.storyBack.isConnected) S.storyBack.focus({preventScroll:true}); S.storyBack = null;
   document.body.classList.remove('locked');
@@ -1450,6 +1446,7 @@ const PG_EASE = 'cubic-bezier(.22,1,.36,1)', NAV_EASE = 'cubic-bezier(.34,1.25,.
 const SCROLLS = {};      // dove eri arrivato in ogni pagina
 let NAVA = 0;            // fino a quando l'indicatore sta scivolando
 let PGT = null;          // passaggio di pagina in corso (si può concludere subito)
+let PAGE_HOLD = null;    // pagina reale mantenuta nel DOM durante il cambio
 // indicatore: x e larghezza in pixel dentro la barra, solo transform
 function placeInd(x, w, ms){
   const ind = $('.tind'); if (!ind) return;
@@ -1506,37 +1503,74 @@ function navMorph(to){
   document.addEventListener('pointerdown', e => { const b = e.target.closest && e.target.closest('.tabs button'); if (b) b.classList.add('press'); });
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => document.addEventListener(t, off));
 })();
-// cambia pagina con una direzione: 1 avanti (entra da destra), -1 indietro (entra da sinistra), 0 solo dissolvenza
+// La diagnosi resta visibile per tre secondi ed è attiva solo con ?debug=nav.
+const NAV_DEBUG = /[?&]debug=nav\b/.test(location.search);
+let navDebugTimer = 0;
+function navDebug(record){
+  if (!NAV_DEBUG) return;
+  window.eddyNavDebug = record;
+  let box = $('#debugNav');
+  if (!box) { box = document.createElement('div'); box.id = 'debugNav'; box.className = 'nav-debug'; box.setAttribute('role', 'status'); document.body.appendChild(box); }
+  box.hidden = false;
+  box.textContent = `strada: ${record.route} · reduceMotion: ${record.reduce} · standalone: ${!!navigator.standalone}\nVT ready: non usata · VT finished: non usata · ${record.status}${record.error ? ' · errore: ' + record.error : ''}`;
+  clearTimeout(navDebugTimer); navDebugTimer = setTimeout(() => { box.hidden = true; }, 3000);
+}
+function finishPageTransition(){ if (PGT) PGT.end(); }
+// Un solo motore per sezioni, temi, cartelle e lettore; solo transform e opacity.
+function animatePages(from, to, dir, releaseOld = () => {}){
+  const rm = reduceMotion(), dx = rm ? 0 : Math.sign(dir) * 28;
+  const record = {route:'pagine', reduce:rm, status:'in corso'};
+  const root = document.documentElement, animations = [];
+  let done = false, released = false;
+  const release = () => { if (!released) { released = true; releaseOld(); } };
+  const state = {refresh:false, end:() => finish('interrotta')};
+  const finish = status => {
+    if (done) return; done = true;
+    release(); animations.forEach(a => a.cancel());
+    if (to) to.classList.remove('pg-new');
+    if (PGT === state) { PGT = null; delete root.dataset.nav; }
+    record.status = status; navDebug(record);
+    if (state.refresh) scheduleRender();
+  };
+  if (!to || from === to || !to.animate) { record.route = 'nessuna'; finish('nessun passaggio'); return; }
+  PGT = state; root.dataset.nav = rm || !dir ? 'fade' : dir > 0 ? 'fwd' : 'back';
+  navDebug(record);
+  try {
+    if (from && !from.hidden) {
+      const out = from.animate([{opacity:1, transform:'translate3d(0,0,0)'}, {opacity:0, transform:`translate3d(${-dx}px,0,0)`}], {duration:rm ? 200 : 160, easing:PG_EASE, fill:'both'});
+      animations.push(out);
+      out.finished.then(release, () => {});
+    }
+    const incoming = to.animate([{opacity:0, transform:`translate3d(${dx}px,0,0)`}, {opacity:1, transform:'translate3d(0,0,0)'}], {duration:rm || !dir ? 200 : 300, easing:PG_EASE, fill:'both'});
+    animations.push(incoming);
+    incoming.finished.then(() => finish('finita'), error => { if (!done) { record.error = String(error); finish('rifiutata'); } });
+  } catch (error) { record.error = String(error); finish('errore'); }
+}
+// Si lascia la pagina precedente dentro #view finché termina l'uscita: nessuna copia e nessuna foto spostata.
 function swapPage(dir, change){
-  if (PGT) { PGT.end(); PGT = null; }
-  const root = document.documentElement, rm = reduceMotion();
-  const kind = rm || !dir ? 'fade' : dir > 0 ? 'fwd' : 'back';
-  if (document.startViewTransition) {
-    root.dataset.vt = kind;
-    let t;
-    try { t = document.startViewTransition(() => { change(); return paneReady(); }); } catch (e) { delete root.dataset.vt; change(); return; }
-    const me = {end:() => { try { t.skipTransition(); } catch (e) {} }};
-    PGT = me;
-    t.ready.catch(() => {}); t.updateCallbackDone.catch(() => {});
-    t.finished.catch(() => {}).then(() => { if (PGT === me) PGT = null; if (!PGT) delete root.dataset.vt; });
-    return;
+  finishPageTransition();
+  const v = $('#view'), old = v.querySelector('.pane'), rect = old && old.getBoundingClientRect();
+  const styles = old && old.style.cssText, inert = old && old.inert, aria = old && old.getAttribute('aria-hidden');
+  const ids = old ? [...old.querySelectorAll('[id]')].map(el => [el, el.id]) : [];
+  let released = false;
+  const release = () => {
+    if (released || !old) return; released = true;
+    if (v.querySelector('.pane:not(.pg-old)') !== old) old.remove();
+    old.classList.remove('pg-old'); old.style.cssText = styles; old.inert = inert;
+    if (aria === null) old.removeAttribute('aria-hidden'); else old.setAttribute('aria-hidden', aria);
+    ids.forEach(([el, id]) => { el.id = id; });
+  };
+  if (old) {
+    old.classList.add('pg-old'); old.inert = true; old.setAttribute('aria-hidden', 'true');
+    // Gli id si ripristinano dopo il distacco: durante il passaggio i selettori trovano solo la pagina attuale.
+    ids.forEach(([el]) => el.removeAttribute('id'));
+    Object.assign(old.style, {position:'fixed', top:rect.top + 'px', left:rect.left + 'px', width:rect.width + 'px', height:Math.max(rect.height, window.innerHeight) + 'px', margin:'0'});
   }
-  // senza View Transitions: copia della pagina vecchia che esce, la nuova entra animata
-  const v = $('#view'), y = window.scrollY;
-  const ghost = document.createElement('div'); ghost.className = 'pghost'; ghost.setAttribute('aria-hidden', 'true');
-  const copy = v.cloneNode(true); copy.removeAttribute('id'); copy.querySelectorAll('[id]').forEach(x => x.removeAttribute('id'));
-  copy.style.transform = `translate3d(0,${-y}px,0)`;
-  const box = document.createElement('div'); box.appendChild(copy); ghost.appendChild(box);
-  document.body.appendChild(ghost);
-  change();
-  if (!v.animate) { ghost.remove(); return; }
-  const dx = kind === 'fwd' ? 28 : kind === 'back' ? -28 : 0, out = rm || kind === 'fade' ? 120 : 160, inn = rm || kind === 'fade' ? 120 : 300;
-  const a1 = box.animate([{opacity:1, transform:'none'}, {opacity:0, transform:`translate3d(${-dx}px,0,0)`}], {duration:out, easing:PG_EASE, fill:'forwards'});
-  const a2 = v.animate([{opacity:0, transform:`translate3d(${dx}px,0,0)`}, {opacity:1, transform:'none'}], {duration:inn, easing:PG_EASE});
-  const me = {end:() => { try { a1.finish(); a2.finish(); } catch (e) {} ghost.remove(); }};
-  PGT = me;
-  a1.onfinish = () => ghost.remove();
-  a2.onfinish = () => { if (PGT === me) PGT = null; };
+  PAGE_HOLD = old ? {el:old, key:old.dataset.k} : null;
+  try { change(); } catch (error) { release(); throw error; } finally { PAGE_HOLD = null; }
+  const next = v.querySelector('.pane:not(.pg-old)');
+  if (next) next.classList.add('pg-new');
+  animatePages(old, next, dir, release);
 }
 // apri o chiudi una pagina dentro una sezione (tema, cartella) con lo stesso linguaggio
 function subPage(dir, mutate, focusSel, top){
@@ -1548,12 +1582,14 @@ function subPage(dir, mutate, focusSel, top){
   });
 }
 function setTab(tab){
+  finishPageTransition();
   if (!TABS.includes(tab)) tab = 'oggi';
   const same = S.tab === tab && !S.story;
   // secondo tocco sulla voce attiva: in cima con uno scorrimento morbido (e fuori dal tema o dalla cartella)
   if (same) {
     if (subOf(S.tab)) { subPage(-1, () => { if (S.tab === 'perte') S.topicPage = null; else S.folder = null; }, null, true); return; }
     window.scrollTo({top:0, behavior:reduceMotion() ? 'auto' : 'smooth'});
+    navDebug({route:'nessuna', reduce:reduceMotion(), status:'sezione già aperta'});
     return;
   }
   SCROLLS[pageKey()] = window.scrollY;
