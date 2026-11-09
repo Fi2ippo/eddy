@@ -41,6 +41,7 @@
 *{box-sizing:border-box}
 /* sopra la pagina (rimbalzo in cima, barra di stato) il colore di cima della sfumatura; oltre metà pagina il grigio di fondo */
 html{background:var(--top)}
+:root[data-tema]{--top:var(--tema-top);--page-bg:linear-gradient(180deg,var(--tema-top) 0,var(--tema-mid) 190px,var(--bg) 380px)}
 html[data-end]{background:var(--bg)}
 body{min-height:100vh;min-height:100dvh;background:var(--page-bg) var(--bg) no-repeat;color:var(--ink)}
 body{margin:0;font-family:var(--font);font-size:15px;line-height:1.45;letter-spacing:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;-webkit-tap-highlight-color:transparent;text-rendering:optimizeLegibility;overflow-x:clip;padding-bottom:calc(var(--nav-h) + var(--nav-gap) + 24px)}
@@ -78,6 +79,8 @@ svg.f{fill:currentColor;stroke:none}
 /* il mazzo si adatta allo schermo: carta e puntini sopra la barra con 12px di respiro (37 = puntini 18+7 + 12); --deck-top lo misura app.js */
 .deck{position:relative;height:500px;height:clamp(380px,calc(100svh - var(--deck-top,190px) - var(--nav-h) - var(--nav-gap) - 37px),500px);container-type:size;margin:0 4px;touch-action:pan-y;outline-offset:6px;border-radius:var(--r-card)}
 .dk{position:absolute;inset:0;transform-origin:50% 0;display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;border-radius:var(--r-card);background:var(--card);color:var(--ink);border:1px solid var(--line);border-top:6px solid var(--tg,var(--line));box-shadow:var(--sh-lift);cursor:pointer;user-select:none;-webkit-user-select:none;transition:transform .38s cubic-bezier(.3,.7,.3,1),opacity .3s,background .3s}
+/* la foto non si trascina da sola: il gesto sposta la carta */
+.dk img{-webkit-user-drag:none;pointer-events:none}
 .dk.c0{z-index:4}
 .dk.b1{z-index:3;transform:translateY(-8px) scale(.96);background:#FAFAFB;box-shadow:none}
 .dk.b2{z-index:2;transform:translateY(-16px) scale(.92);background:#F3F4F6;box-shadow:none}
@@ -228,17 +231,24 @@ svg.f{fill:currentColor;stroke:none}
 .otp small{font-size:12.5px;color:var(--ink-3);font-weight:600}
 .empty .cta{margin-top:16px}
 /* pagina di un tema */
-.thd{margin:6px -4px 0;padding:18px 14px 16px;background:var(--card);border:1px solid var(--line);border-top:6px solid var(--c);border-radius:var(--r-card)}
-.tic{display:inline-flex;width:46px;height:46px;border-radius:12px;align-items:center;justify-content:center}
-.thd h1{margin:12px 0 0;font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1}
-.thd p{margin:6px 0 0;font-size:14px;line-height:1.3;color:var(--ink-soft)}
-.thd p b{color:var(--ink)}
-.tact{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
-.tsf{flex:1 1 auto;display:flex;align-items:center;justify-content:center;gap:6px;min-height:48px;padding:0 12px;border-radius:24px;background:var(--ink);color:#fff;font-size:15px;font-weight:800;white-space:nowrap}
-.tmine{flex:1 1 auto;display:flex;align-items:center;justify-content:center;gap:6px;min-height:48px;padding:0 11px;border-radius:24px;border:1px solid var(--line);background:var(--bg);font-size:14px;font-weight:700;color:var(--ink);white-space:nowrap}
-.tmine[aria-pressed="false"]{background:var(--card);border-color:var(--ink)}
-.rm .rwho{color:var(--ink-2);font-size:12.5px}
-.rm .rwho b{color:var(--ink);font-weight:700}
+.thh{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:calc(env(safe-area-inset-top,0px) + 14px) -4px 0}
+.thh .bk{margin:0;padding:0 10px 0 4px}
+.tmine{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:22px;background:rgba(255,255,255,.75);font-size:13.5px;font-weight:700;color:var(--ink);white-space:nowrap}
+.tmine svg{width:16px;height:16px;flex:none}
+.tti{text-align:center;padding:2px 4px 0}
+.tti h1{margin:6px 0 0;display:flex;align-items:center;justify-content:center;gap:10px;font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.tti h1 svg{display:block;flex:none}
+.tti p{margin:6px 0 0;font-size:14px;line-height:1.3;color:var(--ink-soft)}
+.tti p b{color:var(--ink)}
+/* mazzo del tema: stesso codice della Prima pagina, foto sopra e testo sotto */
+.deck.tdeck{height:400px;margin-top:34px}
+.tdeck .dk>.ph{position:relative;flex:none;height:210px}
+.tdeck .dk .cin{margin-top:0;padding:14px 16px 16px;background:none}
+.tdeck .dk h3{font-size:22px;line-height:1.12}
+.tdeck .dk .meta{margin-top:10px}
+.tdeck + .sr + .pg{margin-top:16px;flex-wrap:wrap;max-width:300px;margin-inline:auto;row-gap:6px}
+.tnone{margin:28px 4px 0;text-align:center;font-size:14px;font-weight:600;color:var(--ink-2)}
+.sec.tall{margin-top:28px}
 .empty{margin:24px -4px 0;padding:26px 22px;text-align:center;background:var(--card);border:1px dashed #C9CCD3;border-radius:18px}
 .empty .eico{width:56px;height:56px;margin:0 auto;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--pill);color:var(--ink)}
 .empty .eico svg{width:26px;height:26px}

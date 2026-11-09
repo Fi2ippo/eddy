@@ -81,12 +81,17 @@ function light(){ const h = hourNow(); return h >= 5 && h < 12 ? 'mattino' : h >
 function greeting(){ const l = light(); return l === 'mattino' ? 'Buongiorno' : l === 'pomeriggio' ? 'Buon pomeriggio' : 'Buonasera'; }
 const TOPCOL = {mattino:'#FBE6DA', pomeriggio:'#DFEBF6', sera:'#E6E4F4'};
 function applyLight(){ const l = light(); if (document.documentElement.dataset.light !== l) document.documentElement.dataset.light = l; applyChrome(); }
+function mixHex(c, bg, k){ const x = hexRgb(c), y = hexRgb(bg); return '#' + x.map((v, i) => Math.round(v * k + y[i] * (1 - k)).toString(16).padStart(2, '0')).join('').toUpperCase(); }
 // barra di stato e barra di Safari: colore di cima dell'ora; grigio nelle schermate a fondo grigio (Storia, Sfoglia) e in fondo alla pagina
 function applyChrome(){
   const root = document.documentElement, l = root.dataset.light || light();
   const grey = l === 'sera' ? '#F3F4F6' : '#F4F5F7';
   const onbOpen = !$('#onb').hidden;
-  const c = !onbOpen && (S.story || S.tab === 'sfoglia' || root.hasAttribute('data-end')) ? grey : TOPCOL[l];
+  // pagina di un tema: la cima prende la luce del colore del tema (42% sul grigio, poi 14% a 190px)
+  const tema = !onbOpen && !S.story && S.tab === 'perte' && S.topicPage && TMAP[S.topicPage];
+  if (tema) { root.setAttribute('data-tema', ''); root.style.setProperty('--tema-top', mixHex(tema.c, grey, .42)); root.style.setProperty('--tema-mid', mixHex(tema.c, grey, .14)); }
+  else if (root.hasAttribute('data-tema')) root.removeAttribute('data-tema');
+  const c = !onbOpen && (S.story || S.tab === 'sfoglia' || root.hasAttribute('data-end')) ? grey : tema ? mixHex(tema.c, grey, .42) : TOPCOL[l];
   let m = document.querySelector('meta[name="theme-color"]');
   if (!m) { m = document.createElement('meta'); m.name = 'theme-color'; document.head.appendChild(m); }
   if (m.content !== c) m.content = c;
@@ -626,13 +631,13 @@ function nrow(s, opts){
     <div class="th">${visual(s, 'thumb')}</div></article>`;
 }
 function leadOf(s){ return s.dek || String(s.summary || '').split(/\n{2,}/)[0].replace(/\s\(([^()]{2,80})\)\s*$/, '') || ''; }
-function deckCard(s, i){
+function deckCard(s, i, opts){
   pushCtx(s.id);
-  const t = tcol(s), n = outletsOf(s).length, lead = leadOf(s);
+  const t = (opts && opts.t) || tcol(s), ids = outletsOf(s), n = ids.length, lead = opts && opts.lead === false ? '' : leadOf(s);
   return `<article class="dk" data-i="${i}" data-act="open" data-id="${esc(s.id)}" style="--tg:${t.c};--tgt:${t.tx}" aria-label="${esc(s.headline)}">
     <div class="ph">${visual(s, 'wide')}</div>
-    <div class="cin"><span class="tag">${esc(kickName(s))}</span><h3>${esc(s.headline)}</h3>${lead ? `<p class="lead">${esc(lead)}</p>` : ''}
-      <div class="meta"><span class="cov">${PAPER_S}${covText(n)}</span><span>${esc(ago(s.updatedAt))}</span></div></div>
+    <div class="cin"><span class="tag">${esc(opts && opts.t && opts.t.id !== 'napoli' ? opts.t.name : kickName(s))}</span><h3>${esc(s.headline)}</h3>${lead ? `<p class="lead">${esc(lead)}</p>` : ''}
+      <div class="meta">${n > 1 || !(opts && opts.lead === false) ? `<span class="cov">${PAPER_S}${covText(n)}</span><span>${esc(ago(s.updatedAt))}</span>` : `<span>${n ? esc(outlet(ids[0]).name) + ' · ' : ''}${esc(ago(s.updatedAt))}</span>`}</div></div>
   </article>`;
 }
 function viewOggi(){
@@ -667,7 +672,7 @@ function viewOggi(){
 let deckSuppress = 0;
 function layoutDeck(){
   const deck = $('#deck'); if (!deck) return;
-  const cards = deck.querySelectorAll('.dk'), idx = S.deckIdx || 0;
+  const cards = deck.querySelectorAll('.dk'), idx = S[deckKey(deck)] || 0;
   cards.forEach((c, j) => {
     const d = j - idx;
     c.className = 'dk ' + (d < 0 ? 'out' : d === 0 ? 'c0' : d === 1 ? 'b1' : d === 2 ? 'b2' : 'bx');
@@ -685,11 +690,13 @@ function sizeDeck(){
   const top = Math.round(deck.getBoundingClientRect().top + window.scrollY) + 'px';
   if (deck.style.getPropertyValue('--deck-top') !== top) deck.style.setProperty('--deck-top', top);
 }
+// ogni mazzo ricorda la sua carta: la Prima pagina in S.deckIdx, il mazzo del tema in S.tdeckIdx
+function deckKey(deck){ return (deck && deck.dataset.k) || 'deckIdx'; }
 function deckGo(step){
   const deck = $('#deck'); if (!deck) return false;
-  const n = deck.querySelectorAll('.dk').length, to = (S.deckIdx || 0) + step;
+  const k = deckKey(deck), n = deck.querySelectorAll('.dk').length, to = (S[k] || 0) + step;
   if (to < 0 || to >= n) { layoutDeck(); return false; }
-  S.deckIdx = to; layoutDeck(); deckHintDone(); return true;
+  S[k] = to; layoutDeck(); deckHintDone(); return true;
 }
 (function(){
   let x0 = 0, y0 = 0, dx = 0, drag = false, card = null, pid = null;
@@ -704,7 +711,7 @@ function deckGo(step){
     const mx = e.clientX - x0, my = e.clientY - y0;
     if (!drag) { if (Math.abs(mx) < 8 || Math.abs(mx) < Math.abs(my)) { if (Math.abs(my) > 12) card = null; return; } drag = true; try { card.setPointerCapture(pid); } catch (err) {} card.style.transition = 'none'; }
     dx = mx;
-    const atEnd = (dx < 0 && !card.nextElementSibling) || (dx > 0 && (S.deckIdx || 0) === 0);
+    const atEnd = (dx < 0 && !card.nextElementSibling) || (dx > 0 && (S[deckKey(card.parentNode)] || 0) === 0);
     const v = atEnd ? dx * .25 : dx;
     card.style.transform = `translateX(${v.toFixed(1)}px) rotate(${(v * .03).toFixed(2)}deg)`;
   });
@@ -777,12 +784,14 @@ function newsSince(s, since){
   return srcOf(s).filter(x => ts(x.d) > since + 60000).sort((a, b) => ts(b.d) - ts(a.d))
     .filter(x => { const k = x.o + '|' + norm(titleIt(x) || x.t); if (seen.has(k)) return false; seen.add(k); return true; });
 }
-// ultima apertura di ogni tema (salvata nel browser): le notizie arrivate dopo sono "nuove"; la prima volta, quelle delle ultime 12 ore
-let TSEEN = LS.get('topicSeen') || {};
-function topicSeenAt(id){ return TSEEN[id] || Date.now() - 12 * 3600000; }
-function markTopicSeen(id){ TSEEN[id] = Date.now(); LS.set('topicSeen', TSEEN); }
+// "nuove": le notizie arrivate nelle ultime 12 ore, contando dall'ultimo articolo (la stessa ora che si legge sotto il titolo);
+// stessa regola per i bollini dei mazzi, il totale di Per te e la pagina del tema
+try { localStorage.removeItem('eddy:topicSeen'); } catch (e) {}
+function isNew(s){ return ts(s.updatedAt || s.publishedAt || s.addedAt) > Date.now() - 12 * 3600000; }
 function topicStories(id){ return visible(S.stories).filter(s => hasTopic(s, id)); }
-function topicNew(id, list){ const t = topicSeenAt(id); return (list || topicStories(id)).filter(s => ts(s.addedAt || s.publishedAt) > t).length; }
+function topicNew(id, list){ return (list || topicStories(id)).filter(isNew).length; }
+// mazzo del tema: prima le notizie raccontate da più testate, poi le più recenti
+function byCoverage(list){ return list.slice().sort((a, b) => outletsOf(b).length - outletsOf(a).length || ts(b.updatedAt) - ts(a.updatedAt)); }
 // la più importante del tema: edizione, testate che ne parlano, quanto è recente
 function byImportance(list){ return list.slice().sort((a, b) => score(b) + (b.top ? 30 : 0) - score(a) - (a.top ? 30 : 0)); }
 function topicDeck(t){
@@ -800,7 +809,7 @@ function viewPerTe(){
   if (S.topicPage) return viewTopic(S.topicPage);
   const st = feedState(false);
   const mine = S.prefs.topics.map(id => TMAP[id]).filter(Boolean);
-  const nNew = st ? 0 : mine.reduce((n, t) => n + topicNew(t.id), 0);
+  const nNew = st ? 0 : visible(S.stories).filter(s => isNew(s) && mine.some(t => hasTopic(s, t.id))).length;
   let h = `<header class="phead"><h1>Per te</h1><span class="psub">${mine.length ? `I tuoi ${mine.length === 1 ? 'tema' : mine.length + ' temi'}${nNew ? ` · <b>${nNew} ${nNew === 1 ? 'notizia nuova' : 'notizie nuove'}</b>` : ''}` : 'I temi che ti interessano'}</span></header>`;
   if (st) return h + st;
   if (mine.length) h += `<div class="sec tsec"><h2>I tuoi temi</h2><button class="lnk" data-act="panel" data-v="temi">Modifica</button></div><div class="mz">${mine.map(topicDeck).join('')}</div>`;
@@ -809,26 +818,31 @@ function viewPerTe(){
   if (others.length) h += `<div class="sec tsec"><h2>Altri temi</h2><span>Tocca per sfogliarli</span></div><div class="ot">${others.map(x => otherTopic(x.t, x.n)).join('')}</div>`;
   return h;
 }
-const SFOGLIA_I = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M3.5 6v12M20.5 6v12"/></svg>';
-const PLUS_I = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
-// pagina di un tema: aprirla conta come "visto" (le nuove mostrate sono quelle di prima dell'apertura)
+const PLUS_I = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
 function openTopic(id){
   if (!TMAP[id]) return;
-  S.topicNewShown = topicNew(id); markTopicSeen(id);
-  S.topicPage = id; S.pages['tema|' + id] = 0;
+  S.topicPage = id; S.tdeckIdx = 0; S.pages['tema|' + id] = 0;
   render(true); window.scrollTo(0, 0);
   const b = $('.bk'); if (b) b.focus({preventScroll:true});
 }
+// pagina di un tema: luce del colore del tema, mazzo delle notizie nuove, poi tutte le altre dalla più recente
 function viewTopic(id){
-  const t = TMAP[id], list = topicStories(id), n = list.length, nw = S.topicNewShown || 0, on = S.prefs.topics.includes(id);
-  let h = `<button class="bk" data-act="topic-close">${SBI.back}Per te</button>
-    <section class="thd" style="--c:${t.c}" aria-labelledby="tpT"><span class="tic" style="background:${t.c};color:${onColor(t.c)}">${tIcon(id).replace('width="18" height="18"', 'width="26" height="26"')}</span>
-      <h1 id="tpT">${esc(t.name)}</h1><p>${n} ${n === 1 ? 'notizia' : 'notizie'} degli ultimi giorni${nw ? ` · <b>${nw} ${nw === 1 ? 'nuova' : 'nuove'}</b>` : ''}</p>
-      <div class="tact">${n ? `<button class="tsf" data-act="topic-sfoglia" data-id="${id}">${SFOGLIA_I}Sfoglia ${n === 1 ? 'la notizia' : `le ${n} notizie`}</button>` : ''}<button class="tmine" data-act="topic-mine" data-id="${id}" aria-pressed="${on}">${on ? CHECK : PLUS_I}${on ? 'Nei tuoi temi' : 'Aggiungi ai tuoi temi'}</button></div></section>`;
+  const t = TMAP[id], list = topicStories(id), n = list.length, on = S.prefs.topics.includes(id);
+  const fresh = byCoverage(list.filter(isNew)), nw = fresh.length;
+  let h = `<div class="thh"><button class="bk" data-act="topic-close">${SBI.back}Per te</button><button class="tmine" data-act="topic-mine" data-id="${id}" aria-pressed="${on}">${on ? CHECK : PLUS_I}${on ? 'Nei tuoi temi' : 'Aggiungi ai tuoi temi'}</button></div>
+    <header class="tti"><h1 id="tpT"><span style="color:${t.tx}">${tIcon(id).replace('width="18" height="18"', 'width="30" height="30"')}</span>${esc(t.name)}</h1><p>${n} ${n === 1 ? 'notizia' : 'notizie'}${n ? ` · <b>${nw} ${nw === 1 ? 'nuova' : 'nuove'}</b>` : ''}</p></header>`;
   if (!n) return h + `<div class="state"><h3>Nessuna notizia, per ora</h3><p>In questi giorni non ci sono notizie su questo tema. La raccolta gira più volte all'ora: torna più tardi.</p></div>`;
-  const recent = list.slice().sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt));
-  h += `<div class="sec"><h2>Le più recenti</h2><span>${n}</span></div>`;
-  return h + paged('tema|' + id, recent, x => { const ids = outletsOf(x); return nrow(x, {kick:false, rm:`<span class="rwho"><b>${esc(ids.length ? outlet(ids[0]).name : '')}</b>${ids.length > 1 ? ' +' + (ids.length - 1) : ''} · ${esc(ago(x.updatedAt))}</span>`}); }, 'nlist', 20);
+  if (nw) {
+    S.tdeckIdx = Math.min(S.tdeckIdx || 0, nw - 1);
+    h += `<p class="sr" id="tdT">Notizie nuove: ${nw}</p>
+      <div class="deck tdeck" id="deck" data-k="tdeckIdx" tabindex="0" role="region" aria-roledescription="mazzo di carte" aria-labelledby="tdT" aria-describedby="deckHelp">${fresh.map((x, i) => deckCard(x, i, {lead:false, t})).join('')}</div>
+      <p class="sr" id="deckHelp">Trascina la carta a sinistra per la prossima notizia, a destra per tornare indietro; con la tastiera usa le frecce. Invio apre la notizia.</p>
+      <div class="pg" id="dots" aria-hidden="true">${fresh.map((_, i) => `<i class="${i === S.tdeckIdx ? 'on' : ''}"></i>`).join('')}</div>`;
+  } else h += `<p class="tnone">Nessuna notizia nuova nelle ultime 12 ore</p>`;
+  const rest = list.filter(x => !isNew(x)).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt));
+  if (!rest.length) return h;
+  h += `<div class="sec tsec tall"><h2>Tutte le notizie</h2><span>${rest.length}</span></div>`;
+  return h + paged('tema|' + id, rest, x => nrow(x, {kick:false}), 'nlist', 20);
 }
 const NAVI = {perte:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2.1 6.3-6.3 2.1 2.1-6.3z"/></svg>'};
 /* ----- Salvati: cartelle per tema e Recenti ----- */
@@ -1092,7 +1106,6 @@ function srow(x, canFlag){
 const QSTOP = new Set('il lo la i gli le un uno una di a da in con su per tra fra e o ma che chi cosa come dove quando perche perché quale quali quanto quanti quante è e sono era stato sta stanno ha hanno ho del dello della dei degli delle al allo alla ai agli alle dal dalla dai nel nella nei sul sulla sui si ci ne non piu più mi ti me te lui lei loro questo questa questi queste quello quella sapere dimmi spiega spiegami cosa è successo succede oggi notizia storia'.split(' '));
 /* ---------- sfoglia: una notizia per schermata ---------- */
 function sfogliaList(){
-  if (S.sfTopic) return byImportance(topicStories(S.sfTopic));
   const all = oggiLists().all.concat(visible(S.stories).filter(x => x.topic === 'napoli' && !x.top).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt)));
   if (!S.prefs.topics.length) return oggiLists().all;
   const mine = visible(S.stories).filter(matchesMe).sort((a, b) => personalScore(b) - personalScore(a));
@@ -1230,7 +1243,6 @@ function setTab(tab){
   const same = S.tab === tab;
   if (tab !== 'salvati' || same) S.folder = null;
   if (tab !== 'perte' || same) S.topicPage = null;
-  if (tab === 'sfoglia' && (same || S.tab !== 'sfoglia')) { S.sfTopic = null; S.sfIdx = 0; S.sfN = 0; }
   S.tab = tab;
   try { history.replaceState(null, '', '#' + tab); } catch (e) {}
   render(!same);
@@ -1271,7 +1283,6 @@ document.addEventListener('click', e => {
     case 'folder': S.folder = id || null; render(true); window.scrollTo(0, 0); break;
     case 'topic-open': openTopic(id); break;
     case 'topic-close': { const was = S.topicPage; S.topicPage = null; render(true); window.scrollTo(0, 0); const b = document.querySelector(`[data-act="topic-open"][data-id="${was}"]`); if (b) b.focus({preventScroll:true}); break; }
-    case 'topic-sfoglia': S.sfTopic = id; S.sfIdx = 0; S.sfN = 0; S.topicPage = id; S.tab = 'sfoglia'; try { history.replaceState(null, '', '#sfoglia'); } catch (err) {} render(true); { const f = $('#sfv .sf'); if (f) f.focus({preventScroll:true}); } break;
     case 'topic-mine': { const on = togglePref('topics', id); render(); const b = $('[data-act="topic-mine"]'); if (b) b.focus(); toast(on ? 'Aggiunto ai tuoi temi' : 'Tolto dai tuoi temi'); break; }
     case 'refresh': requestRefresh(); break;
     case 'clear-history': S.history = []; persist('history', 0); render(); toast('Cronologia svuotata'); break;
