@@ -465,6 +465,7 @@ function render(force = true){
   document.querySelectorAll('.tabs button').forEach(b => { if (b.dataset.tab === S.tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   syncInd();
   document.body.classList.toggle('sf-on', S.tab === 'sfoglia');
+  syncSfChrome();
   renderEdPill();
   const v = $('#view'), k = pageKey();
   let P = PANES.get(k);
@@ -1312,6 +1313,7 @@ function openStory(id, opts){
   if (sh.getAnimations) sh.getAnimations().forEach(a => a.cancel());   // una chiusura ancora in corso si annulla
   sh.style.pointerEvents = '';
   sh.hidden = false;
+  syncSfChrome();
   if (!wasOpen) { sh.classList.remove('enter'); void sh.offsetWidth; sh.classList.add('enter'); }
   document.body.classList.add('locked');
   renderSheet(false);
@@ -1324,7 +1326,7 @@ function closeStory(fromPop, instant){
   if (!S.story) return;
   S.story = null;
   const sh = $('#sheet');
-  const hide = () => { if (S.story) return; sh.hidden = true; sh.innerHTML = ''; sh.style.pointerEvents = ''; };
+  const hide = () => { if (S.story) return; sh.hidden = true; sh.innerHTML = ''; sh.style.pointerEvents = ''; syncSfChrome(); };
   if (!instant && sh.animate) {
     sh.style.pointerEvents = 'none';
     const a = sh.animate(reduceMotion() ? [{opacity:1}, {opacity:0}] : [{opacity:1, transform:'none'}, {opacity:0, transform:'translate3d(28px,0,0)'}], {duration:reduceMotion() ? 120 : 160, easing:PG_EASE, fill:'forwards'});
@@ -1405,6 +1407,13 @@ function srow(x, canFlag){
 }
 const QSTOP = new Set('il lo la i gli le un uno una di a da in con su per tra fra e o ma che chi cosa come dove quando perche perché quale quali quanto quanti quante è e sono era stato sta stanno ha hanno ho del dello della dei degli delle al allo alla ai agli alle dal dalla dai nel nella nei sul sulla sui si ci ne non piu più mi ti me te lui lei loro questo questa questi queste quello quella sapere dimmi spiega spiegami cosa è successo succede oggi notizia storia'.split(' '));
 /* ---------- sfoglia: una notizia per schermata ---------- */
+// Il colore del browser segue Sfoglia. Su iOS dalla Home si conserva la barra di stato predefinita.
+function syncSfChrome(){
+  const dark = S.tab === 'sfoglia' && !S.story && $('#sheet').hidden && $('#onb').hidden && !navigator.standalone;
+  document.documentElement.classList.toggle('sf-chrome', dark);
+  const meta = $('meta[name="theme-color"]');
+  if (meta) meta.content = dark ? '#14151A' : '#FFFFFF';
+}
 function sfogliaList(){
   const all = oggiLists().all.concat(visible(S.stories).filter(x => x.topic === 'napoli' && !x.top).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt)));
   if (!S.prefs.topics.length) return oggiLists().all;
@@ -1415,22 +1424,28 @@ function sfogliaList(){
 // una frase di una testata: il primo passaggio della sintesi (che porta il nome) o, in mancanza, il titolo di un'altra testata
 function phraseOf(s){
   const p = String(s.summary || '').split(/\n{2,}/).find(x => /\s\(([^()]{2,80})\)\s*$/.test(x));
-  if (p && !(s.sumOff || SUMOFF[s.id])) { const m = p.match(/\s\(([^()]{2,80})\)\s*$/); return {t:p.slice(0, m.index).trim(), o:m[1]}; }
+  if (p && !(s.sumOff || SUMOFF[s.id])) {
+    const m = p.match(/\s\(([^()]{2,80})\)\s*$/);
+    const src = srcOf(s).find(x => norm(outlet(x.o).name) === norm(m[1]));
+    if (src && src.u) return {t:p.slice(0, m.index).trim(), o:m[1], u:src.u, tr:langOf(src) !== 'it'};
+  }
   const hl = norm(s.headline);
   const x = srcOf(s).slice().sort((a, b) => ts(b.d) - ts(a.d)).find(y => norm(titleIt(y) || y.t) !== hl);
-  return x ? {t:titleIt(x) || x.t, o:outlet(x.o).name, tr:langOf(x) !== 'it' && !!titleIt(x)} : null;
+  return x && x.u ? {t:titleIt(x) || x.t, o:outlet(x.o).name, u:x.u, tr:langOf(x) !== 'it' && !!titleIt(x)} : null;
 }
 const SF_STEP = 25;
 function sfSlide(s){
   pushCtx(s.id);
   const t = tcol(s), n = outletsOf(s).length, ph = phraseOf(s);
   const q = ph ? String(ph.t).replace(/^[«"“]+|[»"”]+$/g, '') : '';
-  return `<article class="sf" data-act="open" data-id="${esc(s.id)}" tabindex="0" style="--tg:${t.c}" aria-label="${esc(s.headline)}">
+  const topicInk = '#' + t.c.slice(1).match(/../g).map(v => Math.round(parseInt(v, 16) * .55 + 255 * .45).toString(16).padStart(2, '0')).join('');
+  return `<article class="sf" data-act="open" data-id="${esc(s.id)}" tabindex="0" style="--tg:${t.c};--sf-topic:${topicInk}" aria-label="${esc(s.headline)}"><div class="sfpanel">
+    <div class="sfamb" aria-hidden="true">${visual(s, 'wide', false)}</div><span class="sfgrab" aria-hidden="true"></span>
     <div class="sfph">${visual(s, 'wide')}</div>
-    <div class="sftx"><p class="m2"><span style="color:${t.tx}">${esc(kickName(s))}</span> · ${covText(n)} · ${esc(ago(s.updatedAt))}</p>
+    <div class="sftx"><p class="m2"><span>${esc(kickName(s))}</span> · ${covText(n)} · ${esc(ago(s.updatedAt))}</p>
       <h2>${esc(s.headline)}</h2>
-      ${q ? `<p class="q"><span class="qt">«${esc(q)}»</span><span class="qo">${esc(ph.o)}${ph.tr ? ' · tradotto' : ''}${n > 1 ? ` · e ${n === 2 ? 'un\'altra testata' : 'altre ' + (n - 1) + ' testate'}` : ''}</span></p>` : ''}</div>
-  </article>`;
+      ${q ? `<p class="q"><span class="qt">«${esc(q)}»</span><span class="qo"><a href="${esc(ph.u)}" target="_blank" rel="noopener">${esc(ph.o)}</a>${ph.tr ? ' · tradotto' : ''}${n > 1 ? ` · e ${n === 2 ? 'un\'altra testata' : 'altre ' + (n - 1) + ' testate'}` : ''}</span></p>` : ''}</div>
+  </div></article>`;
 }
 function viewSfoglia(){
   const st = feedState(false); if (st) return st;
@@ -1495,8 +1510,8 @@ function applyReaderSize(){ document.body.classList.remove('size-s', 'size-m', '
 const ARROW_R = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 const ARROW_L = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>';
 function maybeOnboard(){ if (S.onbShown || S.prefs.onboarded) return; S.onbShown = true; openOnb(0); }
-function openOnb(step){ S.onbStep = step; $('#onb').hidden = false; document.body.classList.add('locked'); renderOnb(); $('#onb').scrollTop = 0; }
-function closeOnb(){ $('#onb').hidden = true; if (!S.story) document.body.classList.remove('locked'); }
+function openOnb(step){ S.onbStep = step; $('#onb').hidden = false; syncSfChrome(); document.body.classList.add('locked'); renderOnb(); $('#onb').scrollTop = 0; }
+function closeOnb(){ $('#onb').hidden = true; syncSfChrome(); if (!S.story) document.body.classList.remove('locked'); }
 function onbGreet(){ return `${greeting()}${S.firstName ? `, <em>${esc(S.firstName)}</em>` : ''}`; }
 function finishOnb(){
   S.prefs.onboarded = true; persist('prefs', 0); closeOnb();
@@ -1677,6 +1692,7 @@ window.addEventListener('popstate', () => {
 
 /* ---------- eventi ---------- */
 document.addEventListener('click', e => {
+  if (e.target.closest('.sf .qo a')) return;
   const el = e.target.closest('[data-act]'); if (!el) return;
   const a = el.dataset.act, id = el.dataset.id;
   if (a === 'save') { e.stopPropagation(); toggleSave(id, el); return; }
