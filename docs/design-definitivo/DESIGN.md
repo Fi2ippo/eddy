@@ -58,7 +58,7 @@ Cinque voci, con le icone disegnate nelle schermate: **Oggi** (giornale) · **Pe
 5. **10 · Sfoglia**: una notizia per schermata, foto incorniciata come una stampa, poi tema, titolo e una frase di una testata con il bordo del colore del tema. Niente barra di avanzamento.
 6. **11 · Storia**: riga del tema in cima; indietro, salva, condividi; tema, titolo, "Raccontata da…", foto con "Foto: testata"; **In breve** (frasi delle testate con nome); **Cronologia** con gli ultimi 3 aggiornamenti + "Tutta la cronologia · N"; **Approfondisci** con capitoli che si aprono: Punti chiave, Confronto tra le testate, Le fonti.
 7. **12–14 · Salvati**: schede "Salvati" e "Recenti". Salvati è una griglia di **cartelle per tema** (prima "Tutte"; le cartelle vuote sono grigie); Recenti divide le storie aperte per giorno (Oggi, Ieri, Questa settimana) con le novità; dentro una cartella, titolo nel colore del tema.
-8. **15 · Profilo**: nome con matita, "I tuoi temi più letti" (3 riquadri con percentuale), I tuoi temi, Dimensione del testo, Come funziona l'edizione, Privacy, Rivedi l'introduzione, Cancella i dati di Eddy, "Eddy · fatto da Fi2ippo".
+8. **15 · Profilo**: nome con matita, "I tuoi temi più letti" (3 riquadri con percentuale), I tuoi temi, Dimensione del testo, Come funziona l'edizione, Privacy, Rivedi l'introduzione, Cancella i dati di Eddy, "Eddy".
 
 ## Cose tolte rispetto all'app attuale
 Ascolta e la lettura a voce · la sezione Esplora (con la ricerca) · seguire o silenziare le testate · gli avvisi · la fila dei temi in Oggi e in Per te · il tema scuro · il pallino verde · "Installa Eddy" nel Profilo. I temi si scelgono solo nel primo avvio e nel Profilo.

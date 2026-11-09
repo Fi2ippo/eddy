@@ -1064,7 +1064,7 @@ function viewProfilo(){
   <div class="plain"><button class="it" data-act="panel" data-v="edizione"><b>Come funziona l’edizione</b>${CHEV}</button><button class="it" data-act="panel" data-v="privacy"><b>Privacy</b>${CHEV}</button></div>
   <button class="again" data-act="onb-open" data-step="0">Rivedi l’introduzione</button>
   <button class="del" data-act="wipe">Cancella i dati di Eddy</button>
-  <p class="made">Eddy · fatto da Fi2ippo</p>`;
+  <p class="made">Eddy</p>`;
   return h;
 }
 
