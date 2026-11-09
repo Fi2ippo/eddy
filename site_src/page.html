@@ -53,16 +53,17 @@ svg.f{fill:currentColor;stroke:none}
 .art{display:block;width:100%;height:100%}
 @media (prefers-reduced-motion:no-preference){.pop{animation:pop .36s cubic-bezier(.3,.7,.4,1)}
 @keyframes pop{45%{transform:scale(1.3)}}}
-/* in cima a Oggi: logo "Tre notizie", saluto con il nome colorato, data e aggiornamento */
-.ohead{text-align:center;padding:calc(env(safe-area-inset-top,0px) + 14px) 4px 0}
-.logo{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:21px;line-height:1;letter-spacing:-.03em;color:var(--ink)}
-.logo svg{width:25px;height:18px;flex:none}
-.greet{margin:14px 0 0;font-weight:800;font-size:31px;line-height:1.05;letter-spacing:-.02em;text-wrap:balance}
+/* Oggi: logo e aggiornamento affiancati, poi saluto compatto e data. */
+.ohead{text-align:left;padding:calc(env(safe-area-inset-top,0px) + 14px) 4px 0}
+.otop{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:19px;line-height:1;letter-spacing:-.03em;color:var(--ink);flex:none}
+.logo svg{width:23px;height:17px;flex:none}
+.greet{margin:16px 0 0;font-weight:800;font-size:27px;line-height:1.1;letter-spacing:-.02em;overflow-wrap:anywhere}
 .greet em{font-style:normal;color:var(--name)}
-.osub{display:inline-flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0 6px;margin-top:6px;font-size:14px;font-weight:500;color:var(--ink-soft)}
-.osub b{color:var(--ink);font-weight:600}
-.rb{width:44px;height:44px;margin:-10px -8px -10px -4px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:var(--ink)}
-.rb svg{width:17px;height:17px}
+.odate{margin:6px 0 0;font-size:14px;font-weight:500;color:var(--ink-soft)}
+.rb{position:relative;height:40px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:0 12px;border-radius:20px;background:var(--soft);color:var(--ink-soft);font-size:12.5px;font-weight:600;white-space:nowrap}
+.rb::before{content:"";position:absolute;inset:-2px 0}
+.rb svg{width:16px;height:16px;flex:none}
 .rb.spin svg{animation:spin 1.1s linear infinite}
 /* titoli di sezione */
 .sec{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:26px 4px 12px}
@@ -71,6 +72,7 @@ svg.f{fill:currentColor;stroke:none}
 .sec .lnk{min-height:44px;margin:-14px -6px -14px 0;padding:0 6px}
 /* Prima pagina e notizie nuove: card affiancate, scorrimento del browser. */
 .car-sec h2{font-size:22px}
+.ohead + .car-sec{margin-top:30px}
 .carousel{display:flex;align-items:stretch;gap:12px;overflow-x:auto;margin:0 -16px;padding:4px 20px 18px;scroll-snap-type:x mandatory;scroll-padding-inline:20px;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;overscroll-behavior-x:contain}
 .carousel::-webkit-scrollbar{display:none}
 .ccard{flex:0 0 calc(100% - 32px);max-width:360px;scroll-snap-align:start;display:flex;flex-direction:column;border:1px solid var(--line);border-top:6px solid var(--tg);border-radius:18px;overflow:hidden;background:var(--card);box-shadow:0 10px 26px rgba(10,15,30,.08);cursor:pointer;color:var(--ink);outline-offset:-3px}
@@ -82,13 +84,16 @@ svg.f{fill:currentColor;stroke:none}
 .tag{align-self:flex-start;display:inline-flex;align-items:center;background:var(--tgt,var(--tg));color:#fff;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:var(--r-tag);line-height:1.2}
 .ccard h3{margin:10px 0 0;font-size:23px;line-height:1.12;font-weight:800;letter-spacing:-.01em;overflow-wrap:anywhere}
 .ccard h3.compact{font-size:21px}
-.ccard .clead{margin:8px 0 0;font-size:15px;line-height:1.42;color:#3A3C42;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.ccard .csource{align-self:flex-start;display:inline-flex;align-items:center;min-height:44px;font-size:12px;font-weight:600;color:var(--ink-2);text-underline-offset:3px}
+.oggi-car .cpic{height:180px}
+.oggi-car .ccard h3{font-size:22px}
 .ccard .meta{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:14px;font-size:13px;font-weight:600;color:var(--ink-2)}
 .ccard .cov{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:14px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:800;white-space:nowrap}
 .ccard .cov svg{width:14px;height:14px}
 .carousel .vis>.ph{transition:opacity .15s ease}
 .carousel + .sr + .sec{margin-top:14px}
+.oggi-sep{height:0;margin:4px 4px 0;border:0;border-top:1px solid #ECEDF0}
+.oggi-sep + .sec{margin-top:22px}
+.oggi-sep + .sec h2{font-size:22px}
 .car-hint{margin:-4px 4px 10px;font-size:13px;font-weight:700;color:var(--ink-2)}
 /* elenchi di storie */
 .nlist{margin:0 -4px;padding:4px 14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-card)}

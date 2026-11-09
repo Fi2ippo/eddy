@@ -58,7 +58,7 @@ const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLow
 const hash = s => { let h = 2166136261; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h; };
 const TZ = 'Europe/Rome';
 const fmtHM = new Intl.DateTimeFormat('it-IT', {hour:'numeric', minute:'2-digit', timeZone:TZ});
-const fmtWD = new Intl.DateTimeFormat('it-IT', {weekday:'short', day:'numeric', month:'long', timeZone:TZ});
+const fmtWD = new Intl.DateTimeFormat('it-IT', {weekday:'long', day:'numeric', month:'long', timeZone:TZ});
 const fmtDM = new Intl.DateTimeFormat('it-IT', {day:'numeric', month:'short', timeZone:TZ});
 const fmtDMHM = new Intl.DateTimeFormat('it-IT', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit', timeZone:TZ});
 const fmtKey = new Intl.DateTimeFormat('it-IT', {day:'2-digit', month:'2-digit', year:'numeric', timeZone:TZ});
@@ -517,8 +517,9 @@ function prepareAhead(){
 function renderEdPill(){
   updateRefreshUI();
   const t = $('#edPillTxt');
-  if (t && S.meta && S.meta.runAt) t.textContent = 'Aggiornato ' + whenText(freshAt()) + (staleMin() > lateLimit() ? ' · in ritardo' : '');
+  if (t) t.textContent = editionLabel();
 }
+function editionLabel(){ const at = ts(freshAt()); return at ? 'Aggiornato alle ' + fmtHM.format(new Date(at)) : 'Aggiorna'; }
 function skeleton(n, hero){
   let h = hero ? '<div class="skhero" aria-hidden="true"></div>' : '';
   for (let i = 0; i < n; i++) h += '<div class="sk" aria-hidden="true"><i style="width:45%"></i><i class="h" style="width:95%"></i><i class="h" style="width:70%"></i><i style="width:55%"></i><b></b></div>';
@@ -745,11 +746,11 @@ function nrow(s, opts){
 }
 function carouselCard(s, i, opts){
   pushCtx(s.id);
-  const t = opts.t || tcol(s), ids = outletsOf(s), n = ids.length, phrase = opts.lead ? phraseOf(s) : null;
+  const t = opts.t || tcol(s), ids = outletsOf(s), n = ids.length;
   return `<article class="ccard" data-i="${i}" data-act="open" data-id="${esc(s.id)}" tabindex="0" style="--tg:${t.c};--tgt:${t.tx}" aria-label="${esc(s.headline)}">
     <div class="cpic">${visual(s, 'wide', true, i === 0 ? 'high' : i < 3 ? 'eager' : 'lazy')}</div>
-    <div class="cin"><span class="tag">${esc(opts.t && opts.t.id !== 'napoli' ? opts.t.name : kickName(s))}</span><h3>${esc(s.headline)}</h3>${phrase ? `<p class="clead">${esc(phrase.t)}</p><a class="csource" href="${esc(phrase.u)}" target="_blank" rel="noopener">${esc(phrase.o)}${phrase.tr ? ' · tradotto' : ''}</a>` : ''}
-      <div class="meta">${n > 1 || !(opts && opts.lead === false) ? `<span class="cov">${PAPER_S}${covText(n)}</span><span>${esc(ago(s.updatedAt))}</span>` : `<span>${n ? esc(outlet(ids[0]).name) + ' · ' : ''}${esc(ago(s.updatedAt))}</span>`}</div></div>
+    <div class="cin"><span class="tag">${esc(opts.t && opts.t.id !== 'napoli' ? opts.t.name : kickName(s))}</span><h3>${esc(s.headline)}</h3>
+      <div class="meta">${n > 1 || !opts.t ? `<span class="cov">${PAPER_S}${covText(n)}</span><span>${esc(ago(s.updatedAt))}</span>` : `<span>${n ? esc(outlet(ids[0]).name) + ' · ' : ''}${esc(ago(s.updatedAt))}</span>`}</div></div>
   </article>`;
 }
 function carousel(list, title, label, key, opts){
@@ -757,7 +758,7 @@ function carousel(list, title, label, key, opts){
   if (hint) carHintVisible = true;
   return `<div class="sec car-sec"><h2 id="${label}">${title}</h2><span id="carCount">${i + 1} di ${list.length}</span></div>
     ${hint ? '<p class="car-hint" id="carHint">Scorri per le altre →</p>' : ''}
-    <div class="carousel" tabindex="0" role="region" aria-roledescription="carosello" aria-labelledby="${label}" aria-describedby="carHelp" data-key="${esc(key)}">${list.map((s, j) => carouselCard(s, j, opts)).join('')}</div>
+    <div class="carousel${key === 'oggi' ? ' oggi-car' : ''}" tabindex="0" role="region" aria-roledescription="carosello" aria-labelledby="${label}" aria-describedby="carHelp" data-key="${esc(key)}">${list.map((s, j) => carouselCard(s, j, opts)).join('')}</div>
     <p class="sr" id="carHelp">Scorri di lato per le altre notizie. Con la tastiera usa le frecce sinistra e destra; Invio apre la notizia.</p>`;
 }
 function viewOggi(){
@@ -765,14 +766,13 @@ function viewOggi(){
   const vis = visible(S.stories);
   const nOut = new Set(); vis.forEach(s => outletsOf(s).forEach(o => nOut.add(o)));
   const sub = m && m.runAt ? `Notizie raccolte ${whenText(freshAt())} · ${vis.length} storie da ${nOut.size} testate` : '';
-  const late = !!(m && m.runAt && staleMin() > lateLimit());
-  let h = `<header class="ohead">${LOGO}<h1 class="greet">${greeting()}${S.firstName ? `, <em>${esc(S.firstName)}</em>` : ''}</h1>
-    <span class="osub" title="${esc(sub)}">${esc(dayLabel())}${m && m.runAt ? ` · <b id="edPillTxt">Aggiornato ${esc(whenText(freshAt()))}${late ? ' · in ritardo' : ''}</b>` : ''}<button class="rb" id="refreshBtn" data-act="refresh" aria-label="Aggiorna le notizie">${REFRESH_SVG}</button></span></header>`;
+  let h = `<header class="ohead"><div class="otop">${LOGO}<button class="rb" id="refreshBtn" data-act="refresh" aria-label="Aggiorna le notizie" title="${esc(sub)}"><span id="edPillTxt">${esc(editionLabel())}</span>${REFRESH_SVG}</button></div>
+    <h1 class="greet">${greeting()}${S.firstName ? `, <em>${esc(S.firstName)}</em>` : ''}</h1><p class="odate">${esc(dayLabel())}</p></header>`;
   const st = feedState(true);
   if (st) return h + st;
   const {top, rest} = oggiLists();
   if (top.length) {
-    h += carousel(top, 'Prima pagina', 'ppT', 'oggi', {lead:true});
+    h += carousel(top, 'Prima pagina', 'ppT', 'oggi', {}) + '<hr class="oggi-sep">';
   }
   const nap = vis.filter(s => hasTopic(s, 'napoli')).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt));
   if (nap.length) {
@@ -806,7 +806,7 @@ function sizeCarousel(row){
   if (!row.isConnected) return;
   row.querySelectorAll('h3').forEach(h => {
     h.classList.remove('compact');
-    if (h.getBoundingClientRect().height > parseFloat(getComputedStyle(h).lineHeight) * 5 + 1) h.classList.add('compact');
+    if (!row.classList.contains('oggi-car') && h.getBoundingClientRect().height > parseFloat(getComputedStyle(h).lineHeight) * 5 + 1) h.classList.add('compact');
   });
 }
 function stopCarouselHint(row){
@@ -979,7 +979,7 @@ function viewTopic(id){
     <header class="tti"><h1 id="tpT"><span style="color:${t.tx}">${tIcon(id).replace('width="18" height="18"', 'width="30" height="30"')}</span>${esc(t.name)}</h1><p>${n} ${n === 1 ? 'notizia' : 'notizie'}${n ? ` · <b>${nw} ${nw === 1 ? 'nuova' : 'nuove'}</b>` : ''}</p></header>`;
   if (!n) return h + `<div class="state"><h3>Nessuna notizia, per ora</h3><p>In questi giorni non ci sono notizie su questo tema. La raccolta gira più volte all'ora: torna più tardi.</p></div>`;
   if (nw) {
-    h += carousel(fresh, 'Nuove', 'tdT', 'tema|' + id, {lead:false, t});
+    h += carousel(fresh, 'Nuove', 'tdT', 'tema|' + id, {t});
   } else h += `<p class="tnone">Nessuna notizia nuova nelle ultime 12 ore</p>`;
   const rest = list.filter(x => !isNew(x)).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt));
   if (!rest.length) return h;
