@@ -257,12 +257,14 @@ function fallbackVisual(s, kind){ return hasPlace(s) ? mapSvg(s.place, kind) : a
 // ogni volta che tornano visibili, vengono preparate in differita: per un attimo si vede il riquadro vuoto (il "lampo").
 // Le foto che arrivano dalla rete sono già preparate con decode() prima di comparire (readyImgs).
 const BADIMG = new Map();   // foto che non sono arrivate (e quando): ridisegnando la pagina si mostra subito la copertina di riserva; dopo 2 minuti si riprova
-function visual(s, kind, credit = true, load = 'lazy'){
+// dec: 'sync' o 'async' (Sfoglia).
+function visual(s, kind, credit = true, load = 'lazy', dec = 'sync'){
   if (hasImg(s) && !(Date.now() - (BADIMG.get(imgUrl(s.img)) || 0) < 120000)) {
     const who = s.img.o ? outlet(s.img.o).name : '';
     const cr = credit && kind !== 'thumb' && who ? `<span class="pcred">Foto: ${esc(who)}</span>` : '';
-    const ld = (load === 'lazy' ? 'loading="lazy"' : 'loading="eager"' + (load === 'high' ? ' fetchpriority="high"' : '')) + ' decoding="sync"';
-    return `<span class="vis k-${kind}"><img class="ph" src="${esc(imgUrl(s.img, kind))}" alt="" title="${who ? 'Foto: ' + esc(who) : ''}" ${ld} referrerpolicy="no-referrer" data-sid="${esc(s.id)}" data-kind="${kind}">${cr}</span>`;
+    const u = esc(imgUrl(s.img, kind));
+    const ld = (load === 'lazy' ? 'loading="lazy" ' : 'loading="eager" ' + (load === 'high' ? 'fetchpriority="high" ' : '')) + `decoding="${dec}"`;
+    return `<span class="vis k-${kind}"><img class="ph" src="${u}" alt="" title="${who ? 'Foto: ' + esc(who) : ''}" ${ld} referrerpolicy="no-referrer" data-sid="${esc(s.id)}" data-kind="${kind}">${cr}</span>`;
   }
   return fallbackVisual(s, kind);
 }
@@ -428,7 +430,8 @@ function buildPane(k){
   }
   const have = new Map();
   if (old) el.querySelectorAll('img.ph').forEach(im => { if (keepCarousel && od.contains(im)) return; const s = im.getAttribute('src'); if (!have.has(s)) have.set(s, []); have.get(s).push(im); });
-  frag.querySelectorAll('img.ph').forEach(n => {
+  // in Sfoglia sempre foto nuove: su iOS una foto spostata qui da un'altra pagina può non essere ridipinta
+  if (!k.startsWith('sfoglia')) frag.querySelectorAll('img.ph').forEach(n => {
     if (keepCarousel && nd.contains(n)) return;
     const s = n.getAttribute('src'), list = have.get(s);
     const o = (list && list.shift()) || POOL.get(s); if (!o) return;
@@ -450,10 +453,15 @@ function buildPane(k){
 // foto arrivate dopo: compaiono con una dissolvenza brevissima, quando sono già pronte (mai uno scatto né il grigio che lampeggia)
 function readyImgs(root){
   root.querySelectorAll('img.ph').forEach(im => {
-    if (im.complete) { if (im.naturalWidth) im.classList.remove('ld'); else if (im.getAttribute('src')) imgFail(im); return; }
+    if (!im.getAttribute('src')) return;
+    if (im.complete) { if (im.naturalWidth) im.classList.remove('ld'); else imgFail(im); return; }
+    if (im.closest('.sf')) return;   // Sfoglia: foto sempre visibili, senza dissolvenza
     if (im._ld) return;
     im._ld = 1; im.classList.add('ld');
-    im.addEventListener('load', () => { const on = () => im.classList.remove('ld'); if (im.decode) im.decode().then(on, on); else on(); }, {once:true});
+    const on = () => im.classList.remove('ld');
+    // si mostra quando è pronta (decode) o al massimo 250 ms dopo l'arrivo: su Safari iOS decode() può non rispondere mai
+    im.addEventListener('load', () => { if (im.decode) im.decode().then(on, on); setTimeout(on, 250); }, {once:true});
+    setTimeout(() => { if (im.naturalWidth) on(); }, 4000);   // in ogni caso: arrivata e ancora nascosta dopo 4 s, si mostra
     // foto che non arriva: copertina di riserva, anche se succede mentre la pagina è nascosta
     im.addEventListener('error', () => { if (im.parentNode) imgFail(im); }, {once:true});
   });
@@ -502,7 +510,6 @@ function prepareAhead(){
     const {top, rest} = oggiLists(); top.slice(0, 3).forEach(add);
     visible(S.stories).filter(s => hasTopic(s, 'napoli')).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt)).slice(0, 3).forEach(add);
     rest.slice(0, 6).forEach(add);
-    sfogliaList().slice(0, 6).forEach(add);
     savedItems().slice(0, 6).forEach(x => add(x.s));
     const inDom = new Map(); PANES.forEach(P => P.el.querySelectorAll('img.ph').forEach(im => inDom.set(im.getAttribute('src'), im)));
     urls.slice(0, 20).forEach(u => {
@@ -1283,15 +1290,15 @@ function phraseOf(s){
   return x && x.u ? {t:titleIt(x) || x.t, o:outlet(x.o).name, u:x.u, tr:langOf(x) !== 'it' && !!titleIt(x)} : null;
 }
 const SF_STEP = 25;
-// le foto di Sfoglia si scaricano subito (eager): su Safari iOS quelle "lazy" dentro il contenitore che scorre non partono mai;
-// la notizia da cui riparti ha la precedenza
+// foto di Sfoglia: semplici <img> scaricate subito (la notizia attuale con la precedenza) e sempre visibili:
+// niente dissolvenza, niente attesa di decode(), niente caricamento a distanza, niente foto riusate da altre pagine.
 function sfSlide(s, i){
   pushCtx(s.id);
   const t = tcol(s), n = outletsOf(s).length, ph = phraseOf(s);
   const q = ph ? String(ph.t).replace(/^[«"“]+|[»"”]+$/g, '') : '';
   const topicInk = '#' + t.c.slice(1).match(/../g).map(v => Math.round(parseInt(v, 16) * .55 + 255 * .45).toString(16).padStart(2, '0')).join('');
   return `<article class="sf" data-act="open" data-id="${esc(s.id)}" data-i="${i}" tabindex="0" style="--tg:${t.c};--sf-topic:${topicInk}" aria-label="${esc(s.headline)}">
-    <div class="sfph">${visual(s, 'wide', true, i === (S.sfIdx || 0) ? 'high' : 'eager')}</div>
+    <div class="sfph">${visual(s, 'wide', true, i === (S.sfIdx || 0) ? 'high' : 'eager', 'async')}</div>
     <div class="sftx"><p class="m2"><span>${esc(kickName(s))}</span> · ${covText(n)} · ${esc(ago(s.updatedAt))}</p>
       <h2>${esc(s.headline)}</h2>
       ${q ? `<p class="q"><span class="qt">«${esc(q)}»</span><span class="qo"><a href="${esc(ph.u)}" target="_blank" rel="noopener">${esc(ph.o)}</a>${ph.tr ? ' · tradotto' : ''}${n > 1 ? ` · e ${n === 2 ? 'un\'altra testata' : 'altre ' + (n - 1) + ' testate'}` : ''}</span></p>` : ''}</div>
@@ -1303,6 +1310,23 @@ function viewSfoglia(){
   if (!list.length) return `<div class="state"><h3>Niente da sfogliare, per ora</h3><p>Appena la redazione automatica pubblica le notizie, qui le trovi una per schermata.</p></div>`;
   S.sfN = Math.min(list.length, Math.max(S.sfN || 0, SF_STEP, (S.sfIdx || 0) + 5));
   return `<div class="sfshell"><div class="sfv" id="sfv" role="feed" aria-label="Sfoglia: una notizia per schermata">${list.slice(0, S.sfN).map(sfSlide).join('')}</div></div>`;
+}
+// diagnosi temporanea delle foto di Sfoglia: si accende con ?debug=foto nell'indirizzo
+if (/[?&]debug=foto\b/.test(location.search)) {
+  const box = document.createElement('div'); box.id = 'dbgfoto';
+  box.style.cssText = 'position:fixed;left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom,0px) + 2px);z-index:99;padding:4px 8px;border-radius:8px;background:rgba(0,0,0,.82);color:#fff;font:600 12px/1.35 ui-monospace,Menlo,monospace;pointer-events:none;white-space:pre-wrap';
+  const put = () => { if (document.body && !box.isConnected) document.body.appendChild(box); };
+  put(); document.addEventListener('DOMContentLoaded', put);
+  setInterval(() => {
+    put();
+    if (S.tab !== 'sfoglia') { box.textContent = 'debug foto: apri Sfoglia'; return; }
+    const sl = document.querySelectorAll('#sfv .sf')[S.sfIdx || 0];
+    const im = sl && sl.querySelector('img.ph');
+    if (!im) { box.textContent = `slide ${(S.sfIdx || 0) + 1} · nessuna foto` + (sl && sl.querySelector('.sfph svg, .sfph .art') ? ' · errore: sì (copertina di riserva)' : ''); return; }
+    const u = im.getAttribute('src');
+    const r = im.getBoundingClientRect(), f = im.parentNode.getBoundingClientRect();
+    box.textContent = `slide ${(S.sfIdx || 0) + 1} · src: ${u ? 'sì' : 'no'} · complete: ${im.complete} · naturalWidth: ${im.naturalWidth} · ld: ${im.classList.contains('ld') ? 'sì' : 'no'} · errore: ${u && BADIMG.has(u) ? 'sì' : 'no'} · foto ${Math.round(r.width)}×${Math.round(r.height)} · cornice ${Math.round(f.width)}×${Math.round(f.height)} · opacità ${getComputedStyle(im).opacity}`;
+  }, 400);
 }
 function sfMore(){
   const el = $('#sfv'); if (!el) return;
