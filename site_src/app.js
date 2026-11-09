@@ -384,7 +384,8 @@ function histSig(){ const h = S.history[0]; return S.history.length + (h ? h.id 
 function paneSig(k){
   const tab = k.split('|')[0], p = S.prefs, top = p.topics.join(',');
   if (tab === 'oggi') return [dataSig(), light(), S.firstName, !!S.napAll, !!p.onboarded].join('#');
-  if (tab === 'perte' || tab === 'sfoglia') return [dataSig(), top].join('#');
+  if (tab === 'perte') return [dataSig(), top, newsDayStart()].join('#');
+  if (tab === 'sfoglia') return [dataSig(), top].join('#');
   if (tab === 'salvati') return [dataSig(), top, savedSig(), histSig(), S.savedSeg].join('#');
   return [p.name, top, p.size, histSig(), !!S.editName].join('#');
 }
@@ -940,10 +941,27 @@ function newsSince(s, since){
   return srcOf(s).filter(x => ts(x.d) > since + 60000).sort((a, b) => ts(b.d) - ts(a.d))
     .filter(x => { const k = x.o + '|' + norm(titleIt(x) || x.t); if (seen.has(k)) return false; seen.add(k); return true; });
 }
-// "nuove": le notizie arrivate nelle ultime 12 ore, contando dall'ultimo articolo (la stessa ora che si legge sotto il titolo);
-// stessa regola per i bollini dei mazzi, il totale di Per te e la pagina del tema
+// Novità: nascita della storia da mezzanotte italiana, oppure dalle 18 di ieri prima delle 6.
+// La stessa regola vale per bollini, totale di Per te e pagina del tema; gli aggiornamenti non contano.
 try { localStorage.removeItem('eddy:topicSeen'); } catch (e) {}
-function isNew(s){ return ts(s.updatedAt || s.publishedAt || s.addedAt) > Date.now() - 12 * 3600000; }
+const fmtNewsClock = new Intl.DateTimeFormat('en-GB', {timeZone:TZ, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hourCycle:'h23'});
+const NEWS_START = {minute:null, at:0};
+function newsDayStart(){
+  const now = Date.now(), minute = Math.floor(now / 60000);
+  if (NEWS_START.minute === minute) return NEWS_START.at;
+  const clock = at => Object.fromEntries(fmtNewsClock.formatToParts(new Date(at)).map(p => [p.type, p.value]));
+  const p = clock(now);
+  const wall = Date.UTC(+p.year, +p.month - 1, +p.day) - (+p.hour < 6 ? 6 * 3600000 : 0);
+  // Si converte l'ora locale in un istante, usando l'offset di quella data anche al cambio d'ora.
+  let at = wall;
+  for (let i = 0; i < 2; i++) {
+    const q = clock(at);
+    at += wall - Date.UTC(+q.year, +q.month - 1, +q.day, +q.hour, +q.minute);
+  }
+  NEWS_START.minute = minute; NEWS_START.at = at;
+  return at;
+}
+function isNew(s){ const born = ts(s.addedAt || s.publishedAt); return born >= newsDayStart() && born <= Date.now(); }
 function topicStories(id){ return visible(S.stories).filter(s => hasTopic(s, id)); }
 function topicNew(id, list){ return (list || topicStories(id)).filter(isNew).length; }
 // mazzo del tema: prima le notizie raccontate da più testate, poi le più recenti
@@ -977,19 +995,20 @@ function viewPerTe(){
 const PLUS_I = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
 function openTopic(id){
   if (!TMAP[id]) return;
-  subPage(1, () => { S.topicPage = id; CAR_INDEX.set('tema|' + id, 0); S.pages['tema|' + id] = 0; }, '.bk');
+  subPage(1, () => { S.topicPage = id; }, '.bk');
 }
 // pagina di un tema: fila delle notizie nuove, poi tutte le altre dalla più recente
 function viewTopic(id){
   const t = TMAP[id], list = topicStories(id), n = list.length, on = S.prefs.topics.includes(id);
-  const fresh = byCoverage(list.filter(isNew)), nw = fresh.length;
+  const daily = list.filter(isNew), nw = daily.length;
+  const fresh = byCoverage(daily).slice(0, 10), inCarousel = new Set(fresh.map(s => s.id));
   let h = `<div class="thh"><button class="bk" data-act="topic-close">${SBI.back}Per te</button><button class="tmine" data-act="topic-mine" data-id="${id}" aria-pressed="${on}">${on ? CHECK : PLUS_I}${on ? 'Nei tuoi temi' : 'Aggiungi ai tuoi temi'}</button></div>
     <header class="tti"><h1 id="tpT"><span style="color:${t.tx}">${tIcon(id).replace('width="18" height="18"', 'width="30" height="30"')}</span>${esc(t.name)}</h1><p>${n} ${n === 1 ? 'notizia' : 'notizie'}${n ? ` · <b>${nw} ${nw === 1 ? 'nuova' : 'nuove'}</b>` : ''}</p></header>`;
   if (!n) return h + `<div class="state"><h3>Nessuna notizia, per ora</h3><p>In questi giorni non ci sono notizie su questo tema. La raccolta gira più volte all'ora: torna più tardi.</p></div>`;
   if (nw) {
-    h += carousel(fresh, 'Nuove', 'tdT', 'tema|' + id, {t});
-  } else h += `<p class="tnone">Nessuna notizia nuova nelle ultime 12 ore</p>`;
-  const rest = list.filter(x => !isNew(x)).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt));
+    h += carousel(fresh, 'Novità di oggi', 'tdT', 'tema|' + id, {t});
+  } else h += `<p class="tnone">Nessuna novità oggi</p>`;
+  const rest = list.filter(x => !inCarousel.has(x.id)).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt));
   if (!rest.length) return h;
   h += `<div class="sec tsec tall"><h2>Tutte le notizie</h2><span>${rest.length}</span></div>`;
   return h + paged('tema|' + id, rest, x => nrow(x, {kick:false}), 'nlist', 20);
@@ -1431,7 +1450,6 @@ const PG_EASE = 'cubic-bezier(.22,1,.36,1)', NAV_EASE = 'cubic-bezier(.34,1.25,.
 const SCROLLS = {};      // dove eri arrivato in ogni pagina
 let NAVA = 0;            // fino a quando l'indicatore sta scivolando
 let PGT = null;          // passaggio di pagina in corso (si può concludere subito)
-function pageKey(){ return S.tab + (S.topicPage ? '|tema' : '') + (S.folder ? '|cartella' : ''); }
 // indicatore: x e larghezza in pixel dentro la barra, solo transform
 function placeInd(x, w, ms){
   const ind = $('.tind'); if (!ind) return;
@@ -1525,7 +1543,7 @@ function subPage(dir, mutate, focusSel, top){
   const from = pageKey(); SCROLLS[from] = window.scrollY;
   swapPage(dir, () => {
     mutate(); render(false);
-    window.scrollTo(0, dir > 0 || top ? 0 : (SCROLLS[pageKey()] || 0));
+    window.scrollTo(0, top ? 0 : (SCROLLS[pageKey()] || 0));
     if (focusSel) { const b = typeof focusSel === 'function' ? focusSel() : $(focusSel); if (b) b.focus({preventScroll:true}); }
   });
 }
