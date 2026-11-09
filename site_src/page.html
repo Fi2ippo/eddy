@@ -195,21 +195,41 @@ svg.f{fill:currentColor;stroke:none}
 .psheet .kv{margin:8px 0 0;display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:14px}
 .psheet .kv dt{color:var(--ink-2);font-weight:600}
 .psheet .kv dd{margin:0}
-/* per te: il filo */
-.fc{margin:0 -4px 12px;padding:14px 16px 6px;background:var(--card);border:1px solid var(--line);border-top:5px solid var(--tg);border-radius:var(--r-card);box-shadow:0 10px 26px rgba(10,15,30,.06);cursor:pointer;color:var(--ink)}
-.fh{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.fh .k{font-size:12px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--tgt,var(--tg))}
-.fh .w{font-size:12.5px;font-weight:600;color:var(--ink-3);white-space:nowrap}
-.fc h3{margin:6px 0 0;font-size:19px;line-height:1.16;font-weight:800}
-.fl{position:relative;margin:14px 0 0;padding-left:18px}
-.fl::before{content:"";position:absolute;left:3px;top:7px;bottom:16px;width:1.5px;background:var(--line-2)}
-.fl:has(.ev:only-child)::before{display:none}
-.ev{position:relative;padding:0 0 12px}
-.ev::before{content:"";position:absolute;left:-18px;top:6px;width:8px;height:8px;border-radius:50%;background:var(--tg)}
-.ev.evm::before{background:var(--line-2)}
-.ev .h{font-size:12.5px;font-weight:700;color:var(--ink-2)}
-.ev p{margin:2px 0 0;font-size:15px;line-height:1.42;color:#2B2D33}
-.ev em{font-style:normal;font-size:12.5px;font-weight:700;color:var(--ink-3)}
+/* per te: i tuoi temi, un mazzo per tema */
+.mz{display:grid;grid-template-columns:1fr 1fr;gap:18px 12px;margin:6px 0 0}
+.tdk{display:block;min-width:0;text-align:left;color:var(--ink);border-radius:12px;outline-offset:4px}
+.tst{position:relative;display:block;height:186px;margin-top:10px}
+.tst i{position:absolute;inset:0;border-radius:12px;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--c);transform-origin:50% 0}
+.tst .b2{transform:translateY(-10px) scale(.88);opacity:.55}
+.tst .b1{transform:translateY(-5px) scale(.94);opacity:.8}
+.tcd{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-top:5px solid var(--c);border-radius:12px;overflow:hidden;box-shadow:0 8px 20px rgba(10,15,30,.08)}
+.tcd .pic{position:relative;display:block;flex:none;height:92px;margin:6px 6px 0;border-radius:7px;overflow:hidden;background:#C3C7CF}
+.tcd .pic .vis .pcred{top:auto;right:5px;bottom:5px;padding:2px 6px}
+.tcd .h{margin:8px 10px 0;font-size:13.5px;line-height:1.22;font-weight:800;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.tcd .h.nada{color:var(--ink-3)}
+.nw{position:absolute;right:-6px;top:-14px;background:var(--ink);color:#fff;font-size:12px;font-weight:800;padding:4px 9px;border-radius:12px;white-space:nowrap}
+.lb{display:flex;align-items:center;gap:6px;margin-top:10px;min-height:24px}
+.lb svg{color:var(--tx);flex:none}
+.lb b{font-size:16px;font-weight:800;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb small{margin-left:auto;font-size:13px;color:var(--ink-3);font-weight:700}
+.ot{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 -4px}
+.otp{display:flex;align-items:center;gap:10px;min-height:52px;padding:0 12px;background:var(--card);border:1px solid var(--line);border-radius:12px;text-align:left;color:var(--ink)}
+.otp svg{color:var(--tx);flex:none}
+.otp b{font-size:14.5px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.otp small{font-size:12.5px;color:var(--ink-3);font-weight:600}
+.empty .cta{margin-top:16px}
+/* pagina di un tema */
+.thd{margin:6px -4px 0;padding:18px 14px 16px;background:var(--card);border:1px solid var(--line);border-top:6px solid var(--c);border-radius:var(--r-card)}
+.tic{display:inline-flex;width:46px;height:46px;border-radius:12px;align-items:center;justify-content:center}
+.thd h1{margin:12px 0 0;font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.thd p{margin:6px 0 0;font-size:14px;color:var(--ink-soft)}
+.thd p b{color:var(--ink)}
+.tact{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.tsf{flex:1 1 auto;display:flex;align-items:center;justify-content:center;gap:6px;min-height:48px;padding:0 12px;border-radius:24px;background:var(--ink);color:#fff;font-size:15px;font-weight:800;white-space:nowrap}
+.tmine{flex:1 1 auto;display:flex;align-items:center;justify-content:center;gap:6px;min-height:48px;padding:0 11px;border-radius:24px;border:1px solid var(--line);background:var(--bg);font-size:14px;font-weight:700;color:var(--ink);white-space:nowrap}
+.tmine[aria-pressed="false"]{background:var(--card);border-color:var(--ink)}
+.rm .rwho{color:var(--ink-2);font-size:12.5px}
+.rm .rwho b{color:var(--ink);font-weight:700}
 .empty{margin:24px -4px 0;padding:26px 22px;text-align:center;background:var(--card);border:1px dashed #C9CCD3;border-radius:18px}
 .empty .eico{width:56px;height:56px;margin:0 auto;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--pill);color:var(--ink)}
 .empty .eico svg{width:26px;height:26px}
@@ -218,9 +238,6 @@ svg.f{fill:currentColor;stroke:none}
 .rm{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;margin-top:8px;font-size:12px;font-weight:600;color:var(--ink-soft)}
 .rm b{display:inline-flex;align-items:center;gap:4px;color:var(--ink);font-weight:700;white-space:nowrap}
 .rm b svg{width:13px;height:13px}
-.row{display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:8px 14px;padding:14px 14px 8px;border-radius:var(--r-card);background:var(--card);box-shadow:0 0 0 1px var(--line),var(--sh-card);cursor:pointer;text-align:left}
-.row .thumb{grid-column:2;grid-row:2 / span 2;width:92px;height:92px;border-radius:var(--r-sm);overflow:hidden;align-self:start}
-.row .hl{grid-column:1;font-size:16.5px;line-height:1.28;letter-spacing:-.012em}
 /* attesa e stati */
 .sk{display:grid;grid-template-columns:1fr 92px;gap:10px 14px;padding:16px 14px;border-radius:var(--r-card);background:var(--card);box-shadow:0 0 0 1px var(--line);margin-bottom:10px}
 .sk i{display:block;height:12px;border-radius:6px;background:var(--pill)}

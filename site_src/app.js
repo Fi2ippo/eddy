@@ -341,7 +341,6 @@ function oggiLists(){
   const rest = list.filter(s => !topIds.has(s.id)).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt));
   return {top, rest, all:top.concat(rest)};
 }
-function perTeList(){ return visible(S.stories).filter(matchesMe).sort((a, b) => personalScore(b) - personalScore(a)); }
 
 /* ---------- persistenza per-utente, protetta dall'eco delle proprie scritture ---------- */
 const SESSION = Math.random().toString(36).slice(2, 9);
@@ -417,17 +416,18 @@ const PAGE = 30;
 const PAGED = {};
 S.pages = {};
 const PAGEDF = {};
-function paged(key, list, fn, cls){
-  PAGED[key] = list; PAGEDF[key] = fn || nrow;
-  const n = Math.min(list.length, Math.max(PAGE, S.pages[key] || 0));
+const PAGEN = {};
+function paged(key, list, fn, cls, size){
+  PAGED[key] = list; PAGEDF[key] = fn || nrow; PAGEN[key] = size || PAGE;
+  const n = Math.min(list.length, Math.max(PAGEN[key], S.pages[key] || 0));
   const rest = list.length - n;
   return `<div class="${cls || 'nlist'}" data-pkey="${esc(key)}">${list.slice(0, n).map(x => PAGEDF[key](x)).join('')}</div>${rest > 0 ? moreBtn(key, rest) : ''}`;
 }
-function moreBtn(key, rest){ return `<button class="more" data-act="more" data-pkey="${esc(key)}">Mostra altre ${rest} ${rest === 1 ? 'storia' : 'storie'}</button>`; }
+function moreBtn(key, rest){ return `<button class="more" data-act="more" data-pkey="${esc(key)}">Mostra altre ${rest} ${rest === 1 ? 'notizia' : 'notizie'}</button>`; }
 function showMore(key){
   const list = PAGED[key]; if (!list) return;
   const feed = document.querySelector(`[data-pkey="${CSS.escape(key)}"]:not(.more)`); if (!feed) return;
-  const n0 = feed.children.length, n1 = Math.min(list.length, n0 + PAGE);
+  const n0 = feed.children.length, n1 = Math.min(list.length, n0 + (PAGEN[key] || PAGE));
   if (n1 <= n0) return;
   S.pages[key] = n1;
   const was = collecting; collecting = true; CTX = S.ctx || [];
@@ -435,7 +435,7 @@ function showMore(key){
   S.ctx = CTX; collecting = was;
   const btn = document.querySelector(`.more[data-pkey="${CSS.escape(key)}"]`);
   const rest = list.length - n1;
-  if (btn) { if (rest > 0) btn.textContent = `Mostra altre ${rest} ${rest === 1 ? 'storia' : 'storie'}`; else btn.remove(); }
+  if (btn) { if (rest > 0) btn.textContent = `Mostra altre ${rest} ${rest === 1 ? 'notizia' : 'notizie'}`; else btn.remove(); }
 }
 let moreObs = null;
 function observeMore(){
@@ -621,7 +621,7 @@ function nrow(s, opts){
   const t = tcol(s), n = outletsOf(s).length;
   return `<article class="nrow" data-act="open" data-id="${esc(s.id)}" tabindex="0" aria-label="${esc(s.headline)}">
     <div class="ntx">${opts.why ? `<span class="nwhy">${esc(opts.why)}</span>` : opts.kick === false ? '' : `<span class="kick" style="color:${t.tx}">${esc(kickName(s))}</span>`}<h3>${esc(s.headline)}</h3>
-    <div class="rm"><b>${PAPER_S}${covText(n)}</b>${opts.meta || `<span>${whoLine(s)}</span>`}</div></div>
+    <div class="rm">${opts.rm || `<b>${PAPER_S}${covText(n)}</b>${opts.meta || `<span>${whoLine(s)}</span>`}`}</div></div>
     <div class="th">${visual(s, 'thumb')}</div></article>`;
 }
 function leadOf(s){ return s.dek || String(s.summary || '').split(/\n{2,}/)[0].replace(/\s\(([^()]{2,80})\)\s*$/, '') || ''; }
@@ -762,83 +762,65 @@ async function requestRefresh(){
   if (S.tab === 'oggi') scheduleRender();
 }
 
-/* ----- Per te: il filo delle storie che segui e le storie collegate ----- */
-// "Letta alle 9:40", "Salvata ieri", "Letta il 6 nov"
-function whenDid(verb, v){
-  const t = ts(v); if (!t) return verb;
-  const d = new Date(t);
-  if (fmtKey.format(d) === fmtKey.format(new Date())) return verb + ' alle ' + fmtHM.format(d);
-  if (fmtKey.format(d) === fmtKey.format(new Date(Date.now() - 86400000))) return verb + ' ieri';
-  return verb + ' il ' + fmtDM.format(d);
-}
-// le storie che hai letto o salvato, con l'ora in cui le hai viste l'ultima volta
-function followed(){
-  const m = new Map();
-  S.history.forEach(x => { if (x && x.id && !m.has(x.id)) m.set(x.id, {id:x.id, readAt:ts(x.at), savedAt:0}); });
-  Object.entries(S.saved).forEach(([id, v]) => { const e = m.get(id) || {id, readAt:0, savedAt:0}; e.savedAt = ts(v && v.at); m.set(id, e); });
-  return [...m.values()].map(e => Object.assign(e, {since:Math.max(e.readAt, e.savedAt), verb:e.readAt >= e.savedAt ? 'Letta' : 'Salvata'}));
-}
+/* ----- Per te: i tuoi temi, un mazzo per tema ----- */
 // gli articoli arrivati dopo che hai aperto (o salvato) la storia, dal più recente
 function newsSince(s, since){
   const seen = new Set();
   return srcOf(s).filter(x => ts(x.d) > since + 60000).sort((a, b) => ts(b.d) - ts(a.d))
     .filter(x => { const k = x.o + '|' + norm(titleIt(x) || x.t); if (seen.has(k)) return false; seen.add(k); return true; });
 }
-function filoList(){
-  return followed().map(e => { const s = S.byId.get(e.id); if (!s || !outletsOf(s).length) return null; const ev = newsSince(s, e.since); return ev.length ? {s, e, ev} : null; })
-    .filter(Boolean).sort((a, b) => ts(b.ev[0].d) - ts(a.ev[0].d));
+// ultima apertura di ogni tema (salvata nel browser): le notizie arrivate dopo sono "nuove"; la prima volta, quelle delle ultime 12 ore
+let TSEEN = LS.get('topicSeen') || {};
+function topicSeenAt(id){ return TSEEN[id] || Date.now() - 12 * 3600000; }
+function markTopicSeen(id){ TSEEN[id] = Date.now(); LS.set('topicSeen', TSEEN); }
+function topicStories(id){ return visible(S.stories).filter(s => hasTopic(s, id)); }
+function topicNew(id, list){ const t = topicSeenAt(id); return (list || topicStories(id)).filter(s => ts(s.addedAt || s.publishedAt) > t).length; }
+// la più importante del tema: edizione, testate che ne parlano, quanto è recente
+function byImportance(list){ return list.slice().sort((a, b) => score(b) + (b.top ? 30 : 0) - score(a) - (a.top ? 30 : 0)); }
+function topicDeck(t){
+  const list = topicStories(t.id), n = list.length, nw = topicNew(t.id, list);
+  const lead = byImportance(list.filter(hasImg))[0] || byImportance(list)[0];
+  const name = folderName(t.id);
+  return `<button class="tdk" data-act="topic-open" data-id="${t.id}" style="--c:${t.c};--tx:${t.tx}" aria-label="${esc(name)}: ${n} ${n === 1 ? 'notizia' : 'notizie'}${nw ? `, ${nw} ${nw === 1 ? 'nuova' : 'nuove'}` : ''}">
+    <span class="tst" aria-hidden="true"><i class="b2"></i><i class="b1"></i><span class="tcd">${lead ? `<span class="pic">${visual(lead, 'wide')}</span><span class="h">${esc(lead.headline)}</span>` : '<span class="pic"></span><span class="h nada">Nessuna notizia, per ora</span>'}</span>${nw ? `<span class="nw">${nw} ${nw === 1 ? 'nuova' : 'nuove'}</span>` : ''}</span>
+    <span class="lb" aria-hidden="true">${tIcon(t.id)}<b>${esc(name)}</b><small>${n}</small></span></button>`;
 }
-function filoCard(f){
-  pushCtx(f.s.id);
-  const t = tcol(f.s), at = f.e.verb === 'Letta' ? f.e.readAt : f.e.savedAt;
-  return `<article class="fc" data-act="open" data-id="${esc(f.s.id)}" tabindex="0" style="--tg:${t.c};--tgt:${t.tx}" aria-label="${esc(f.s.headline)}: ${f.ev.length} ${f.ev.length === 1 ? 'novità' : 'novità'}">
-    <div class="fh"><span class="k">${esc(kickName(f.s))}</span><span class="w">${esc(whenDid(f.e.verb, new Date(at).toISOString()))}</span></div>
-    <h3>${esc(f.s.headline)}</h3>
-    <div class="fl">${f.ev.slice(0, 3).map(x => `<div class="ev"><span class="h">${esc(crTime(x.d))} · ${esc(outlet(x.o).name)}</span><p>${esc(titleIt(x) || x.t)}${langOf(x) !== 'it' && titleIt(x) ? ' <em>· tradotto</em>' : ''}</p></div>`).join('')}${f.ev.length > 3 ? `<div class="ev evm"><span class="h">${f.ev.length === 4 ? 'e un altro aggiornamento' : 'e altri ' + (f.ev.length - 3) + ' aggiornamenti'}</span></div>` : ''}</div>
-  </article>`;
-}
-// storie collegate a quelle lette: stesso dossier, oppure nomi e luoghi in comune
-function tagSet(x){ return new Set((x.tags || []).map(norm).filter(w => w.length > 2)); }
-function shortTitle(h){ let t = String(h || '').split(/[:,.;]\s/)[0]; if (t.length > 42) t = t.slice(0, 40).replace(/\s+\S*$/, '') + '…'; return t; }
-function relatedList(){
-  const known = new Set(S.history.map(x => x && x.id).concat(Object.keys(S.saved)));
-  const base = S.history.slice(0, 12).map(x => S.byId.get(x.id) || (x.s && Object.assign({id:x.id}, x.s))).filter(Boolean);
-  const out = new Map();
-  base.forEach((r, ri) => {
-    const rt = tagSet(r);
-    visible(S.stories).forEach(c => {
-      if (known.has(c.id) || c.id === r.id) return;
-      let sc = 0, why = '';
-      if (r.dossier && c.dossier === r.dossier) { sc = 3; why = (S.dossiers[r.dossier] || {}).title || ''; }
-      else { const ct = tagSet(c); let n = 0; rt.forEach(w => { if (ct.has(w)) n++; }); if (n >= 2) sc = 2; else if (n === 1 && c.topic === r.topic) sc = 1; }
-      if (!sc) return;
-      sc = sc * 10 - ri - hoursAgo(c.updatedAt) / 24;
-      const prev = out.get(c.id);
-      if (!prev || prev.sc < sc) out.set(c.id, {s:c, sc, why:'Perché hai letto «' + (why || shortTitle(r.headline)) + '»'});
-    });
-  });
-  return [...out.values()].sort((a, b) => b.sc - a.sc).slice(0, 6);
+function otherTopic(t, n){
+  return `<button class="otp" data-act="topic-open" data-id="${t.id}" style="--tx:${t.tx}" aria-label="${esc(t.name)}: ${n} ${n === 1 ? 'notizia' : 'notizie'}">${tIcon(t.id)}<b>${esc(t.name)}</b><small>${n}</small></button>`;
 }
 function viewPerTe(){
+  if (S.topicPage) return viewTopic(S.topicPage);
   const st = feedState(false);
-  const filo = st ? [] : filoList();
-  const rel = st ? [] : relatedList();
-  const nNew = filo.reduce((n, f) => n + f.ev.length, 0);
-  let h = `<header class="phead"><h1>Per te</h1><span class="psub">${filo.length ? `Le storie che segui · <b>${nNew} ${nNew === 1 ? 'novità' : 'novità'}</b>` : 'Le storie che segui e cosa è cambiato'}</span></header>`;
+  const mine = S.prefs.topics.map(id => TMAP[id]).filter(Boolean);
+  const nNew = st ? 0 : mine.reduce((n, t) => n + topicNew(t.id), 0);
+  let h = `<header class="phead"><h1>Per te</h1><span class="psub">${mine.length ? `I tuoi ${mine.length === 1 ? 'tema' : mine.length + ' temi'}${nNew ? ` · <b>${nNew} ${nNew === 1 ? 'notizia nuova' : 'notizie nuove'}</b>` : ''}` : 'I temi che ti interessano'}</span></header>`;
   if (st) return h + st;
-  if (filo.length) h += `<div class="sec"><h2>Si sono mosse</h2><span>${filo.length} ${filo.length === 1 ? 'storia' : 'storie'}</span></div>${filo.map(filoCard).join('')}`;
-  if (rel.length) h += `<div class="sec"><h2>Collegate</h2><span>${rel.length} ${rel.length === 1 ? 'storia' : 'storie'}</span></div><div class="nlist">${rel.map(r => nrow(r.s, {why:r.why})).join('')}</div>`;
-  if (!filo.length && !rel.length) h += `<div class="empty"><span class="eico">${NAVI.perte}</span><h3>Qui Eddy segue le storie per te</h3><p>Apri o salva una notizia: quando ne arrivano di nuove, o ne escono altre collegate, le trovi qui con un riassunto di cosa è cambiato.</p></div>`;
-  if (filo.length + rel.length < 3) {
-    const seen = new Set(filo.map(f => f.s.id).concat(rel.map(r => r.s.id)));
-    // a turno dai temi scelti, perché si vedano tutti
-    const byT = S.prefs.topics.map(t => perTeList().filter(x => !seen.has(x.id) && hasTopic(x, t)));
-    const mine = [];
-    for (let i = 0; mine.length < 5 && byT.some(l => l.length > i); i++) byT.forEach(l => { const x = l[i]; if (x && mine.length < 5 && !mine.includes(x)) mine.push(x); });
-    const list = (mine.length ? mine : visible(S.stories).filter(x => x.top)).slice(0, 5);
-    if (list.length) h += `<div class="sec"><h2>${S.prefs.topics.length ? 'Per cominciare, dai tuoi temi' : 'Per cominciare, dalla prima pagina'}</h2></div><div class="nlist">${list.map(x => nrow(x)).join('')}</div>`;
-  }
+  if (mine.length) h += `<div class="sec"><h2>I tuoi temi</h2><button class="lnk" data-act="panel" data-v="temi">Modifica</button></div><div class="mz">${mine.map(topicDeck).join('')}</div>`;
+  else h += `<div class="empty"><span class="eico">${NAVI.perte}</span><h3>Scegli i tuoi temi</h3><p>Scegli i temi che ti interessano: qui avrai un mazzo per ognuno.</p><button class="cta" data-act="panel" data-v="temi">Scegli i temi</button></div>`;
+  const others = TOPICS.filter(t => !S.prefs.topics.includes(t.id)).map(t => ({t, n:topicStories(t.id).length})).sort((a, b) => b.n - a.n);
+  if (others.length) h += `<div class="sec"><h2>Altri temi</h2><span>Tocca per sfogliarli</span></div><div class="ot">${others.map(x => otherTopic(x.t, x.n)).join('')}</div>`;
   return h;
+}
+const SFOGLIA_I = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M3.5 6v12M20.5 6v12"/></svg>';
+const PLUS_I = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+// pagina di un tema: aprirla conta come "visto" (le nuove mostrate sono quelle di prima dell'apertura)
+function openTopic(id){
+  if (!TMAP[id]) return;
+  S.topicNewShown = topicNew(id); markTopicSeen(id);
+  S.topicPage = id; S.pages['tema|' + id] = 0;
+  render(true); window.scrollTo(0, 0);
+  const b = $('.bk'); if (b) b.focus({preventScroll:true});
+}
+function viewTopic(id){
+  const t = TMAP[id], list = topicStories(id), n = list.length, nw = S.topicNewShown || 0, on = S.prefs.topics.includes(id);
+  let h = `<button class="bk" data-act="topic-close">${SBI.back}Per te</button>
+    <section class="thd" style="--c:${t.c}" aria-labelledby="tpT"><span class="tic" style="background:${t.c};color:${onColor(t.c)}">${tIcon(id).replace('width="18" height="18"', 'width="26" height="26"')}</span>
+      <h1 id="tpT">${esc(t.name)}</h1><p>${n} ${n === 1 ? 'notizia' : 'notizie'} degli ultimi giorni${nw ? ` · <b>${nw} ${nw === 1 ? 'nuova' : 'nuove'}</b>` : ''}</p>
+      <div class="tact">${n ? `<button class="tsf" data-act="topic-sfoglia" data-id="${id}">${SFOGLIA_I}Sfoglia ${n === 1 ? 'la notizia' : `le ${n} notizie`}</button>` : ''}<button class="tmine" data-act="topic-mine" data-id="${id}" aria-pressed="${on}">${on ? CHECK : PLUS_I}${on ? 'Nei tuoi temi' : 'Aggiungi ai tuoi temi'}</button></div></section>`;
+  if (!n) return h + `<div class="state"><h3>Nessuna notizia, per ora</h3><p>In questi giorni non ci sono notizie su questo tema. La raccolta gira più volte all'ora: torna più tardi.</p></div>`;
+  const recent = list.slice().sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt));
+  h += `<div class="sec"><h2>Le più recenti</h2><span>${n}</span></div>`;
+  return h + paged('tema|' + id, recent, x => { const ids = outletsOf(x); return nrow(x, {kick:false, rm:`<span class="rwho"><b>${esc(ids.length ? outlet(ids[0]).name : '')}</b>${ids.length > 1 ? ' +' + (ids.length - 1) : ''} · ${esc(ago(x.updatedAt))}</span>`}); }, 'nlist', 20);
 }
 const NAVI = {perte:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2.1 6.3-6.3 2.1 2.1-6.3z"/></svg>'};
 /* ----- Salvati: cartelle per tema e Recenti ----- */
@@ -1101,7 +1083,14 @@ function srow(x, canFlag){
 }
 const QSTOP = new Set('il lo la i gli le un uno una di a da in con su per tra fra e o ma che chi cosa come dove quando perche perché quale quali quanto quanti quante è e sono era stato sta stanno ha hanno ho del dello della dei degli delle al allo alla ai agli alle dal dalla dai nel nella nei sul sulla sui si ci ne non piu più mi ti me te lui lei loro questo questa questi queste quello quella sapere dimmi spiega spiegami cosa è successo succede oggi notizia storia'.split(' '));
 /* ---------- sfoglia: una notizia per schermata ---------- */
-function sfogliaList(){ return oggiLists().all; }
+function sfogliaList(){
+  if (S.sfTopic) return byImportance(topicStories(S.sfTopic));
+  const all = oggiLists().all.concat(visible(S.stories).filter(x => x.topic === 'napoli' && !x.top).sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt)));
+  if (!S.prefs.topics.length) return oggiLists().all;
+  const mine = visible(S.stories).filter(matchesMe).sort((a, b) => personalScore(b) - personalScore(a));
+  const ids = new Set(mine.map(x => x.id));
+  return mine.concat(all.filter(x => !ids.has(x.id)));
+}
 // una frase di una testata: il primo passaggio della sintesi (che porta il nome) o, in mancanza, il titolo di un'altra testata
 function phraseOf(s){
   const p = String(s.summary || '').split(/\n{2,}/).find(x => /\s\(([^()]{2,80})\)\s*$/.test(x));
@@ -1232,6 +1221,8 @@ function setTab(tab){
   if (S.story) closeStory();
   const same = S.tab === tab;
   if (tab !== 'salvati' || same) S.folder = null;
+  if (tab !== 'perte' || same) S.topicPage = null;
+  if (tab === 'sfoglia' && (same || S.tab !== 'sfoglia')) { S.sfTopic = null; S.sfIdx = 0; S.sfN = 0; }
   S.tab = tab;
   try { history.replaceState(null, '', '#' + tab); } catch (e) {}
   render(!same);
@@ -1270,6 +1261,10 @@ document.addEventListener('click', e => {
     }
     case 'seg': S.savedSeg = el.dataset.seg; render(); break;
     case 'folder': S.folder = id || null; render(true); window.scrollTo(0, 0); break;
+    case 'topic-open': openTopic(id); break;
+    case 'topic-close': { const was = S.topicPage; S.topicPage = null; render(true); window.scrollTo(0, 0); const b = document.querySelector(`[data-act="topic-open"][data-id="${was}"]`); if (b) b.focus({preventScroll:true}); break; }
+    case 'topic-sfoglia': S.sfTopic = id; S.sfIdx = 0; S.sfN = 0; S.topicPage = id; S.tab = 'sfoglia'; try { history.replaceState(null, '', '#sfoglia'); } catch (err) {} render(true); { const f = $('#sfv .sf'); if (f) f.focus({preventScroll:true}); } break;
+    case 'topic-mine': { const on = togglePref('topics', id); render(); const b = $('[data-act="topic-mine"]'); if (b) b.focus(); toast(on ? 'Aggiunto ai tuoi temi' : 'Tolto dai tuoi temi'); break; }
     case 'refresh': requestRefresh(); break;
     case 'clear-history': S.history = []; persist('history', 0); render(); toast('Cronologia svuotata'); break;
     case 'size': S.prefs.size = el.dataset.v; applyReaderSize(); persist('prefs'); if (S.panel) renderPanel(); render(); { const f = document.querySelector(`#panel [data-act="size"][data-v="${el.dataset.v}"]`); if (f) f.focus(); } break;
