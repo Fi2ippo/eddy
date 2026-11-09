@@ -643,15 +643,19 @@ function viewOggi(){
   return h + paged('oggi|ultime', rest, nrow, 'nlist');
 }
 
-/* prima pagina a mazzo di carte: si trascina a sinistra per la prossima, a destra per tornare indietro */
+/* mazzi di carte (Prima pagina di Oggi e pagina del tema): si trascina a sinistra per la prossima, a destra per tornare indietro.
+   Durante il gesto e il volo si usano solo stili in linea; indice, classi, puntini e contatore cambiano a fine animazione. */
 let deckSuppress = 0;
+const DK_POS = {c0:[0, 1], b1:[-8, .96], b2:[-16, .92]};   // posizione a riposo: spostamento in alto e scala
+const DK_FLY = 'cubic-bezier(.2,.8,.3,1)', DK_BOUNCE = 'cubic-bezier(.34,1.56,.64,1)', DK_SOFT = 'cubic-bezier(.22,1,.36,1)';
+const reduceMotion = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+let DKA = null;   // animazione in corso: {deck, timer, done}
 function layoutDeck(){
   const deck = $('#deck'); if (!deck) return;
   const cards = deck.querySelectorAll('.dk'), idx = S[deckKey(deck)] || 0;
   cards.forEach((c, j) => {
     const d = j - idx;
     c.className = 'dk ' + (d < 0 ? 'out' : d === 0 ? 'c0' : d === 1 ? 'b1' : d === 2 ? 'b2' : 'bx');
-    c.style.transform = ''; c.style.transition = '';
     c.tabIndex = d === 0 ? 0 : -1;
     if (d === 0) c.removeAttribute('aria-hidden'); else c.setAttribute('aria-hidden', 'true');
   });
@@ -667,38 +671,176 @@ function sizeDeck(){
 }
 // ogni mazzo ricorda la sua carta: la Prima pagina in S.deckIdx, il mazzo del tema in S.tdeckIdx
 function deckKey(deck){ return (deck && deck.dataset.k) || 'deckIdx'; }
+// le carte che si muovono in un gesto: quella davanti, le due dietro, la quarta che compare e la precedente che rientra
+function deckParts(deck){
+  const cards = [...deck.querySelectorAll('.dk')], i = S[deckKey(deck)] || 0;
+  return {cards, i, prev:cards[i - 1] || null, c0:cards[i] || null, b1:cards[i + 1] || null, b2:cards[i + 2] || null, b3:cards[i + 3] || null};
+}
+const lerp = (a, b, t) => a + (b - a) * t;
+function dkStack(el, from, to, t){ const y = lerp(DK_POS[from][0], DK_POS[to][0], t), s = lerp(DK_POS[from][1], DK_POS[to][1], t); return `translate3d(0,${y.toFixed(2)}px,0) scale(${s.toFixed(4)})`; }
+function dkContent(el, o){ for (const x of el.children) x.style.opacity = o; }
+// mette in posa le carte per un progresso p (0 a riposo, 1 quando la carta davanti è partita): dir -1 avanti, +1 indietro
+function deckPose(P, p, dir){
+  if (dir < 0) {
+    if (P.b1) { P.b1.style.transform = dkStack(P.b1, 'b1', 'c0', p); dkContent(P.b1, (.6 + .4 * p).toFixed(3)); P.b1.style.setProperty('--sh', p.toFixed(3)); }
+    if (P.b2) P.b2.style.transform = dkStack(P.b2, 'b2', 'b1', p);
+    if (P.b3) P.b3.style.opacity = p.toFixed(3);
+  } else {
+    if (P.c0) { P.c0.style.transform = dkStack(P.c0, 'c0', 'b1', p); dkContent(P.c0, (1 - .4 * p).toFixed(3)); P.c0.style.setProperty('--sh', (1 - p).toFixed(3)); }
+    if (P.b1) P.b1.style.transform = dkStack(P.b1, 'b1', 'b2', p);
+    if (P.b2) P.b2.style.opacity = (1 - p).toFixed(3);
+  }
+}
+function deckMoving(P, on){ [P.prev, P.c0, P.b1, P.b2, P.b3].forEach(c => { if (c) c.style.willChange = on ? 'transform' : ''; }); }
+const DK_INLINE = ['transform', 'transition', 'transform-origin', 'z-index', 'opacity', 'visibility', 'will-change', '--sh', '--shd', '--lift'];
+function dkClear(c){ if (!c) return; DK_INLINE.forEach(k => c.style.removeProperty(k)); for (const x of c.children) x.style.opacity = ''; }
+// fine di un'animazione: tutto torna agli stili delle classi (che coincidono con la posa finale), senza transizioni
+function deckSettle(deck, P, to){
+  if (DKA) { clearTimeout(DKA.timer); DKA = null; }
+  [P.prev, P.c0, P.b1, P.b2, P.b3].forEach(c => { if (c) { c.style.transition = 'none'; for (const x of c.children) x.style.transition = 'none'; } });
+  if (to !== undefined) S[deckKey(deck)] = to;
+  layoutDeck();
+  [P.prev, P.c0, P.b1, P.b2, P.b3].forEach(dkClear);
+  void deck.offsetWidth;
+  [P.prev, P.c0, P.b1, P.b2, P.b3].forEach(c => { if (c) { c.style.transition = ''; for (const x of c.children) x.style.transition = ''; } });
+  if (to !== undefined) deckHintDone();
+}
+function deckAnimate(deck, P, ms, ease, done, lead){
+  const tr = `transform ${ms}ms ${ease},opacity ${ms}ms ${ease}`;
+  [P.prev, P.c0, P.b1, P.b2, P.b3].forEach(c => { if (c) { c.style.transition = tr; c.style.setProperty('--shd', ms + 'ms'); for (const x of c.children) x.style.transition = `opacity ${ms}ms ${ease}`; } });
+  // ogni animazione ha il suo segno: un timer o un transitionend rimasto da un gesto precedente non la chiude
+  const A = {deck, P, done};
+  const te = e => { if (e.target === lead && e.propertyName === 'transform') finish(); };
+  const finish = () => { if (lead) lead.removeEventListener('transitionend', te); if (DKA !== A) return; done(); };
+  A.timer = setTimeout(finish, ms + 80);
+  DKA = A;
+  if (lead) lead.addEventListener('transitionend', te);
+}
+// la carta davanti vola via (avanti): dalla posizione e velocità reali del gesto, o con velocità standard per la tastiera
+function deckFly(deck, P, g){
+  if (reduceMotion()) return deckFade(deck, P, 1);
+  const s = -1, W = g.vw, x0 = g.x, y0 = g.y;
+  const tx = s * 1.4 * W, dist = Math.abs(tx - x0), v = Math.max(Math.abs(g.vx), .5);
+  const ms = Math.round(Math.max(180, Math.min(320, 320 - (v - .5) * 90)));
+  const ty = y0 + Math.max(-160, Math.min(160, (g.vy / v) * dist * .3));
+  const rot = s * Math.max(18, Math.min(28, Math.abs(g.r) + 14));
+  requestAnimationFrame(() => {
+    deckAnimate(deck, P, ms, DK_FLY, () => deckSettle(deck, P, P.i + 1), P.c0);
+    P.c0.style.transform = `translate3d(${tx.toFixed(1)}px,${ty.toFixed(1)}px,0) rotate(${rot.toFixed(2)}deg) scale(1.02)`;
+    deckPose(P, 1, -1);
+  });
+}
+// la carta precedente rientra da sinistra con l'arco al contrario e si appoggia sopra il mazzo
+function deckBack(deck, P, g){
+  if (reduceMotion()) return deckFade(deck, P, -1);
+  const c = P.prev;
+  if (!g) { c.style.transition = 'none'; c.style.transformOrigin = '50% 130%'; c.style.visibility = 'visible'; c.style.opacity = '1'; c.style.zIndex = '6'; c.style.transform = deckBackPose(deck._dkW || deck.offsetWidth, 0); void c.offsetWidth; }
+  requestAnimationFrame(() => {
+    deckAnimate(deck, P, 380, DK_SOFT, () => deckSettle(deck, P, P.i - 1), c);
+    c.style.transform = 'translate3d(0,0,0) rotate(0deg)';
+    deckPose(P, 1, 1);
+  });
+}
+function deckBackPose(W, q){ const x = -(1 - q) * W * 1.15, r = -(1 - q) * 14; return `translate3d(${x.toFixed(1)}px,${(Math.abs(x) * .06).toFixed(1)}px,0) rotate(${r.toFixed(2)}deg)`; }
+// niente lancio: tutto torna al suo posto con un piccolo rimbalzo
+function deckReturn(deck, P, dir){
+  requestAnimationFrame(() => {
+    deckAnimate(deck, P, 450, DK_BOUNCE, () => deckSettle(deck, P), dir > 0 && P.prev ? P.prev : P.c0);
+    if (P.c0) { P.c0.style.transform = 'translate3d(0,0,0) rotate(0deg) scale(1)'; P.c0.style.setProperty('--lift', '0'); }
+    if (dir > 0 && P.prev) P.prev.style.transform = deckBackPose(deck._dkW || deck.offsetWidth, 0);
+    deckPose(P, 0, dir > 0 && P.prev ? 1 : -1);
+  });
+}
+// "riduci movimento": la carta sfuma e appare l'altra, senza voli né rotazioni
+function deckFade(deck, P, step){
+  const c = P.c0;
+  requestAnimationFrame(() => {
+    deckAnimate(deck, P, 140, 'ease', () => {
+      deckSettle(deck, P, P.i + step);
+      const n = deck.querySelector('.dk.c0'); if (!n) return;
+      n.style.opacity = '0'; void n.offsetWidth; n.style.transition = 'opacity 140ms ease'; n.style.opacity = '1';
+      setTimeout(() => { n.style.transition = ''; n.style.opacity = ''; }, 200);
+    }, c);
+    c.style.transform = 'none'; c.style.opacity = '0';
+  });
+}
+// tastiera (e chi chiama da codice): stessi lanci e rientri, con velocità standard
 function deckGo(step){
   const deck = $('#deck'); if (!deck) return false;
-  const k = deckKey(deck), n = deck.querySelectorAll('.dk').length, to = (S[k] || 0) + step;
-  if (to < 0 || to >= n) { layoutDeck(); return false; }
-  S[k] = to; layoutDeck(); deckHintDone(); return true;
+  if (DKA) DKA.done();
+  const P = deckParts(deck);
+  if (step > 0 && P.b1) { deckMoving(P, true); P.c0.style.transformOrigin = '50% 130%'; P.c0.style.zIndex = '5'; deckFly(deck, P, {x:0, y:0, vx:-1.2, vy:0, r:0, vw:window.innerWidth}); return true; }
+  if (step < 0 && P.prev) { deckMoving(P, true); deckBack(deck, P, null); return true; }
+  return false;
 }
 (function(){
-  let x0 = 0, y0 = 0, dx = 0, drag = false, card = null, pid = null;
+  let G = null, raf = 0;
+  const frame = () => {
+    raf = 0; if (!G || !G.drag) return;
+    const P = G.P, dx = G.dx, dy = G.dy, rm = reduceMotion();
+    if (G.dir < 0 || !G.canBack) {
+      // avanti (o resistenza ai bordi): la carta segue il dito, ruota attorno a un perno sotto di sé e si alza un poco
+      const edge = (dx < 0 && !P.b1) || (dx > 0 && !P.prev);
+      const x = edge ? dx * .25 : dx, y = edge ? 0 : dy * .3;
+      const r = rm ? 0 : Math.max(-12, Math.min(12, x / G.w * 14));
+      const lift = 1 + .02 * Math.min(1, Math.abs(dx) / 40);
+      G.x = x; G.y = y; G.r = r;
+      P.c0.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) rotate(${r.toFixed(2)}deg) scale(${lift.toFixed(4)})`;
+      if (!edge && dx < 0) deckPose(P, Math.min(1, Math.abs(dx) / 160), -1);
+    } else {
+      // indietro: la precedente rientra da sinistra seguendo il dito, le altre arretrano
+      const q = Math.max(0, Math.min(1, dx * 1.8 / (G.w * 1.15)));
+      P.prev.style.transform = deckBackPose(G.w, q);
+      deckPose(P, Math.min(1, dx / 160), 1);
+    }
+  };
+  const sched = () => { if (!raf) raf = requestAnimationFrame(frame); };
   document.addEventListener('pointerdown', e => {
     const deck = e.target.closest && e.target.closest('#deck'); if (!deck || e.button > 0) return;
-    card = deck.querySelector('.dk.c0'); if (!card) return;
+    if (DKA) DKA.done();   // un nuovo gesto conclude subito il volo e riprende la carta successiva
+    const P = deckParts(deck); if (!P.c0) return;
     deck.classList.remove('hinting');
-    x0 = e.clientX; y0 = e.clientY; dx = 0; drag = false; pid = e.pointerId;
+    const w = deck.offsetWidth; deck._dkW = w;
+    G = {deck, P, w, vw:window.innerWidth, x0:e.clientX, y0:e.clientY, dx:0, dy:0, x:0, y:0, r:0, drag:false, dir:0, canBack:!!P.prev, pid:e.pointerId, pts:[[e.timeStamp, e.clientX, e.clientY]]};
   });
   document.addEventListener('pointermove', e => {
-    if (!card || e.pointerId !== pid) return;
-    const mx = e.clientX - x0, my = e.clientY - y0;
-    if (!drag) { if (Math.abs(mx) < 8 || Math.abs(mx) < Math.abs(my)) { if (Math.abs(my) > 12) card = null; return; } drag = true; try { card.setPointerCapture(pid); } catch (err) {} card.style.transition = 'none'; }
-    dx = mx;
-    const atEnd = (dx < 0 && !card.nextElementSibling) || (dx > 0 && (S[deckKey(card.parentNode)] || 0) === 0);
-    const v = atEnd ? dx * .25 : dx;
-    card.style.transform = `translateX(${v.toFixed(1)}px) rotate(${(v * .03).toFixed(2)}deg)`;
+    if (!G || e.pointerId !== G.pid || G.vert) return;
+    const mx = e.clientX - G.x0, my = e.clientY - G.y0;
+    if (!G.drag) {
+      if (Math.abs(mx) <= 6 || Math.abs(mx) < Math.abs(my)) { if (Math.abs(my) > 10) G.vert = true; return; }
+      G.drag = true; G.dir = mx < 0 ? -1 : 1;
+      const P = G.P;
+      try { P.c0.setPointerCapture(G.pid); } catch (err) {}
+      deckMoving(P, true);
+      if (G.dir < 0 || !G.canBack) { P.c0.style.transition = 'none'; P.c0.style.transformOrigin = '50% 130%'; P.c0.style.zIndex = '5'; P.c0.style.setProperty('--lift', '1'); }
+      else { const c = P.prev; c.style.transition = 'none'; c.style.transformOrigin = '50% 130%'; c.style.visibility = 'visible'; c.style.opacity = '1'; c.style.zIndex = '6'; c.style.transform = deckBackPose(G.w, 0); }
+      [P.b1, P.b2, P.b3].forEach(c => { if (c) c.style.transition = 'none'; });
+    }
+    G.dx = mx; G.dy = my;
+    G.pts.push([e.timeStamp, e.clientX, e.clientY]); if (G.pts.length > 12) G.pts.shift();
+    sched();
   });
   const end = e => {
-    if (!card || (e && e.pointerId !== pid)) return;
-    const was = drag; const c = card; card = null;
-    if (!was) return;
+    if (!G || (e && e.pointerId !== G.pid)) return;
+    const g = G; G = null;
+    if (raf) { cancelAnimationFrame(raf); raf = 0; frame.call(null); }
+    if (g.vert) { deckSuppress = Date.now() + 350; return; }
+    if (!g.drag) return;
     deckSuppress = Date.now() + 350;
-    c.style.transition = '';
-    if (dx < -70 && deckGo(1)) return;
-    if (dx > 70 && deckGo(-1)) return;
-    c.style.transform = '';
+    const P = g.P, deck = g.deck;
+    // velocità del dito sugli ultimi ~80 ms
+    const now = g.pts[g.pts.length - 1]; let a = now;
+    for (let k = g.pts.length - 1; k >= 0; k--) { a = g.pts[k]; if (now[0] - a[0] >= 80) break; }
+    const dt = Math.max(1, now[0] - a[0]), vx = (now[1] - a[1]) / dt, vy = (now[2] - a[2]) / dt;
+    const cancel = e && e.type === 'pointercancel';
+    if (g.dir < 0 || !g.canBack) {
+      const go = !cancel && P.b1 && g.dx < 0 && (g.dx < -.3 * g.w || vx < -.5);
+      if (go) deckFly(deck, P, {x:g.x, y:g.y, vx, vy, r:g.r, vw:g.vw});
+      else deckReturn(deck, P, -1);
+    } else {
+      const go = !cancel && g.dx > 0 && (g.dx > .3 * g.w || vx > .5);
+      if (go) deckBack(deck, P, g); else deckReturn(deck, P, 1);
+    }
   };
   document.addEventListener('pointerup', end);
   document.addEventListener('pointercancel', end);
@@ -706,8 +848,9 @@ function deckGo(step){
     if (!e.target.closest || !e.target.closest('#deck')) return;
     if (e.key === 'Enter' && e.target.id === 'deck') { e.preventDefault(); const c = $('#deck .dk.c0'); if (c) openStory(c.dataset.id); return; }
     if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-      e.preventDefault(); deckGo(e.key === 'ArrowRight' ? 1 : -1);
-      const c = $('#deck .dk.c0'); if (c && e.target !== $('#deck')) c.focus();
+      e.preventDefault(); const was = e.target !== $('#deck');
+      deckGo(e.key === 'ArrowRight' ? 1 : -1);
+      if (was) setTimeout(() => { const c = $('#deck .dk.c0'); if (c) c.focus({preventScroll:true}); }, 420);
     }
   });
 })();
