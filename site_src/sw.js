@@ -77,6 +77,8 @@ self.addEventListener('fetch', e => {
   if (u.origin === self.location.origin) {
     if (u.pathname.endsWith('/version.json')) return;
     if (u.pathname.includes('/data/')) { e.respondWith(networkFirst(req, DATA, bare(req.url), true, u.searchParams.has('t') ? 0 : 5000, p => e.waitUntil(p))); return; }
+    // pagine da condividere (s/<id>/) e 404: vanno sempre al server, mai salvate al posto dell'app
+    if (req.mode === 'navigate' && /\/s\/[^/]+\/?(index\.html)?$/.test(u.pathname)) return;
     if (req.mode === 'navigate') {
       // la pagina si chiede sempre al server (risposta 304 se invariata), mai la copia vecchia della cache HTTP
       e.respondWith(networkFirst(new Request(req.url, {cache: 'no-cache', credentials: 'same-origin'}), V, './index.html').catch(() => caches.match('./index.html')));

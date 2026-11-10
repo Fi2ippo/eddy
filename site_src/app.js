@@ -1155,6 +1155,7 @@ function closeStory(fromPop, instant){
   document.body.classList.remove('locked');
   if (!fromPop) { try { if (history.state && history.state.story) history.back(); else history.replaceState(null, '', '#' + S.tab); } catch (e) {} }
   if (SRP) { SRP = false; scheduleRender(); }
+  maybeOnboard();  // arrivati da un link al primo avvio: la configurazione dopo la notizia
 }
 const CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
 const SBI = {
@@ -1396,7 +1397,7 @@ function carouselHintPending(){ return !!S.prefs.onboarded && !LS.get('carouselH
 
 /* ---------- toast ---------- */
 let toastT = 0;
-function toast(msg){ const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 1800); }
+function toast(msg, ms){ const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, ms || 1800); }
 
 /* ---------- navigazione ---------- */
 /* ----- movimento tra le sezioni: indicatore della barra e pagine che entrano dal lato giusto ----- */
@@ -1573,7 +1574,10 @@ window.addEventListener('popstate', () => {
   if (S.pendingHash) { const t = S.pendingHash; S.pendingHash = null; try { history.replaceState(null, '', '#' + t); } catch (e) {} return; }
   const h = (location.hash || '').replace('#', '');
   if (S.story && h.indexOf('s-') !== 0) closeStory(true);
-  else if (h.indexOf('s-') === 0 && h.slice(2) !== S.story) openStory(h.slice(2), {fromPop:true, keepCtx:true});
+  else if (h.indexOf('s-') === 0 && h.slice(2) !== S.story) {
+    if (getStory(h.slice(2))) openStory(h.slice(2), {fromPop:true, keepCtx:true});
+    else { S.pendingStory = h.slice(2); openPending(); }
+  }
 });
 
 /* ---------- eventi ---------- */
@@ -1612,7 +1616,7 @@ document.addEventListener('click', e => {
     case 'more': showMore(el.dataset.pkey); break;
     case 'share': {
       const st = getStory(id); if (!st) break;
-      const url = location.href.split('#')[0] + '#s-' + id;
+      const url = new URL('s/' + encodeURIComponent(id) + '/', location.href).href;
       if (window.EddyAndroid && EddyAndroid.share) EddyAndroid.share(st.headline + '\n' + url);
       else if (navigator.share) navigator.share({title:st.headline, url}).catch(() => {});
       else { try { navigator.clipboard.writeText(url).then(() => toast('Link copiato'), () => toast(url)); } catch (err) { toast(url); } }
@@ -1673,10 +1677,10 @@ async function loadData(manual){
     if (DL.stale) DL.last -= 4 * 60000;  // copia vecchia mostrata subito: tra circa un minuto si ricontrolla (la cache intanto si aggiorna)
     checkUpdate(!!manual);
     applyFeed();
-    if (f.archive && f.archive.at !== DL.archAt) loadArchive(f.archive.at);
+    if (f.archive && f.archive.at !== DL.archAt) DL.archP = loadArchive(f.archive.at);
     let added = 0, updated = 0;
     if (before.size) S.stories.forEach(x => { const b = before.get(x.id); if (b === undefined) added++; else if (b !== (x.changedAt || x.updatedAt)) updated++; });
-    if (S.pendingStory) { const p = S.pendingStory; S.pendingStory = null; if (S.byId.has(p)) setTimeout(() => openStory(p, {fromPop:true}), 0); }
+    if (S.pendingStory) setTimeout(openPending, 0);
     scheduleRender();
     if (!$('#onb').hidden && S.onbStep === 0) renderOnb();
     if (DL.offline) { DL.last = 0; return {ok:false, offline:true, added, updated}; }
@@ -1685,6 +1689,20 @@ async function loadData(manual){
     if (!S.stories.length) { S.dbState = navigator.onLine === false ? 'offline' : 'error'; S.dbErr = e && (e.code || e.message); scheduleRender(); }
     return {ok:false, err:e};
   } finally { DL.loading = false; }
+}
+// storia arrivata da un link (#s-<id>): si apre appena ci sono i dati, cercandola anche nell'archivio;
+// se non c'è più si avvisa e si resta su Oggi. Senza dati (rete assente) si riprova al caricamento successivo.
+async function openPending(){
+  const p = S.pendingStory; if (!p || !DL.feed) return;
+  if (!getStory(p) && DL.archP) await DL.archP;
+  if (S.pendingStory !== p) return;
+  const arch = DL.feed.archive;
+  if (!getStory(p) && arch && arch.at !== DL.archAt) return;  // archivio non ancora arrivato: si riprova
+  S.pendingStory = null;
+  if (getStory(p)) { if (S.story !== p) openStory(p, {fromPop:true}); return; }
+  try { history.replaceState(null, '', '#' + S.tab); } catch (e) {}
+  toast('Questa notizia non è più su Eddy', 3500);
+  maybeOnboard();
 }
 function markSeen(){ LS.set('seen', Date.now()); }
 const BUILD = '__EDDY_BUILD__';
@@ -1795,7 +1813,7 @@ async function init(){
   applyReaderSize();
   readHash();
   render();
-  maybeOnboard();
+  if (!S.pendingStory) maybeOnboard();
   await loadData(false);
   registerSW();
 }
