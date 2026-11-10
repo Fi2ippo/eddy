@@ -39,16 +39,18 @@
 :root[data-light="sera"]{--name:#5B4CA0}
 *{box-sizing:border-box}
 /* tutto bianco: nessuno stacco con la zona dell'ora dell'iPhone, né in cima né in fondo */
-html{background:var(--bg)}
-body{min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--ink)}
-body{margin:0;font-family:var(--font);font-size:15px;line-height:1.45;letter-spacing:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;-webkit-tap-highlight-color:transparent;text-rendering:optimizeLegibility;overflow-x:clip;padding-bottom:calc(var(--nav-h) + var(--nav-gap) + 24px)}
-body.locked{overflow:hidden}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:var(--bg)}
+body{color:var(--ink)}
+body{margin:0;font-family:var(--font);font-size:15px;line-height:1.45;letter-spacing:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;-webkit-tap-highlight-color:transparent;text-rendering:optimizeLegibility}
+/* Il documento resta fermo: scorre soltanto il contenuto, separato dalla barra. */
+#view{position:fixed;inset:0;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-bottom:calc(var(--nav-h) + var(--nav-gap) + 24px)}
+body.locked #view,body.locked #view .sfv{overflow:hidden}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;touch-action:manipulation;letter-spacing:inherit}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:10px}
 .pane{max-width:680px;margin:0 auto;padding-inline:16px;background:var(--bg)}
-.pane.sf-pane{max-width:none;min-height:100vh;min-height:100dvh;background:#14151A}
-body.sf-on{padding-bottom:0}
+.pane.sf-pane{max-width:none;height:100%;background:#14151A}
+body.sf-on #view{padding-bottom:0;overflow:hidden}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 svg.i{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 svg.f{fill:currentColor;stroke:none}
@@ -266,7 +268,7 @@ svg.f{fill:currentColor;stroke:none}
 .prose p{margin:0 0 10px;color:var(--ink-2);max-width:62ch}
 .prose p:last-child{margin-bottom:0}
 /* barra di navigazione: pillola bianca che fluttua, solo icone; la voce attiva si allarga con il nome */
-.tabs{position:fixed;left:14px;right:14px;bottom:var(--nav-gap);z-index:30;max-width:520px;height:var(--nav-h);margin:0 auto;padding:0 10px;display:flex;justify-content:space-between;align-items:center;border-radius:34px;background:var(--card);border:1px solid var(--line-2);box-shadow:var(--sh-nav);box-sizing:border-box;transition:background .25s,border-color .25s,box-shadow .25s}
+.tabs{position:fixed;transform:translateZ(0);left:14px;right:14px;bottom:var(--nav-gap);z-index:30;max-width:520px;height:var(--nav-h);margin:0 auto;padding:0 10px;display:flex;justify-content:space-between;align-items:center;border-radius:34px;background:var(--card);border:1px solid var(--line-2);box-shadow:var(--sh-nav);box-sizing:border-box;transition:background .25s,border-color .25s,box-shadow .25s}
 .tabs button{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:8px;min-width:48px;height:48px;padding:0;border-radius:24px;color:var(--ink-2);font-size:15px;font-weight:800;letter-spacing:-.01em;white-space:nowrap;transition:color .25s}
 .tabs button svg{width:23px;height:23px;flex:none;transition:transform 250ms cubic-bezier(.34,1.56,.64,1);fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .tabs button span{display:none;transform-origin:0 50%}
@@ -346,7 +348,7 @@ body.sf-on .tind i{background:#FFFFFF}
    html e body prendono lo stesso colore, così anche il rimbalzo è scuro. Entrando e uscendo il fondo sfuma in circa 200 ms. */
 html,body{transition:background-color .2s ease}
 html.sf-chrome,html.sf-chrome body{background:#14151A}
-.sfshell{position:fixed;inset:0;z-index:1;overflow:hidden;background:#14151A;color-scheme:dark;animation:sfIn .2s ease both}
+.sfshell{position:absolute;inset:0;z-index:1;overflow:hidden;background:#14151A;color-scheme:dark;animation:sfIn .2s ease both}
 @keyframes sfIn{from{opacity:0}}
 .sfv{position:absolute;inset:0;z-index:1;overflow-y:auto;scroll-snap-type:y mandatory;overscroll-behavior:contain;scrollbar-width:none;background:transparent;-webkit-overflow-scrolling:touch}
 .sfv::-webkit-scrollbar{display:none}
@@ -459,8 +461,9 @@ button.cov:active{background:var(--pill)}
 .cmpg p{margin:4px 0 0;font-size:14px;line-height:1.45;color:var(--ink-2)}
 .cmpg p b{color:var(--ink);font-weight:700;margin-right:4px}
 @keyframes abin{from{opacity:0;transform:translateY(-12px)}}
-/* Si animano le pagine vere: la vecchia resta ferma nello scorrimento, la barra è sopra entrambe. */
-.pg-old{position:fixed;z-index:2;pointer-events:none;overflow:clip}
+/* La pagina in uscita resta dentro una cornice grande quanto lo schermo. */
+.pg-exit{position:fixed;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+.pg-old{pointer-events:none}
 .pg-new{position:relative;z-index:1}
 .nav-debug{position:fixed;left:8px;right:8px;bottom:calc(var(--nav-h) + var(--nav-gap) + 8px);z-index:100;max-width:680px;margin:0 auto;padding:7px 9px;border-radius:8px;background:rgba(0,0,0,.85);color:#fff;font:600 12px/1.35 ui-monospace,Menlo,monospace;pointer-events:none;white-space:pre-wrap}
 </style>

@@ -400,6 +400,7 @@ function pushCtx(id){ if (collecting && !CTX.includes(id)) CTX.push(id); }
 
 /* ----- pagine tenute pronte: ogni sezione (e ogni sotto-pagina) ha il suo contenitore, che resta com'era quando cambi sezione.
    Le pagine nascoste stanno fuori dal documento (così gli id non si ripetono) con le foto già scaricate. ----- */
+function scroller(){ return $('#view'); }
 const PANES = new Map();   // chiave della pagina → {el, sig, ctx}
 function subOf(tab){ return tab === 'perte' ? S.topicPage : tab === 'salvati' ? S.folder : null; }
 function pageKey(){ const sub = subOf(S.tab); return S.tab + (sub ? (S.tab === 'perte' ? '|tema:' : '|cartella:') + sub : ''); }
@@ -425,7 +426,7 @@ function viewHtml(){
 function dropPane(k){ PANES.delete(k); }
 // Al massimo tre pagine nascoste: Oggi, Per te e la più recente delle altre.
 function trimPanes(active = pageKey()){
-  const held = PAGE_HOLD?.key || $('#view > .pg-old')?.dataset.k;
+  const held = PAGE_HOLD?.key || $('.pg-exit .pg-old')?.dataset.k;
   const hidden = [...PANES.keys()].filter(k => k !== active && k !== held);
   const keep = new Set(hidden.filter(k => k === 'oggi' || k === 'perte'));
   for (const k of hidden.slice().reverse()) if (k !== 'sfoglia' && keep.size < 3) keep.add(k);
@@ -513,9 +514,9 @@ function showMore(key){
 let moreObs = null;
 function observeMore(){
   if (!('IntersectionObserver' in window)) return;
-  if (!moreObs) moreObs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) showMore(e.target.dataset.pkey); }), {rootMargin:'700px 0px'});
+  if (!moreObs) moreObs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) showMore(e.target.dataset.pkey); }), {root:scroller(), rootMargin:'700px 0px'});
   moreObs.disconnect();
-  document.querySelectorAll('.pane:not(.pg-old) .more[data-pkey]').forEach(b => moreObs.observe(b));
+  scroller().querySelectorAll('.pane:not(.pg-old) .more[data-pkey]').forEach(b => moreObs.observe(b));
 }
 /* ---------- fonti: chi le riprende, confronto, cronologia, segnalazioni ---------- */
 const AGN = {ansa:'ANSA', agi:'AGI', adnkronos:'Adnkronos', lapresse:'LaPresse', askanews:'Askanews', italpress:'Italpress', dire:'Dire', reuters:'Reuters', afp:'AFP', ap:'AP', dpa:'dpa', efe:'EFE'};
@@ -1505,10 +1506,12 @@ function animatePages(from, to, dir, releaseOld = () => {}){
     incoming.finished.then(() => finish('finita'), error => { if (!done) { record.error = String(error); finish('rifiutata'); } });
   } catch (error) { record.error = String(error); finish('errore'); }
 }
-// Si lascia la pagina precedente dentro #view finché termina l'uscita: nessuna copia e nessuna foto spostata.
+// La pagina precedente esce dal contenitore che scorre, senza copie delle foto.
 function swapPage(dir, change){
   finishPageTransition();
-  const v = $('#view'), old = v.querySelector('.pane'), rect = old && old.getBoundingClientRect();
+  const v = scroller(), old = v.querySelector('.pane'), top = v.scrollTop;
+  const frame = document.createElement('div'), offset = document.createElement('div');
+  frame.className = 'pg-exit'; frame.setAttribute('aria-hidden', 'true'); frame.inert = true;
   const styles = old && old.style.cssText, inert = old && old.inert, aria = old && old.getAttribute('aria-hidden');
   const ids = old ? [...old.querySelectorAll('[id]')].map(el => [el, el.id]) : [];
   let released = false;
@@ -1519,26 +1522,31 @@ function swapPage(dir, change){
     if (aria === null) old.removeAttribute('aria-hidden'); else old.setAttribute('aria-hidden', aria);
     ids.forEach(([el, id]) => { el.id = id; });
     if (old.dataset.k === 'sfoglia' && S.tab !== 'sfoglia') dropPane('sfoglia');
+    frame.remove();
     trimPanes();
   };
   if (old) {
     old.classList.add('pg-old'); old.inert = true; old.setAttribute('aria-hidden', 'true');
     // Gli id si ripristinano dopo il distacco: durante il passaggio i selettori trovano solo la pagina attuale.
     ids.forEach(([el]) => el.removeAttribute('id'));
-    Object.assign(old.style, {position:'fixed', top:rect.top + 'px', left:rect.left + 'px', width:rect.width + 'px', height:Math.max(rect.height, window.innerHeight) + 'px', margin:'0'});
+    // Separa lo spostamento verticale dall'animazione orizzontale della cornice.
+    offset.style.transform = `translateY(${-top}px)`;
+    offset.style.height = '100%';
+    frame.appendChild(offset); offset.appendChild(old); document.body.appendChild(frame);
   }
   PAGE_HOLD = old ? {el:old, key:old.dataset.k} : null;
   try { change(); } catch (error) { release(); throw error; } finally { PAGE_HOLD = null; }
   const next = v.querySelector('.pane:not(.pg-old)');
   if (next) next.classList.add('pg-new');
-  animatePages(old, next, dir, release);
+  // change() ha già ripristinato scrollTop: nessuno scorrimento durante l’animazione.
+  animatePages(old ? frame : null, next, dir, release);
 }
 // apri o chiudi una pagina dentro una sezione (tema, cartella) con lo stesso linguaggio
 function subPage(dir, mutate, focusSel, top){
-  const from = pageKey(); SCROLLS[from] = window.scrollY;
+  const from = pageKey(); SCROLLS[from] = scroller().scrollTop;
   swapPage(dir, () => {
     mutate(); render(false);
-    window.scrollTo(0, top ? 0 : (SCROLLS[pageKey()] || 0));
+    scroller().scrollTo(0, top ? 0 : (SCROLLS[pageKey()] || 0));
     if (focusSel) { const b = typeof focusSel === 'function' ? focusSel() : $(focusSel); if (b) b.focus({preventScroll:true}); }
   });
 }
@@ -1549,11 +1557,11 @@ function setTab(tab){
   // secondo tocco sulla voce attiva: in cima con uno scorrimento morbido (e fuori dal tema o dalla cartella)
   if (same) {
     if (subOf(S.tab)) { subPage(-1, () => { if (S.tab === 'perte') S.topicPage = null; else S.folder = null; }, null, true); return; }
-    window.scrollTo({top:0, behavior:reduceMotion() ? 'auto' : 'smooth'});
+    scroller().scrollTo({top:0, behavior:reduceMotion() ? 'auto' : 'smooth'});
     navDebug({route:'nessuna', reduce:reduceMotion(), status:'sezione già aperta'});
     return;
   }
-  SCROLLS[pageKey()] = window.scrollY;
+  SCROLLS[pageKey()] = scroller().scrollTop;
   const dir = Math.sign(TABS.indexOf(tab) - TABS.indexOf(S.tab));
   navMorph(tab);
   swapPage(S.story ? -1 : dir, () => {
@@ -1561,7 +1569,7 @@ function setTab(tab){
     S.tab = tab;   // tema e cartella aperti restano: tornando trovi la sezione com'era
     try { history.replaceState(null, '', '#' + tab); } catch (e) {}
     render(false);
-    window.scrollTo(0, SCROLLS[pageKey()] || 0);
+    scroller().scrollTo(0, SCROLLS[pageKey()] || 0);
   });
 }
 function readHash(){
@@ -1772,14 +1780,14 @@ document.addEventListener('input', e => {
   const blocked = () => !!S.story || S.tab === 'sfoglia' || !$('#onb').hidden || document.body.classList.contains('locked');
   const set = v => { d = v; ind.style.opacity = Math.min(1, v / 55).toFixed(2); ind.style.transform = `translate(-50%, ${v.toFixed(0)}px) rotate(${(v * 3).toFixed(0)}deg)`; ind.classList.toggle('ready', v >= 64); };
   const reset = () => { pulling = false; d = 0; ind.style.opacity = ''; ind.style.transform = ''; ind.classList.remove('ready'); };
-  document.addEventListener('touchstart', e => {
-    if (e.touches.length !== 1 || blocked() || window.scrollY > 2 || ind.classList.contains('spin')) { y0 = null; return; }
+  scroller().addEventListener('touchstart', e => {
+    if (e.touches.length !== 1 || blocked() || scroller().scrollTop > 2 || ind.classList.contains('spin')) { y0 = null; return; }
     y0 = e.touches[0].clientY; x0 = e.touches[0].clientX; pulling = false;
   }, {passive:true});
-  document.addEventListener('touchmove', e => {
+  scroller().addEventListener('touchmove', e => {
     if (y0 === null) return;
     const dy = e.touches[0].clientY - y0, dx = Math.abs(e.touches[0].clientX - x0);
-    if (!pulling && (dy < 10 || dx > dy || window.scrollY > 2)) { if (dy < 0 || dx > dy) y0 = null; return; }
+    if (!pulling && (dy < 10 || dx > dy || scroller().scrollTop > 2)) { if (dy < 0 || dx > dy) y0 = null; return; }
     pulling = true;
     set(Math.min(110, dy * 0.5));
   }, {passive:true});
@@ -1792,8 +1800,8 @@ document.addEventListener('input', e => {
       Promise.resolve(requestRefresh()).finally(() => ind.classList.remove('spin'));
     }
   };
-  document.addEventListener('touchend', end, {passive:true});
-  document.addEventListener('touchcancel', () => { y0 = null; reset(); }, {passive:true});
+  scroller().addEventListener('touchend', end, {passive:true});
+  scroller().addEventListener('touchcancel', () => { y0 = null; reset(); }, {passive:true});
 })();
 
 /* ---------- avvio ---------- */
