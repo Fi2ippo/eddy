@@ -1,0 +1,1324 @@
+{
+ "ansa": {
+  "name": "ANSA",
+  "short": "AN",
+  "color": "#1F4E79",
+  "kind": "Agenzia di stampa",
+  "lang": "it",
+  "site": "https://www.ansa.it",
+  "sec": "it"
+ },
+ "agi": {
+  "name": "AGI",
+  "short": "AGI",
+  "color": "#1D4F91",
+  "kind": "Agenzia di stampa",
+  "lang": "it",
+  "site": "https://www.agi.it",
+  "sec": "it"
+ },
+ "adnkronos": {
+  "name": "Adnkronos",
+  "short": "AK",
+  "color": "#9A5B13",
+  "kind": "Agenzia di stampa",
+  "lang": "it",
+  "site": "https://www.adnkronos.com",
+  "sec": "it"
+ },
+ "ilpost": {
+  "name": "Il Post",
+  "short": "IP",
+  "color": "#2E6B4F",
+  "kind": "Quotidiano online",
+  "lang": "it",
+  "site": "https://www.ilpost.it",
+  "sec": "it"
+ },
+ "corriere": {
+  "name": "Corriere della Sera",
+  "short": "CS",
+  "color": "#3B6E2E",
+  "kind": "Quotidiano",
+  "lang": "it",
+  "site": "https://www.corriere.it",
+  "sec": "it"
+ },
+ "repubblica": {
+  "name": "la Repubblica",
+  "short": "RE",
+  "color": "#9C2F4A",
+  "kind": "Quotidiano",
+  "lang": "it",
+  "site": "https://www.repubblica.it",
+  "sec": "it"
+ },
+ "lastampa": {
+  "name": "La Stampa",
+  "short": "LS",
+  "color": "#264653",
+  "kind": "Quotidiano",
+  "lang": "it",
+  "site": "https://www.lastampa.it",
+  "sec": "it"
+ },
+ "sole24ore": {
+  "name": "Il Sole 24 Ore",
+  "short": "24",
+  "color": "#B5651D",
+  "kind": "Quotidiano economico",
+  "lang": "it",
+  "site": "https://www.ilsole24ore.com",
+  "sec": "it"
+ },
+ "ilfatto": {
+  "name": "Il Fatto Quotidiano",
+  "short": "FQ",
+  "color": "#8C3B1F",
+  "kind": "Quotidiano",
+  "lang": "it",
+  "site": "https://www.ilfattoquotidiano.it",
+  "sec": "it"
+ },
+ "ilmessaggero": {
+  "name": "Il Messaggero",
+  "short": "IM",
+  "color": "#6A4C93",
+  "kind": "Quotidiano",
+  "lang": "it",
+  "site": "https://www.ilmessaggero.it",
+  "sec": "it"
+ },
+ "ilgiornale": {
+  "name": "il Giornale",
+  "short": "IG",
+  "color": "#1C3F6E",
+  "kind": "Quotidiano",
+  "lang": "it",
+  "site": "https://www.ilgiornale.it",
+  "sec": "it"
+ },
+ "avvenire": {
+  "name": "Avvenire",
+  "short": "AVV",
+  "color": "#7A1F2B",
+  "kind": "Quotidiano",
+  "lang": "it",
+  "site": "https://www.avvenire.it",
+  "sec": "it"
+ },
+ "ilfoglio": {
+  "name": "Il Foglio",
+  "short": "FO",
+  "color": "#3A3A3A",
+  "kind": "Quotidiano",
+  "lang": "it",
+  "site": "https://www.ilfoglio.it",
+  "sec": "it"
+ },
+ "domani": {
+  "name": "Domani",
+  "short": "DO",
+  "color": "#5B3A8C",
+  "kind": "Quotidiano",
+  "lang": "it",
+  "site": "https://www.editorialedomani.it",
+  "sec": "it"
+ },
+ "ilmanifesto": {
+  "name": "il manifesto",
+  "short": "MA",
+  "color": "#B3261E",
+  "kind": "Quotidiano",
+  "lang": "it",
+  "site": "https://ilmanifesto.it",
+  "sec": "it"
+ },
+ "rainews": {
+  "name": "RaiNews",
+  "short": "RN",
+  "color": "#2B5F8A",
+  "kind": "Televisione all news",
+  "lang": "it",
+  "site": "https://www.rainews.it",
+  "sec": "it"
+ },
+ "skytg24": {
+  "name": "Sky TG24",
+  "short": "S24",
+  "color": "#24527A",
+  "kind": "Televisione all news",
+  "lang": "it",
+  "site": "https://tg24.sky.it",
+  "sec": "it"
+ },
+ "tgcom24": {
+  "name": "TGCom24",
+  "short": "TG",
+  "color": "#3D4A5C",
+  "kind": "Televisione all news",
+  "lang": "it",
+  "site": "https://www.tgcom24.mediaset.it",
+  "sec": "it"
+ },
+ "open": {
+  "name": "Open",
+  "short": "OP",
+  "color": "#8B2E2E",
+  "kind": "Quotidiano online",
+  "lang": "it",
+  "site": "https://www.open.online",
+  "sec": "it"
+ },
+ "fanpage": {
+  "name": "Fanpage",
+  "short": "FP",
+  "color": "#6B3FA0",
+  "kind": "Quotidiano online",
+  "lang": "it",
+  "site": "https://www.fanpage.it",
+  "sec": "it"
+ },
+ "today": {
+  "name": "Today",
+  "short": "TD",
+  "color": "#C0392B",
+  "kind": "Quotidiano online",
+  "lang": "it",
+  "site": "https://www.today.it",
+  "sec": "it"
+ },
+ "huffpost": {
+  "name": "HuffPost Italia",
+  "short": "HP",
+  "color": "#0B6B57",
+  "kind": "Quotidiano online",
+  "lang": "it",
+  "site": "https://www.huffingtonpost.it",
+  "sec": "it"
+ },
+ "linkiesta": {
+  "name": "Linkiesta",
+  "short": "LK",
+  "color": "#C2461D",
+  "kind": "Quotidiano online",
+  "lang": "it",
+  "site": "https://www.linkiesta.it",
+  "sec": "it"
+ },
+ "internazionale": {
+  "name": "Internazionale",
+  "short": "IN",
+  "color": "#8A4B2A",
+  "kind": "Settimanale",
+  "lang": "it",
+  "site": "https://www.internazionale.it",
+  "sec": "it"
+ },
+ "valigiablu": {
+  "name": "Valigia Blu",
+  "short": "VB",
+  "color": "#1F5FA0",
+  "kind": "Giornalismo indipendente",
+  "lang": "it",
+  "site": "https://www.valigiablu.it",
+  "sec": "it"
+ },
+ "lavoce": {
+  "name": "lavoce.info",
+  "short": "LV",
+  "color": "#2F5D50",
+  "kind": "Analisi economica",
+  "lang": "it",
+  "site": "https://lavoce.info",
+  "sec": "it"
+ },
+ "gazzetta": {
+  "name": "La Gazzetta dello Sport",
+  "short": "GZ",
+  "color": "#C2185B",
+  "kind": "Quotidiano sportivo",
+  "lang": "it",
+  "site": "https://www.gazzetta.it",
+  "sec": "it"
+ },
+ "wired": {
+  "name": "Wired Italia",
+  "short": "WI",
+  "color": "#1B1B1B",
+  "kind": "Magazine di tecnologia",
+  "lang": "it",
+  "site": "https://www.wired.it",
+  "sec": "it"
+ },
+ "puntoinformatico": {
+  "name": "Punto Informatico",
+  "short": "PI",
+  "color": "#1565C0",
+  "kind": "Magazine di tecnologia",
+  "lang": "it",
+  "site": "https://www.punto-informatico.it",
+  "sec": "it"
+ },
+ "lescienze": {
+  "name": "Le Scienze",
+  "short": "LSC",
+  "color": "#0D5C63",
+  "kind": "Rivista scientifica",
+  "lang": "it",
+  "site": "https://www.lescienze.it",
+  "sec": "scienza"
+ },
+ "mediainaf": {
+  "name": "Media Inaf",
+  "short": "INAF",
+  "color": "#16325C",
+  "kind": "Astrofisica",
+  "lang": "it",
+  "site": "https://www.media.inaf.it",
+  "sec": "scienza"
+ },
+ "quotidianosanita": {
+  "name": "Quotidiano Sanità",
+  "short": "QS",
+  "color": "#0E6E6E",
+  "kind": "Quotidiano di sanità",
+  "lang": "it",
+  "site": "https://www.quotidianosanita.it",
+  "sec": "scienza"
+ },
+ "nature": {
+  "name": "Nature",
+  "short": "NA",
+  "color": "#A33E6B",
+  "kind": "Rivista scientifica",
+  "lang": "en",
+  "site": "https://www.nature.com",
+  "sec": "scienza"
+ },
+ "science": {
+  "name": "Science",
+  "short": "SCI",
+  "color": "#8E1B1B",
+  "kind": "Rivista scientifica",
+  "lang": "en",
+  "site": "https://www.science.org",
+  "sec": "scienza"
+ },
+ "newscientist": {
+  "name": "New Scientist",
+  "short": "NS",
+  "color": "#1A1A1A",
+  "kind": "Settimanale scientifico",
+  "lang": "en",
+  "site": "https://www.newscientist.com",
+  "sec": "scienza"
+ },
+ "sciam": {
+  "name": "Scientific American",
+  "short": "SA",
+  "color": "#9B1C1C",
+  "kind": "Rivista scientifica",
+  "lang": "en",
+  "site": "https://www.scientificamerican.com",
+  "sec": "scienza"
+ },
+ "sciencedaily": {
+  "name": "ScienceDaily",
+  "short": "SD",
+  "color": "#5C6B1F",
+  "kind": "Divulgazione scientifica",
+  "lang": "en",
+  "site": "https://www.sciencedaily.com",
+  "sec": "scienza"
+ },
+ "physorg": {
+  "name": "Phys.org",
+  "short": "PH",
+  "color": "#1E5A8C",
+  "kind": "Divulgazione scientifica",
+  "lang": "en",
+  "site": "https://phys.org",
+  "sec": "scienza"
+ },
+ "medicalxpress": {
+  "name": "Medical Xpress",
+  "short": "MX",
+  "color": "#2F7A8C",
+  "kind": "Divulgazione medica",
+  "lang": "en",
+  "site": "https://medicalxpress.com",
+  "sec": "scienza"
+ },
+ "statnews": {
+  "name": "STAT",
+  "short": "STAT",
+  "color": "#1D3C6E",
+  "kind": "Giornalismo sanitario",
+  "lang": "en",
+  "site": "https://www.statnews.com",
+  "sec": "scienza"
+ },
+ "bjsm": {
+  "name": "BJSM Blog",
+  "short": "BJSM",
+  "color": "#2C5F8A",
+  "kind": "Medicina dello sport",
+  "lang": "en",
+  "site": "https://blogs.bmj.com/bjsm",
+  "sec": "scienza"
+ },
+ "theconversation": {
+  "name": "The Conversation",
+  "short": "CV",
+  "color": "#D8352A",
+  "kind": "Analisi accademica",
+  "lang": "en",
+  "site": "https://theconversation.com",
+  "sec": "scienza"
+ },
+ "nasa": {
+  "name": "NASA",
+  "short": "NASA",
+  "color": "#0B3D91",
+  "kind": "Agenzia spaziale",
+  "lang": "en",
+  "site": "https://www.nasa.gov",
+  "sec": "scienza"
+ },
+ "esa": {
+  "name": "ESA",
+  "short": "ESA",
+  "color": "#003247",
+  "kind": "Agenzia spaziale",
+  "lang": "en",
+  "site": "https://www.esa.int",
+  "sec": "scienza"
+ },
+ "carbonbrief": {
+  "name": "Carbon Brief",
+  "short": "CB",
+  "color": "#2E7D32",
+  "kind": "Clima ed energia",
+  "lang": "en",
+  "site": "https://www.carbonbrief.org",
+  "sec": "scienza"
+ },
+ "arstechnica": {
+  "name": "Ars Technica",
+  "short": "ARS",
+  "color": "#8A6A12",
+  "kind": "Magazine di tecnologia",
+  "lang": "en",
+  "site": "https://arstechnica.com",
+  "sec": "scienza"
+ },
+ "theverge": {
+  "name": "The Verge",
+  "short": "VG",
+  "color": "#5200FF",
+  "kind": "Magazine di tecnologia",
+  "lang": "en",
+  "site": "https://www.theverge.com",
+  "sec": "scienza"
+ },
+ "techcrunch": {
+  "name": "TechCrunch",
+  "short": "TC",
+  "color": "#0A8A3A",
+  "kind": "Magazine di tecnologia",
+  "lang": "en",
+  "site": "https://techcrunch.com",
+  "sec": "scienza"
+ },
+ "motor1": {
+  "name": "Motor1 Italia",
+  "short": "M1",
+  "color": "#D0021B",
+  "kind": "Magazine di motori",
+  "lang": "it",
+  "site": "https://it.motor1.com",
+  "sec": "motori"
+ },
+ "insideevs": {
+  "name": "InsideEVs Italia",
+  "short": "IEV",
+  "color": "#0F7B3F",
+  "kind": "Auto elettriche",
+  "lang": "it",
+  "site": "https://insideevs.it",
+  "sec": "motori"
+ },
+ "quattroruote": {
+  "name": "Quattroruote",
+  "short": "4R",
+  "color": "#C8102E",
+  "kind": "Mensile di motori",
+  "lang": "it",
+  "site": "https://www.quattroruote.it",
+  "sec": "motori"
+ },
+ "alvolante": {
+  "name": "alVolante",
+  "short": "AL",
+  "color": "#E30613",
+  "kind": "Magazine di motori",
+  "lang": "it",
+  "site": "https://www.alvolante.it",
+  "sec": "motori"
+ },
+ "motorbox": {
+  "name": "Motorbox",
+  "short": "MB",
+  "color": "#1E1E1E",
+  "kind": "Magazine di motori",
+  "lang": "it",
+  "site": "https://www.motorbox.com",
+  "sec": "motori"
+ },
+ "hdmotori": {
+  "name": "HDmotori",
+  "short": "HDM",
+  "color": "#0A4DA2",
+  "kind": "Magazine di motori",
+  "lang": "it",
+  "site": "https://www.hdmotori.it",
+  "sec": "motori"
+ },
+ "formulapassion": {
+  "name": "FormulaPassion",
+  "short": "FPA",
+  "color": "#B71C1C",
+  "kind": "Motorsport",
+  "lang": "it",
+  "site": "https://www.formulapassion.it",
+  "sec": "motori"
+ },
+ "motorsport": {
+  "name": "Motorsport.com Italia",
+  "short": "MS",
+  "color": "#E10600",
+  "kind": "Motorsport",
+  "lang": "it",
+  "site": "https://it.motorsport.com",
+  "sec": "motori"
+ },
+ "gpone": {
+  "name": "GPOne",
+  "short": "GP1",
+  "color": "#D32F2F",
+  "kind": "Motomondiale",
+  "lang": "it",
+  "site": "https://www.gpone.com",
+  "sec": "motori"
+ },
+ "motoit": {
+  "name": "Moto.it",
+  "short": "MIT",
+  "color": "#E53935",
+  "kind": "Magazine di moto",
+  "lang": "it",
+  "site": "https://www.moto.it",
+  "sec": "motori"
+ },
+ "therace": {
+  "name": "The Race",
+  "short": "TRC",
+  "color": "#111111",
+  "kind": "Motorsport",
+  "lang": "en",
+  "site": "https://www.the-race.com",
+  "sec": "motori"
+ },
+ "autocar": {
+  "name": "Autocar",
+  "short": "AC",
+  "color": "#D71920",
+  "kind": "Settimanale di motori",
+  "lang": "en",
+  "site": "https://www.autocar.co.uk",
+  "sec": "motori"
+ },
+ "electrek": {
+  "name": "Electrek",
+  "short": "EK",
+  "color": "#2E7D32",
+  "kind": "Mobilità elettrica",
+  "lang": "en",
+  "site": "https://electrek.co",
+  "sec": "motori"
+ },
+ "carscoops": {
+  "name": "Carscoops",
+  "short": "CSC",
+  "color": "#263238",
+  "kind": "Magazine di motori",
+  "lang": "en",
+  "site": "https://www.carscoops.com",
+  "sec": "motori"
+ },
+ "bbc": {
+  "name": "BBC News",
+  "short": "BBC",
+  "color": "#8B1A1A",
+  "kind": "Servizio pubblico britannico",
+  "lang": "en",
+  "site": "https://www.bbc.com/news",
+  "sec": "mondo"
+ },
+ "guardian": {
+  "name": "The Guardian",
+  "short": "GU",
+  "color": "#052962",
+  "kind": "Quotidiano britannico",
+  "lang": "en",
+  "site": "https://www.theguardian.com",
+  "sec": "mondo"
+ },
+ "independent": {
+  "name": "The Independent",
+  "short": "IND",
+  "color": "#C8102E",
+  "kind": "Quotidiano britannico",
+  "lang": "en",
+  "site": "https://www.independent.co.uk",
+  "sec": "mondo"
+ },
+ "ft": {
+  "name": "Financial Times",
+  "short": "FT",
+  "color": "#990F3D",
+  "kind": "Quotidiano economico",
+  "lang": "en",
+  "site": "https://www.ft.com",
+  "sec": "mondo"
+ },
+ "economist": {
+  "name": "The Economist",
+  "short": "ECO",
+  "color": "#C0161D",
+  "kind": "Settimanale",
+  "lang": "en",
+  "site": "https://www.economist.com",
+  "sec": "mondo"
+ },
+ "nyt": {
+  "name": "The New York Times",
+  "short": "NYT",
+  "color": "#222222",
+  "kind": "Quotidiano statunitense",
+  "lang": "en",
+  "site": "https://www.nytimes.com",
+  "sec": "mondo"
+ },
+ "washingtonpost": {
+  "name": "The Washington Post",
+  "short": "WP",
+  "color": "#111111",
+  "kind": "Quotidiano statunitense",
+  "lang": "en",
+  "site": "https://www.washingtonpost.com",
+  "sec": "mondo"
+ },
+ "wsj": {
+  "name": "The Wall Street Journal",
+  "short": "WSJ",
+  "color": "#0274B6",
+  "kind": "Quotidiano economico",
+  "lang": "en",
+  "site": "https://www.wsj.com",
+  "sec": "mondo"
+ },
+ "npr": {
+  "name": "NPR",
+  "short": "NPR",
+  "color": "#1E4E79",
+  "kind": "Radio pubblica statunitense",
+  "lang": "en",
+  "site": "https://www.npr.org",
+  "sec": "mondo"
+ },
+ "atlantic": {
+  "name": "The Atlantic",
+  "short": "ATL",
+  "color": "#1A1A1A",
+  "kind": "Mensile statunitense",
+  "lang": "en",
+  "site": "https://www.theatlantic.com",
+  "sec": "mondo"
+ },
+ "politico": {
+  "name": "Politico Europe",
+  "short": "PO",
+  "color": "#B31B1B",
+  "kind": "Politica europea",
+  "lang": "en",
+  "site": "https://www.politico.eu",
+  "sec": "mondo"
+ },
+ "euronews": {
+  "name": "Euronews",
+  "short": "EN",
+  "color": "#4A5A1E",
+  "kind": "Televisione europea",
+  "lang": "en",
+  "site": "https://www.euronews.com",
+  "sec": "mondo"
+ },
+ "dw": {
+  "name": "DW",
+  "short": "DW",
+  "color": "#1E6B5C",
+  "kind": "Servizio pubblico tedesco",
+  "lang": "en",
+  "site": "https://www.dw.com",
+  "sec": "mondo"
+ },
+ "france24": {
+  "name": "France 24",
+  "short": "F24",
+  "color": "#2E4A8C",
+  "kind": "Televisione internazionale",
+  "lang": "en",
+  "site": "https://www.france24.com",
+  "sec": "mondo"
+ },
+ "lemonde": {
+  "name": "Le Monde",
+  "short": "LM",
+  "color": "#1A1A1A",
+  "kind": "Quotidiano francese",
+  "lang": "fr",
+  "site": "https://www.lemonde.fr",
+  "sec": "mondo"
+ },
+ "lefigaro": {
+  "name": "Le Figaro",
+  "short": "FIG",
+  "color": "#163860",
+  "kind": "Quotidiano francese",
+  "lang": "fr",
+  "site": "https://www.lefigaro.fr",
+  "sec": "mondo"
+ },
+ "rfi": {
+  "name": "RFI",
+  "short": "RFI",
+  "color": "#D0021B",
+  "kind": "Radio pubblica francese",
+  "lang": "fr",
+  "site": "https://www.rfi.fr",
+  "sec": "mondo"
+ },
+ "elpais": {
+  "name": "El País",
+  "short": "EP",
+  "color": "#0F2A4A",
+  "kind": "Quotidiano spagnolo",
+  "lang": "es",
+  "site": "https://elpais.com",
+  "sec": "mondo"
+ },
+ "elmundo": {
+  "name": "El Mundo",
+  "short": "EM",
+  "color": "#1D4E89",
+  "kind": "Quotidiano spagnolo",
+  "lang": "es",
+  "site": "https://www.elmundo.es",
+  "sec": "mondo"
+ },
+ "spiegel": {
+  "name": "Der Spiegel",
+  "short": "SP",
+  "color": "#E64415",
+  "kind": "Settimanale tedesco",
+  "lang": "de",
+  "site": "https://www.spiegel.de",
+  "sec": "mondo"
+ },
+ "faz": {
+  "name": "Frankfurter Allgemeine",
+  "short": "FAZ",
+  "color": "#1A1A1A",
+  "kind": "Quotidiano tedesco",
+  "lang": "de",
+  "site": "https://www.faz.net",
+  "sec": "mondo"
+ },
+ "zeit": {
+  "name": "Die Zeit",
+  "short": "ZE",
+  "color": "#2B2B2B",
+  "kind": "Settimanale tedesco",
+  "lang": "de",
+  "site": "https://www.zeit.de",
+  "sec": "mondo"
+ },
+ "aljazeera": {
+  "name": "Al Jazeera",
+  "short": "AJ",
+  "color": "#0F6A7A",
+  "kind": "Televisione internazionale",
+  "lang": "en",
+  "site": "https://www.aljazeera.com",
+  "sec": "mondo"
+ },
+ "timesofisrael": {
+  "name": "The Times of Israel",
+  "short": "TOI",
+  "color": "#1F4E8C",
+  "kind": "Quotidiano israeliano",
+  "lang": "en",
+  "site": "https://www.timesofisrael.com",
+  "sec": "mondo"
+ },
+ "kyivindependent": {
+  "name": "The Kyiv Independent",
+  "short": "KI",
+  "color": "#2B2B2B",
+  "kind": "Quotidiano ucraino",
+  "lang": "en",
+  "site": "https://kyivindependent.com",
+  "sec": "mondo"
+ },
+ "scmp": {
+  "name": "South China Morning Post",
+  "short": "SCMP",
+  "color": "#FFB400",
+  "kind": "Quotidiano di Hong Kong",
+  "lang": "en",
+  "site": "https://www.scmp.com",
+  "sec": "mondo"
+ },
+ "japantimes": {
+  "name": "The Japan Times",
+  "short": "JT",
+  "color": "#B71C1C",
+  "kind": "Quotidiano giapponese",
+  "lang": "en",
+  "site": "https://www.japantimes.co.jp",
+  "sec": "mondo"
+ },
+ "cbc": {
+  "name": "CBC News",
+  "short": "CBC",
+  "color": "#D52B1E",
+  "kind": "Servizio pubblico canadese",
+  "lang": "en",
+  "site": "https://www.cbc.ca/news",
+  "sec": "mondo"
+ },
+ "abcau": {
+  "name": "ABC News Australia",
+  "short": "ABC",
+  "color": "#1A1A1A",
+  "kind": "Servizio pubblico australiano",
+  "lang": "en",
+  "site": "https://www.abc.net.au/news",
+  "sec": "mondo"
+ },
+ "barcheamotore": {
+  "name": "Barche a Motore",
+  "short": "BM",
+  "color": "#0B5394",
+  "kind": "Magazine di barche a motore e yacht",
+  "lang": "it",
+  "site": "https://www.barcheamotore.com",
+  "sec": "motori"
+ },
+ "nautica": {
+  "name": "Nautica",
+  "short": "NA",
+  "color": "#1C4E80",
+  "kind": "Mensile di nautica da diporto",
+  "lang": "it",
+  "site": "https://www.nautica.it",
+  "sec": "motori"
+ },
+ "barchemagazine": {
+  "name": "Barche Magazine",
+  "short": "BA",
+  "color": "#0E6BA8",
+  "kind": "Magazine di yacht e cantieri",
+  "lang": "it",
+  "site": "https://www.barchemagazine.com",
+  "sec": "motori"
+ },
+ "farevela": {
+  "name": "Fare Vela",
+  "short": "FV",
+  "color": "#2E86C1",
+  "kind": "Magazine di vela e regate",
+  "lang": "it",
+  "site": "https://www.farevela.net",
+  "sec": "motori"
+ },
+ "mby": {
+  "name": "Motor Boat & Yachting",
+  "short": "MB",
+  "color": "#003B5C",
+  "kind": "Rivista britannica di barche a motore",
+  "lang": "en",
+  "site": "https://www.mby.com",
+  "sec": "motori"
+ },
+ "yachtingworld": {
+  "name": "Yachting World",
+  "short": "YW",
+  "color": "#00467F",
+  "kind": "Rivista britannica di vela d’altura",
+  "lang": "en",
+  "site": "https://www.yachtingworld.com",
+  "sec": "motori"
+ },
+ "powermotoryacht": {
+  "name": "Power & Motoryacht",
+  "short": "PM",
+  "color": "#1B3A5C",
+  "kind": "Rivista statunitense di motoryacht",
+  "lang": "en",
+  "site": "https://www.powerandmotoryacht.com",
+  "sec": "motori"
+ },
+ "megayachtnews": {
+  "name": "Megayacht News",
+  "short": "MY",
+  "color": "#0A2342",
+  "kind": "Notizie su superyacht",
+  "lang": "en",
+  "site": "https://megayachtnews.com",
+  "sec": "motori"
+ },
+ "boatingindustry": {
+  "name": "Boating Industry",
+  "short": "BI",
+  "color": "#C0392B",
+  "kind": "Industria nautica",
+  "lang": "en",
+  "site": "https://www.boatingindustry.com",
+  "sec": "motori"
+ },
+ "abitare": {
+  "name": "Abitare",
+  "short": "AB",
+  "color": "#1A1A1A",
+  "kind": "Rivista di design e architettura",
+  "lang": "it",
+  "site": "https://www.abitare.it",
+  "sec": "design"
+ },
+ "interni": {
+  "name": "Interni",
+  "short": "IN",
+  "color": "#C8102E",
+  "kind": "Rivista di design",
+  "lang": "it",
+  "site": "https://www.internimagazine.it",
+  "sec": "design"
+ },
+ "elledecor": {
+  "name": "Elle Decor Italia",
+  "short": "ED",
+  "color": "#111111",
+  "kind": "Rivista di design e interni",
+  "lang": "it",
+  "site": "https://www.elledecor.com/it/",
+  "sec": "design"
+ },
+ "livingcorriere": {
+  "name": "Living (Corriere)",
+  "short": "LV",
+  "color": "#2B2B2B",
+  "kind": "Rivista di design e casa",
+  "lang": "it",
+  "site": "https://living.corriere.it",
+  "sec": "design"
+ },
+ "designboom": {
+  "name": "Designboom",
+  "short": "DB",
+  "color": "#E3001B",
+  "kind": "Rivista di design e architettura",
+  "lang": "en",
+  "site": "https://www.designboom.com",
+  "sec": "design"
+ },
+ "dezeen": {
+  "name": "Dezeen",
+  "short": "DZ",
+  "color": "#000000",
+  "kind": "Rivista di architettura e design",
+  "lang": "en",
+  "site": "https://www.dezeen.com",
+  "sec": "design"
+ },
+ "itsnicethat": {
+  "name": "It's Nice That",
+  "short": "NT",
+  "color": "#1E1E1E",
+  "kind": "Rivista di grafica e creatività",
+  "lang": "en",
+  "site": "https://www.itsnicethat.com",
+  "sec": "design"
+ },
+ "smashing": {
+  "name": "Smashing Magazine",
+  "short": "SM",
+  "color": "#D33A2C",
+  "kind": "Design di interfacce e web",
+  "lang": "en",
+  "site": "https://www.smashingmagazine.com",
+  "sec": "design"
+ },
+ "nngroup": {
+  "name": "Nielsen Norman Group",
+  "short": "NN",
+  "color": "#2D6CA2",
+  "kind": "Ricerca sulla user experience",
+  "lang": "en",
+  "site": "https://www.nngroup.com",
+  "sec": "design"
+ },
+ "uxcollective": {
+  "name": "UX Collective",
+  "short": "UX",
+  "color": "#0E0E0E",
+  "kind": "Rivista di UX design",
+  "lang": "en",
+  "site": "https://uxdesign.cc",
+  "sec": "design"
+ },
+ "figmablog": {
+  "name": "Figma Blog",
+  "short": "FG",
+  "color": "#A259FF",
+  "kind": "Strumenti e pratica del design",
+  "lang": "en",
+  "site": "https://www.figma.com/blog/",
+  "sec": "design"
+ },
+ "core77": {
+  "name": "Core77",
+  "short": "C7",
+  "color": "#E4002B",
+  "kind": "Rivista di design industriale",
+  "lang": "en",
+  "site": "https://www.core77.com",
+  "sec": "design"
+ },
+ "yanko": {
+  "name": "Yanko Design",
+  "short": "YD",
+  "color": "#E85C2A",
+  "kind": "Rivista di design di prodotto",
+  "lang": "en",
+  "site": "https://www.yankodesign.com",
+  "sec": "design"
+ },
+ "creativebloq": {
+  "name": "Creative Bloq",
+  "short": "CB",
+  "color": "#E6007E",
+  "kind": "Rivista di grafica e creatività",
+  "lang": "en",
+  "site": "https://www.creativebloq.com",
+  "sec": "design"
+ },
+ "creativereview": {
+  "name": "Creative Review",
+  "short": "CR",
+  "color": "#111111",
+  "kind": "Rivista di comunicazione visiva",
+  "lang": "en",
+  "site": "https://www.creativereview.co.uk",
+  "sec": "design"
+ },
+ "wallpaper": {
+  "name": "Wallpaper*",
+  "short": "WP",
+  "color": "#000000",
+  "kind": "Rivista di design, architettura e arte",
+  "lang": "en",
+  "site": "https://www.wallpaper.com",
+  "sec": "design"
+ },
+ "fastcodesign": {
+  "name": "Fast Company Design",
+  "short": "FC",
+  "color": "#1A1A1A",
+  "kind": "Design e innovazione",
+  "lang": "en",
+  "site": "https://www.fastcompany.com/co-design",
+  "sec": "design"
+ },
+ "designmilk": {
+  "name": "Design Milk",
+  "short": "DM",
+  "color": "#00A99D",
+  "kind": "Rivista di design",
+  "lang": "en",
+  "site": "https://design-milk.com",
+  "sec": "design"
+ },
+ "designwanted": {
+  "name": "DesignWanted",
+  "short": "DW",
+  "color": "#222222",
+  "kind": "Rivista di design",
+  "lang": "en",
+  "site": "https://designwanted.com",
+  "sec": "design"
+ },
+ "archdaily": {
+  "name": "ArchDaily",
+  "short": "AD",
+  "color": "#1C1C1C",
+  "kind": "Rivista di architettura",
+  "lang": "en",
+  "site": "https://www.archdaily.com",
+  "sec": "design"
+ },
+ "giornalearchitettura": {
+  "name": "Il Giornale dell'Architettura",
+  "short": "GA",
+  "color": "#B5121B",
+  "kind": "Rivista di architettura",
+  "lang": "it",
+  "site": "https://ilgiornaledellarchitettura.com",
+  "sec": "design"
+ },
+ "artribune": {
+  "name": "Artribune",
+  "short": "AR",
+  "color": "#E30613",
+  "kind": "Rivista di arte e cultura",
+  "lang": "it",
+  "site": "https://www.artribune.com",
+  "sec": "design"
+ },
+ "exibart": {
+  "name": "Exibart",
+  "short": "EX",
+  "color": "#D7141A",
+  "kind": "Rivista d'arte",
+  "lang": "it",
+  "site": "https://www.exibart.com",
+  "sec": "design"
+ },
+ "finestresullarte": {
+  "name": "Finestre sull'Arte",
+  "short": "FA",
+  "color": "#7A1F2B",
+  "kind": "Rivista d'arte",
+  "lang": "it",
+  "site": "https://www.finestresullarte.info",
+  "sec": "design"
+ },
+ "artslife": {
+  "name": "ArtsLife",
+  "short": "AL",
+  "color": "#333333",
+  "kind": "Rivista di arte e mercato",
+  "lang": "it",
+  "site": "https://artslife.com",
+  "sec": "design"
+ },
+ "artnews": {
+  "name": "ARTnews",
+  "short": "AN",
+  "color": "#E1261C",
+  "kind": "Rivista d'arte",
+  "lang": "en",
+  "site": "https://www.artnews.com",
+  "sec": "design"
+ },
+ "hyperallergic": {
+  "name": "Hyperallergic",
+  "short": "HY",
+  "color": "#D12229",
+  "kind": "Rivista d'arte",
+  "lang": "en",
+  "site": "https://hyperallergic.com",
+  "sec": "design"
+ },
+ "artnewspaper": {
+  "name": "The Art Newspaper",
+  "short": "TA",
+  "color": "#B3132B",
+  "kind": "Giornale dell'arte",
+  "lang": "en",
+  "site": "https://www.theartnewspaper.com",
+  "sec": "design"
+ },
+ "colossal": {
+  "name": "Colossal",
+  "short": "CO",
+  "color": "#111111",
+  "kind": "Arte e cultura visiva",
+  "lang": "en",
+  "site": "https://www.thisiscolossal.com",
+  "sec": "design"
+ },
+ "petapixel": {
+  "name": "PetaPixel",
+  "short": "PP",
+  "color": "#1B7FC4",
+  "kind": "Rivista di fotografia",
+  "lang": "en",
+  "site": "https://petapixel.com",
+  "sec": "design"
+ },
+ "ilfotografo": {
+  "name": "Il Fotografo",
+  "short": "IF",
+  "color": "#C1272D",
+  "kind": "Rivista di fotografia",
+  "lang": "it",
+  "site": "https://www.ilfotografo.it",
+  "sec": "design"
+ },
+ "fotografiaartistica": {
+  "name": "Fotografia Artistica",
+  "short": "FT",
+  "color": "#444444",
+  "kind": "Rivista di fotografia",
+  "lang": "it",
+  "site": "https://www.fotografiaartistica.it",
+  "sec": "design"
+ },
+ "ilmattino": {
+  "name": "Il Mattino",
+  "short": "MT",
+  "color": "#00427A",
+  "kind": "Quotidiano di Napoli",
+  "lang": "it",
+  "site": "https://www.ilmattino.it",
+  "sec": "it"
+ },
+ "napolitoday": {
+  "name": "NapoliToday",
+  "short": "NT",
+  "color": "#C8102E",
+  "kind": "Cronaca di Napoli e provincia",
+  "lang": "it",
+  "site": "https://www.napolitoday.it",
+  "sec": "napoli",
+  "zona": "citta"
+ },
+ "ilroma": {
+  "name": "Il Roma",
+  "short": "RM",
+  "color": "#1B3A6B",
+  "kind": "Quotidiano di Napoli",
+  "lang": "it",
+  "site": "https://www.ilroma.net",
+  "sec": "napoli",
+  "zona": "citta",
+  "mista": true
+ },
+ "internapoli": {
+  "name": "Internapoli",
+  "short": "IN",
+  "color": "#0277BD",
+  "kind": "Cronaca di Napoli e area nord",
+  "lang": "it",
+  "site": "https://www.internapoli.it",
+  "sec": "napoli",
+  "zona": "nord",
+  "rilancia": true
+ },
+ "ilmediano": {
+  "name": "Il Mediano",
+  "short": "MD",
+  "color": "#6A1B9A",
+  "kind": "Area nord di Napoli",
+  "lang": "it",
+  "site": "https://www.ilmediano.com",
+  "sec": "napoli",
+  "zona": "nord",
+  "rilancia": true
+ },
+ "metropolis": {
+  "name": "Metropolis",
+  "short": "MP",
+  "color": "#B71C1C",
+  "kind": "Area vesuviana e stabiese",
+  "lang": "it",
+  "site": "https://www.metropolisweb.it",
+  "sec": "napoli",
+  "zona": "vesuviana"
+ },
+ "vesuviolive": {
+  "name": "Vesuvio Live",
+  "short": "VL",
+  "color": "#E65100",
+  "kind": "Area vesuviana e Napoli",
+  "lang": "it",
+  "site": "https://www.vesuviolive.it",
+  "sec": "napoli",
+  "zona": "vesuviana",
+  "rilancia": true
+ },
+ "fattovesuviano": {
+  "name": "Il Fatto Vesuviano",
+  "short": "FV",
+  "color": "#2E7D32",
+  "kind": "Area vesuviana",
+  "lang": "it",
+  "site": "https://www.ilfattovesuviano.it",
+  "sec": "napoli",
+  "zona": "vesuviana",
+  "rilancia": true
+ },
+ "ilgolfo": {
+  "name": "Il Golfo 24",
+  "short": "G2",
+  "color": "#00838F",
+  "kind": "Ischia e Procida",
+  "lang": "it",
+  "site": "https://www.ilgolfo24.it",
+  "sec": "napoli",
+  "zona": "isole"
+ },
+ "capripress": {
+  "name": "Capri Press",
+  "short": "CP",
+  "color": "#1565C0",
+  "kind": "Capri",
+  "lang": "it",
+  "site": "https://www.capripress.com",
+  "sec": "napoli",
+  "zona": "isole"
+ },
+ "sorrentopress": {
+  "name": "Sorrento Press",
+  "short": "SP",
+  "color": "#5D4037",
+  "kind": "Penisola sorrentina",
+  "lang": "it",
+  "site": "https://www.sorrentopress.it",
+  "sec": "napoli",
+  "zona": "isole"
+ },
+ "positanonews": {
+  "name": "Positano News",
+  "short": "PN",
+  "color": "#AD1457",
+  "kind": "Penisola sorrentina e costiera",
+  "lang": "it",
+  "site": "https://www.positanonews.it",
+  "sec": "napoli",
+  "zona": "isole",
+  "rilancia": true
+ },
+ "ilnapolista": {
+  "name": "Il Napolista",
+  "short": "NA",
+  "color": "#0A86BF",
+  "kind": "Il Napoli e il calcio",
+  "lang": "it",
+  "site": "https://www.ilnapolista.it",
+  "sec": "it"
+ }
+}
