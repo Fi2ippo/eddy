@@ -48,6 +48,7 @@ THEMED = ('design', 'ux', 'architettura', 'arte', 'insolito')
 LIVE = re.compile(r'(\blive\b|liveblog|live blog|live updates|\bdiretta\b|in diretta|minuto per minuto|as it happened|en direct|\ben vivo\b|\bticker\b|newsblog|🔴)', re.I)
 MAX_SOURCES = 16
 AGENCIES = {'ansa', 'agi', 'adnkronos'}
+STUDY_OUTLETS = {'arxiv', 'biorxiv'}   # gli studi scelti dal filtro restano in vista 3 giorni (la data è quella dello studio)
 LOGO_SKIP = {'elpais', 'bbc', 'esa', 'lavoce'}
 YEARS = {str(y) for y in range(2015, 2031)}
 SMALL_GEO = {'336': ('380', 41.902, 12.453), '674': ('380', 43.936, 12.447), '492': ('250', 43.738, 7.424)}
@@ -916,6 +917,26 @@ def source_rec(it, outlets, with_snip=True):
     return r
 
 
+def study_items(state):
+    """I 5 studi del giorno scelti dal filtro di «Fuori dagli schemi» (insolito.py), come voci della raccolta.
+    Titolo e riassunto sono quelli della fonte, senza traduzione; il link porta all'originale."""
+    import candidati as C
+    import insolito as INS
+    cd = C.load(os.path.join(state, C.FILE))
+    if not cd['studi']:
+        return []
+    prev = (load(os.path.join(state, 'insolito.json'), {}) or {}).get('scelti', [])
+    best = INS.pick(cd['studi'], NOW, prev=prev)
+    dump(os.path.join(state, 'insolito.json'), {'at': iso(NOW), 'scelti': [x['id'] for _, x in best],
+                                                 'punti': {x['id']: round(sc, 2) for sc, x in best}})
+    out = []
+    for sc, x in best:
+        out.append({'k': hashlib.sha1(x['u'].encode()).hexdigest()[:12], 'o': x['f'], 't': x['t'], 'u': x['u'], 'd': x['d'], 'a': None,
+                    's': x.get('s') or '', 'img': None, 'ik': False, 'l': 'en', 'h': 'insolito', 'fs': iso(NOW)})
+    log(f'studi del giorno: {len(out)} (' + '; '.join(f"{round(sc, 1)} {x['t'][:40]}" for sc, x in best) + ')')
+    return out
+
+
 def eligible(members, outlets):
     outs = {it['o'] for it in members}
     if len(outs) >= 2:
@@ -958,6 +979,10 @@ def main():
     models = sys.argv[3] if len(sys.argv) > 3 else None
     os.makedirs(os.path.join(out, 'data'), exist_ok=True)
     raw = load(os.path.join(state, 'items.json'), [])
+    try:
+        raw = raw + study_items(state)
+    except Exception as ex:  # noqa: BLE001  # il filtro degli studi non deve mai fermare l'edizione
+        log('studi del giorno non aggiunti:', repr(ex)[:160])
     outlets_src = load(os.path.join(state, 'outlets.json'), {})
     logos = load(os.path.join(state, 'logos.json'), {})
     status = load(os.path.join(state, 'status.json'), {})
@@ -1052,7 +1077,7 @@ def main():
             loc = members[0].get('h') == 'napoli'
             ins = members[0].get('h') == 'insolito'
             hk = (o + '|insolito', False) if ins else (o, loc)  # conto a parte: non tolgono posto alle altre voci della testata
-            if (NOW - members[-1]['d']) > timedelta(hours=36 if ins else 24) or have[hk] >= cap_of(o, loc, members[0].get('h')):
+            if (NOW - members[-1]['d']) > timedelta(hours=80 if ins and o in STUDY_OUTLETS else 36 if ins else 24) or have[hk] >= cap_of(o, loc, members[0].get('h')):
                 continue
             have[hk] += 1
         keep.append(row)
@@ -1362,7 +1387,7 @@ def main():
             pub['points'] = [noplus(x) for x in pub['points']]
         if any('++' in (x.get('t') or '') + (x.get('ti') or '') + (x.get('s') or '') for x in pub.get('sources', [])):
             pub['sources'] = [dict(x, **{f: noplus(x[f], f != 's') for f in ('t', 'ti', 's') if x.get(f)}) for x in pub['sources']]
-        if (pdate(s['updatedAt']) or NOW) >= cut:
+        if (pdate(s['updatedAt']) or NOW) >= cut or (s.get('topic') == 'insolito' and (pdate(s['updatedAt']) or NOW) >= NOW - timedelta(hours=80)):
             recent.append(pub)
         else:
             pub['sources'] = [{k: v for k, v in x.items() if k not in ('s', 'k')} for x in pub.get('sources', [])]

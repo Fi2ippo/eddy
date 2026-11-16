@@ -13,6 +13,13 @@ Ora i temi sono 18.
 - [x] **Etichetta dello studio** nelle righe e nelle carte dei due temi: "Rivista" (fonte con `"studio": "rivista"`) o "Preprint" (link ad arXiv, bioRxiv, medRxiv, SSRN, OSF).
 - [x] **Candidati degli studi** (`pipeline/candidati.py`, passo "Candidati studi" del workflow): arXiv e bioRxiv, in `candidati-studi.json` sul ramo `dati`, ultimi 21 giorni, massimo 5 MB. Non si vedono in app.
 - Fonti **scartate** perché senza feed ufficiale o ferme: Don Norman (jnd.org, ultimo articolo giugno 2025), A List Apart e UX Magazine (ultimo articolo giugno 2026), Google Design (nessun feed), notizie "strane" di Phys.org (nessun feed dedicato), EurekAlert (nessun feed pubblico).
+- [x] **Filtro degli studi** (16/11, `pipeline/insolito.py`): ogni giorno i 5 studi migliori degli ultimi 3 giorni, scelti tra quelli di arXiv e bioRxiv, entrano in Fuori dagli schemi (in inglese, non tradotti, etichetta «Preprint», link all'originale). Come funziona, in cinque righe:
+  1. `candidati.py` raccoglie ogni giro gli studi nuovi di arXiv e bioRxiv.
+  2. Il filtro somma pochi segnali: fonte e campo, frasi di sorpresa, rumore da scartare, sigle fitte, lunghezza del titolo, parole difficili, temi «umani».
+  3. Le altre testate che parlano dello stesso studio aggiungono punti; se non ne parlano non tolgono nulla.
+  4. Al massimo 2 studi per campo, così non escono 5 studi dello stesso settore.
+  5. I pesi vengono da 60 voti di Filippo e si ritarano sui dati veri di Eddy.
+  Misura (200 prove «costruisco su metà dei voti, controllo sull'altra»): 9 «Sì» su 10 nei primi 10, contro 7,3 del caso e 8,8 della sola fonte. Il vantaggio sulla sola fonte è piccolo: i voti erano al 73% «Sì».
 - Colori dei due temi **provvisori** (#4F46E5 / #4338CA e #6B2D8C): Filippo li definisce nella tela.
 
 ## Nuovo design (8–9 novembre 2026)
@@ -402,3 +409,8 @@ Se il lavoro si interrompe, si riparte dalla prima fase non spuntata.
 ## 4. Decisioni aperte (servono da Filippo)
 1. Controllare a mano le **22 fonti `da_controllare`** (elenco qui sopra) e decidere per ognuna: `link_e_citazione`, `da_contattare`, oppure disabilitarla.
 2. Quando passare al passo 7 (pubblicazione su GitHub Pages).
+
+---
+
+## Promemoria · ritarare il filtro degli studi (da fare verso il 30 novembre 2026)
+Tra due settimane rilanciare `docs/design-definitivo/PROMPT-filtro-studi-fable.md` per ritarare il filtro (`pipeline/insolito.py`) sui dati raccolti da Eddy in `candidati-studi.json` (ramo `dati`), con il segnale delle altre testate che ne parlano (campo `testate`), che oggi non si è potuto misurare. Servono nuovi voti, meglio se meno sbilanciati verso il «Sì».

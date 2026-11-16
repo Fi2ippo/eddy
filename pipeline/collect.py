@@ -342,6 +342,8 @@ def google_news(src, seen_first):
 
 
 def process_outlet(src, seen_first, cache):
+    if src.get('interna'):  # arXiv e bioRxiv arrivano da candidati.py e dal filtro (insolito.py), non da un feed
+        return src, [], [], None
     diags, items, entries = [], [], 0
     feeds = [(f['u'], f.get('h')) for f in src.get('feeds', [])]
     cached = cache.get(src['o'], {}).get('u')
@@ -639,6 +641,8 @@ def main():
     fresh = {}
     status_outlets, feed_diags = {}, []
     for src, items, diags in results:
+        if src.get('interna'):
+            continue
         feed_diags.extend(diags)
         errs = [f"{d['u']}: {d['err']}" for d in diags if d.get('err')]
         via = sorted({d['via'] for d in diags if d.get('via') and d.get('k')})

@@ -2553,5 +2553,31 @@
   ],
   "studio": "divulgazione",
   "gn": false
+ },
+ {
+  "o": "arxiv",
+  "name": "arXiv",
+  "short": "AX",
+  "color": "#7A2E5C",
+  "kind": "Archivio di preprint",
+  "lang": "en",
+  "site": "https://arxiv.org",
+  "sec": "scienza",
+  "feeds": [],
+  "gn": false,
+  "interna": true
+ },
+ {
+  "o": "biorxiv",
+  "name": "bioRxiv",
+  "short": "BX",
+  "color": "#3D4A5C",
+  "kind": "Archivio di preprint",
+  "lang": "en",
+  "site": "https://www.biorxiv.org",
+  "sec": "scienza",
+  "feeds": [],
+  "gn": false,
+  "interna": true
  }
 ]

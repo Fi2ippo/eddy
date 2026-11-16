@@ -84,6 +84,83 @@ _st = [{'id': 'a', 't': 'x', 's': '', 'd': C.iso(C.NOW)}, {'id': 'b', 't': 'y', 
 check('candidati: solo 21 giorni', [x['id'] for x in C.prune(_st)] == ['a'])
 check('candidati: tetto di peso', len(C.prune([dict(_st[0], id=str(i), s='z' * 500) for i in range(400)], max_bytes=60000)) < 400)
 
+# filtro di «Fuori dagli schemi» (insolito.py): 5 studi che Filippo leggerebbe e 5 che scarterebbe, tutti con voto reale
+import insolito as INS  # noqa: E402
+STUDI_BUONI = [
+ {
+  "t": "Do Large Language Models Show Racial and Sex Bias in Pain Management? A Counterfactual Audit of GPT, Claude, Gemini, Llama, DeepSeek and Qwen",
+  "s": "Racial and ethnic minority patients receive less pain treatment than non-Hispanic White patients, and large language models (LLMs) used as medical AI could reproduce that bias. Prior audits tested a few proprietary models, stated race explicitly and rarely",
+  "f": "arxiv",
+  "sez": "cs.CY"
+ },
+ {
+  "t": "What We Could Lose by Trying to Make Mars Habitable",
+  "s": "The recent push to develop Mars terraforming technologies, increasingly driven by unaccountable private wealth, risks the irreversible destruction of planetary records we have barely begun to read. In this sense, terraforming Mars would be akin to the",
+  "f": "arxiv",
+  "sez": "physics.pop-ph"
+ },
+ {
+  "t": "The Physics of Interstellar Travel",
+  "s": "How can we send an uncrewed spacecraft to the nearest stars within a human lifetime? What propulsion methods are available? Will it survive impacts in the interstellar medium? What science will it do at its destination? How can it send back data over enormous",
+  "f": "arxiv",
+  "sez": "physics.pop-ph"
+ },
+ {
+  "t": "The Male Abstraction Bias in Internet Culture and Large Language Models",
+  "s": "Conceptual abstraction and gender are two equally central aspects of the human mind, yet they have traditionally been studied in isolation from one another, as though they were fundamentally separate. Here, we find gender and abstraction are systematically",
+  "f": "arxiv",
+  "sez": "cs.CY"
+ },
+ {
+  "t": "AI and the Two Margins of Work: Why Job Losses Show Up Before Job Creation",
+  "s": "Technological change acts on labor demand at two margins: adjustment within established activities and the creation of additional activities, often by new firms. Payroll statistics record the first promptly and the second late. In the computing era, firms",
+  "f": "arxiv",
+  "sez": "econ.GN"
+ }
+]
+STUDI_DA_SCARTARE = [
+ {
+  "t": "GL-0001, a first-in-class dual GIP/GLP-2 analogue, reduces bone fragility by enhancing bone material properties in a murine model of type III osteogenesis imperfecta",
+  "s": "Osteogenesis imperfecta (OI) is a severe heritable skeletal disorder characterized by bone fragility, short stature, and increased fracture risk. Currently, no pharmacological treatment has been approved for OI, and bisphosphonates are commonly used off",
+  "f": "biorxiv",
+  "sez": "physiology"
+ },
+ {
+  "t": "Molecular crowding differentially regulates magnetic field-dependent fluorescence, recovery kinetics, and photostability of the magnetosensitive protein MagLOV2",
+  "s": "Macromolecular crowding and solvent composition can alter protein conformation, diffusion, hydration, and cofactor photophysics, yet their influence on magnetically sensitive flavoproteins is poorly understood. We tested seven molecular environments in",
+  "f": "biorxiv",
+  "sez": "biochemistry"
+ },
+ {
+  "t": "A multiscale pharmacokinetic-Boolean modelling framework for ibrutinib resistance in a Chronic Lymphocytic Leukaemia case study",
+  "s": "Ibrutinib, a covalent Bruton's tyrosine kinase (BTK) inhibitor, achieves durable remissions in chronic lymphocytic leukaemia (CLL), and yet a substantial proportion of patients relapse. A fundamental question is how the quantitative dynamics of drug exposure",
+  "f": "biorxiv",
+  "sez": "systems biology"
+ },
+ {
+  "t": "Genetic control couples TGFβ-independent pluripotent stem cell renewal to deterministic forward programming across germ layers",
+  "s": "Reproducible and scalable manufacture of human induced pluripotent stem cell (hiPSC) derivatives requires control over expansion and differentiation. Transcription factor-mediated forward programming can place hiPSC differentiation under genetic control, but",
+  "f": "biorxiv",
+  "sez": "synthetic biology"
+ },
+ {
+  "t": "SLIM-2PF: a miniature two-photon fiberscope for multi-depth neuroimaging in freely moving mice",
+  "s": "Miniaturized two-photon (2P) fiberscopes enable subcellular-resolution imaging of neural activity in freely moving rodents. However, integrating multi-depth scanning into such probes without compromising their high resolution and minimal mechanical load on",
+  "f": "biorxiv",
+  "sez": "bioengineering"
+ }
+]
+_sb = [INS.score(x) for x in STUDI_BUONI]
+_ss = [INS.score(x) for x in STUDI_DA_SCARTARE]
+check('filtro studi: i 5 buoni valgono più dei 5 da scartare', min(_sb) > max(_ss))
+check('filtro studi: i 10 esempi in ordine, i 5 migliori sono i buoni', sorted(range(10), key=lambda i: -(_sb + _ss)[i])[:5] == sorted(range(5), key=lambda i: -_sb[i]))
+_cand = [dict(x, id='s%d' % i, u='https://x.org/%d' % i, d='2026-10-18T09:00:00Z') for i, x in enumerate(STUDI_BUONI + STUDI_DA_SCARTARE)]
+_cand = [dict(x, s=x['s'] + ' ' + 'testo del riassunto ' * 8) for x in _cand]
+_best = INS.pick(_cand, datetime(2026, 10, 18, 12, 0, tzinfo=timezone.utc))
+check('filtro studi: ne escono 5, al massimo 2 per campo', len(_best) == 5 and max(sum(1 for _, x in _best if INS.field_of(x) == f) for f in {INS.field_of(x) for _, x in _best}) <= 2)
+check('filtro studi: fuori dai 3 giorni non si sceglie', not INS.pick([dict(x, d='2026-10-10T09:00:00Z') for x in _cand], datetime(2026, 10, 18, 12, 0, tzinfo=timezone.utc)))
+check('filtro studi: le altre testate aggiungono, non tolgono', INS.score(dict(STUDI_DA_SCARTARE[0], testate=['bbc'])) > INS.score(STUDI_DA_SCARTARE[0]))
+
 # indirizzi e voci
 outlets = {'ansa': {'name': 'ANSA', 'lang': 'it', 'sec': 'it'}}
 base = {'o': 'ansa', 't': 'Titolo abbastanza lungo per passare i filtri della redazione', 's': '', 'd': '2026-10-18T10:00:00Z', 'l': 'it'}
