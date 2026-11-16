@@ -42,9 +42,9 @@ MAX_RECENT = 320          # storie delle ultime 48 ore pubblicate al massimo
 MAX_SINGLE = 80           # di cui al massimo queste di una sola testata (le specialistiche prima)
 MAX_LOCAL = 110           # Napoli e provincia: conto a parte, non tolgono posto alle altre
 MAX_LOCAL_SINGLE = 80
-MAX_THEMED = 90           # design, architettura, arte: conto a parte (riviste di settore), come Napoli
-MAX_THEMED_SINGLE = 75
-THEMED = ('design', 'architettura', 'arte')
+MAX_THEMED = 115          # design, UX/UI, architettura, arte, Fuori dagli schemi: conto a parte (riviste di settore), come Napoli
+MAX_THEMED_SINGLE = 96
+THEMED = ('design', 'ux', 'architettura', 'arte', 'insolito')
 LIVE = re.compile(r'(\blive\b|liveblog|live blog|live updates|\bdiretta\b|in diretta|minuto per minuto|as it happened|en direct|\ben vivo\b|\bticker\b|newsblog|🔴)', re.I)
 MAX_SOURCES = 16
 AGENCIES = {'ansa', 'agi', 'adnkronos'}
@@ -503,6 +503,9 @@ def topic_scores(text_title, text_body, members, outlets):
             hits_t = {m.group(0) for m in rx.finditer(nt)}
             hits_b = {m.group(0) for m in rx.finditer(nb)} - hits_t
             sc[t] += w * (2 * len(hits_t) + min(len(hits_b), 4))
+    # intelligenza artificiale e interfacce: passa a UX/UI solo se il testo parla davvero di interfacce o di esperienza d'uso
+    if sc['ux'] >= L.UX_AI_MIN and L.UX_AI.search(nt + ' . ' + nb):
+        sc['ux'] += L.UX_AI_BONUS
     for it in members:
         o = outlets.get(it['o'], {})
         if it.get('h') == 'napoli':
@@ -788,6 +791,8 @@ def build_story(members, vecs_idx, vecs, outlets, geoc):
                        [(ititle(it), 0.8) for it in members[:10]], geoc)
     if place and place['cc'] != '380' and max([sc[t] for t in sc if t not in ('italia', 'cronaca', 'mondo')] or [0]) < 8:
         sc['mondo'] += 6
+    # «Fuori dagli schemi» non si decide con le parole: conta solo da quale feed arriva la voce (vedi più sotto)
+    sc.pop('insolito', None)
     topic, alt = classify(sc, members, outlets)
     # Napoli e provincia: solo cronaca locale. Le storie nazionali o estere che citano Napoli restano nei loro temi, senza Napoli.
     loc_o = {it['o'] for it in members if it.get('h') == 'napoli'}
@@ -801,6 +806,14 @@ def build_story(members, vecs_idx, vecs, outlets, geoc):
         topic = rest[0] if rest else 'cronaca'
         alt = [t for t in alt if t not in ('napoli', topic)][:2]
     alt = [t for t in alt if t != 'napoli']
+    # Fuori dagli schemi: le voci dei feed scelti a mano e gli studi del filtro. Se la storia è soprattutto loro diventa
+    # il suo tema; se è una notizia grande raccontata da molte altre testate, resta dov'è e si aggiunge come secondo tema.
+    ins_o = {it['o'] for it in members if it.get('h') == 'insolito'}
+    if ins_o and topic != 'napoli':
+        if 2 * len(ins_o) >= len({it['o'] for it in members}):
+            topic, alt = 'insolito', [topic] + alt[:1]
+        else:
+            alt = ['insolito'] + alt[:1]
     dossier = pick_dossier(headline + ' . ' + titles, body, topic, alt)
     zona = None
     if topic == 'napoli':
@@ -1016,11 +1029,13 @@ def main():
     have = Counter()
     for sid, s in prev.items():
         if s.get('weak') and s.get('outletIds') and (NOW - (pdate(s.get('updatedAt') or '') or NOW)) < timedelta(hours=24):
-            have[(s['outletIds'][0], s.get('topic') == 'napoli')] += 1
+            have[(s['outletIds'][0] + ('|insolito' if s.get('topic') == 'insolito' else ''), s.get('topic') == 'napoli')] += 1
 
-    def cap_of(o, local=False):
+    def cap_of(o, local=False, hint=None):
         if local:
             return 8
+        if hint == 'insolito':  # feed scelti a mano, poche voci al giorno: passano quasi tutte
+            return 5
         sec = outlets_src.get(o, {}).get('sec')
         return {'it': 2, 'mondo': 1, 'scienza': 2, 'motori': 2, 'design': 3}.get(sec, 1)
 
@@ -1033,9 +1048,11 @@ def main():
         if weak and not sid and len({m['o'] for m in members}) == 1:
             o = members[0]['o']
             loc = members[0].get('h') == 'napoli'
-            if (NOW - members[-1]['d']) > timedelta(hours=24) or have[(o, loc)] >= cap_of(o, loc):
+            ins = members[0].get('h') == 'insolito'
+            hk = (o + '|insolito', False) if ins else (o, loc)  # conto a parte: non tolgono posto alle altre voci della testata
+            if (NOW - members[-1]['d']) > timedelta(hours=36 if ins else 24) or have[hk] >= cap_of(o, loc, members[0].get('h')):
                 continue
-            have[(o, loc)] += 1
+            have[hk] += 1
         keep.append(row)
     for g, members, weak, cvec, sid in keep:
         base = build_story(members, g, vecs, outlets_src, geoc)
@@ -1361,6 +1378,19 @@ def main():
         if (NOW - (pdate(v.get('updatedAt') or '') or NOW)) > timedelta(hours=30):
             v.pop('vec', None)
             v['sources'] = [{k: x[k] for k in x if k != 's'} for x in v.get('sources', [])]
+    # candidati di «Fuori dagli schemi»: si annota quali testate parlano dello stesso studio (non entra nel sito)
+    try:
+        import candidati as C
+        cpath = os.path.join(state, C.FILE)
+        if os.path.exists(cpath):
+            cd = C.load(cpath)
+            nlink = C.link_outlets(cd['studi'], [{'k': it['k'], 'o': it['o'], 't': it['t'], 's': it['s'], 'l': it['l']} for it in items],
+                                   lambda k: (stories.get(claimed.get(k)) or {}).get('outletIds'))
+            if nlink:
+                C.save(cpath, cd)
+                log(f'candidati: {nlink} studi con testate che ne parlano')
+    except Exception as ex:  # noqa: BLE001  # i candidati non devono mai fermare l'edizione
+        log('candidati non aggiornati:', repr(ex)[:160])
     ed_out = {'stories': stories, 'top': top, 'edition': eid, 'at': iso(NOW)}
     dump(os.path.join(state, 'editor.json'), ed_out)
     dump(os.path.join(state, 'trcache.json'), trc)

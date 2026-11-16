@@ -1,10 +1,19 @@
 # Eddy: stato del progetto
 
-Aggiornato al 9 novembre 2026: nuovo design online su **https://fi2ippo.github.io/eddy**.
+Aggiornato al 16 novembre 2026: nuovo design online su **https://fi2ippo.github.io/eddy**.
 Repository pubblico: https://github.com/Fi2ippo/eddy. I dati raccolti stanno sul ramo `dati`.
 Le regole decise da Filippo sono in `CLAUDE.md`, nella sezione "Decisioni prese".
 
 ---
+
+## Due temi nuovi: UX/UI e Fuori dagli schemi (16 novembre 2026)
+Ora i temi sono 18.
+- [x] **UX/UI** (`ux`, famiglia Cultura, dopo Design): Nielsen Norman Group, Smashing Magazine e UX Collective passano da Design a UX/UI; fonti nuove Baymard Institute, Interaction Design Foundation e ACM Interactions. Parole chiave proprie in `lexicon.py`; l'intelligenza artificiale da sola resta in Tecnologia.
+- [x] **Fuori dagli schemi** (`insolito`, famiglia Sapere, dopo Tecnologia): studi strani ma seri. Ci entrano solo le voci di feed scelti a mano: "Strange & Offbeat" di ScienceDaily, Improbable Research, Quanta Magazine, Nautilus, Aeon, Knowable Magazine. Nessuna lista di parole.
+- [x] **Etichetta dello studio** nelle righe e nelle carte dei due temi: "Rivista" (fonte con `"studio": "rivista"`) o "Preprint" (link ad arXiv, bioRxiv, medRxiv, SSRN, OSF).
+- [x] **Candidati degli studi** (`pipeline/candidati.py`, passo "Candidati studi" del workflow): arXiv e bioRxiv, in `candidati-studi.json` sul ramo `dati`, ultimi 21 giorni, massimo 5 MB. Non si vedono in app.
+- Fonti **scartate** perché senza feed ufficiale o ferme: Don Norman (jnd.org, ultimo articolo giugno 2025), A List Apart e UX Magazine (ultimo articolo giugno 2026), Google Design (nessun feed), notizie "strane" di Phys.org (nessun feed dedicato), EurekAlert (nessun feed pubblico).
+- Colori dei due temi **provvisori** (#4F46E5 / #4338CA e #6B2D8C): Filippo li definisce nella tela.
 
 ## Nuovo design (8–9 novembre 2026)
 Riferimento: `docs/design-definitivo/` (deciso da Filippo schermata per schermata). Lavoro sul ramo `nuovo-design`, un commit per passo; raccolta, redazione e formato dei dati non sono cambiati.

@@ -34,3 +34,6 @@ __pycache__/
 /site/
 /state/
 /mt/
+
+# Studi scaricati per tarare il filtro di «Fuori dagli schemi» e pagina dei voti: solo in locale, mai pubblicati
+/studi-prova/

@@ -120,9 +120,15 @@ T['motori'] = [
 ]
 # temi aggiunti in Eddy: design, architettura, arte e fotografia
 T['design'] = [
-    (3, r'design\b|designers\b|(?:graphic|product|type|fashion|ux|ui|interaction|interior|industrial|famous|italian|famoso|celebre) designer|designer (?:di|del|della|italian|britannic|american|giapponese|francese|tedesco|olandese|danese|svedese)|industrial design|product design|graphic design|graphic designer|tipografi|typograph|typeface|carattere tipografico|logo design|rebranding|brand identity|identita visiva|visual identity|packaging design|user experience|\bux\b|\bui\b|user interface|interaction design|usabilita|usability|design system|figma|wireframe|salone del mobile|fuorisalone|design week|compasso d oro|red dot award|interior design|interiors\b|arredament|furniture'),
-    (2, r'illustrazion|illustration|illustrator|motion design|prototip|prototyp|interfacc|creativ|estetic|aesthetic|artigianat|craftsmanship|lampada|sedia|divano|\bsofa\b|tessuti|ceramich|arredo\b'),
+    (3, r'design\b|designers\b|(?:graphic|product|type|fashion|interior|industrial|famous|italian|famoso|celebre) designer|designer (?:di|del|della|italian|britannic|american|giapponese|francese|tedesco|olandese|danese|svedese)|industrial design|product design|graphic design|graphic designer|tipografi|typograph|typeface|carattere tipografico|logo design|rebranding|brand identity|identita visiva|visual identity|packaging design|figma|salone del mobile|fuorisalone|design week|compasso d oro|red dot award|interior design|interiors\b|arredament|furniture'),
+    (2, r'illustrazion|illustration|illustrator|motion design|prototip|prototyp|creativ|estetic|aesthetic|artigianat|craftsmanship|lampada|sedia|divano|\bsofa\b|tessuti|ceramich|arredo\b'),
     (1, r'collezione|collection|edizione limitata|limited edition|restyling|minimalis'),
+]
+# UX/UI: esperienza d'uso, interfacce, interazione. «Intelligenza artificiale» da sola resta tech (vedi UX_AI più sotto).
+T['ux'] = [
+    (3, r'user experience|esperienza utente|esperienza d uso|\bux\b|\bui\b|user interface|interfaccia utente|interfacce utente|interface design|design dell interfaccia|design delle interfacce|interaction design|design dell interazione|usabilita|usability|design systems?\b|accessibilita digitale|accessibilita (?:del|dei|di un) (?:sit|web|app)|digital accessibility|web accessibility|accessible design|\bwcag\b|\ba11y\b|user research|ux research|ricerca con gli utenti|wirefram|dark patterns?\b|ux writing|microcopy|conversational (?:ui|ux|interface|design)|interfacc\w+ conversazional|agent(?:ic)? (?:ux|ui|experience)|(?:ux|ui|interaction|experience) designers?\b|human-computer interaction|interazione uomo-macchina|\bhci\b'),
+    (2, r'interfacc|interfaces?\b|usability test|test di usabilita|user testing|test con (?:gli )?utenti|user flows?\b|user journey|customer journey|information architecture|architettura dell informazione|affordance|onboarding|design patterns?\b|eye tracking|card sorting|design thinking|service design|human-centered|human-centred|user-centered|user-centred'),
+    (1, r'accessibilita|accessibility|prototip|prototyp|navigation|checkout|form design|usabil|layout'),
 ]
 T['architettura'] = [
     (3, r'architett|architect|archistar|grattaciel|skyscraper|urbanistic|urban planning|rigenerazione urbana|padiglione|pavilion|biennale di architettura|pritzker|masterplan|paesaggist|landscape architect|social housing|housing sociale|cohousing'),
@@ -307,10 +313,17 @@ def expand(text, lang='it'):
     return text
 
 
+# IA e interfacce: una storia di intelligenza artificiale passa a UX/UI solo se parla davvero di interfacce o di esperienza d'uso
+UX_AI = re.compile(r'\b(?:' + T['tech'][0][1].split('|nvidia')[0] + r')', re.I)
+UX_AI_MIN = 6    # punti di UX (un termine quasi univoco nel titolo, o più indizi) sotto i quali l'IA resta tech
+UX_AI_BONUS = 6
+# «Fuori dagli schemi» non ha parole chiave: ci entrano solo le voci dei feed scelti a mano ("h": "insolito" in sources.json)
+# e gli studi scelti dal filtro (pipeline/insolito.py)
+
 TOPIC_RX = {t: [(w, re.compile(r'\b(?:' + rx + r')', re.I)) for w, rx in lst] for t, lst in T.items()}
 
 # priorità di ripiego per temi equivalenti
-TOPIC_ORDER = ['italia', 'mondo', 'economia', 'cronaca', 'napoli', 'motori', 'sport', 'scienza', 'salute', 'tech', 'clima', 'architettura', 'design', 'arte', 'cultura', 'spettacoli']
+TOPIC_ORDER = ['italia', 'mondo', 'economia', 'cronaca', 'napoli', 'motori', 'sport', 'scienza', 'salute', 'tech', 'insolito', 'clima', 'architettura', 'design', 'ux', 'arte', 'cultura', 'spettacoli']
 
 # testate specializzate: tema di partenza
 OUTLET_TOPIC = {
@@ -322,7 +335,8 @@ OUTLET_TOPIC = {
     'economist': 'economia', 'politico': 'mondo', 'kyivindependent': 'mondo', 'timesofisrael': 'mondo',
     # riviste di design, architettura e arte (Eddy)
     'abitare': 'design', 'interni': 'design', 'elledecor': 'design', 'livingcorriere': 'design', 'designboom': 'design',
-    'itsnicethat': 'design', 'smashing': 'design', 'nngroup': 'design', 'uxcollective': 'design', 'figmablog': 'design',
+    'itsnicethat': 'design', 'smashing': 'ux', 'nngroup': 'ux', 'uxcollective': 'ux', 'figmablog': 'design',
+    'baymard': 'ux', 'ixdf': 'ux', 'acminteractions': 'ux',
     'core77': 'design', 'yanko': 'design', 'creativebloq': 'design', 'creativereview': 'design', 'wallpaper': 'design',
     'fastcodesign': 'design', 'designmilk': 'design', 'designwanted': 'design',
     'archdaily': 'architettura', 'giornalearchitettura': 'architettura',

@@ -14,8 +14,10 @@ const TOPICS = [
   {id:'scienza',     name:'Scienza',            long:'Scienza e scoperte',   c:'#17B3B0', tx:'#11817F', fam:'Sapere'},
   {id:'clima',       name:'Clima',              long:'Clima e ambiente',     c:'#A3C736', tx:'#657B21', fam:'Sapere'},
   {id:'tech',        name:'Tecnologia',         long:'Tecnologia e IA',      c:'#1E8A96', tx:'#1B7E89', fam:'Sapere'},
+  {id:'insolito',    name:'Fuori dagli schemi', long:'Studi e scoperte fuori dagli schemi', c:'#6B2D8C', tx:'#6B2D8C', fam:'Sapere'},
   {id:'cultura',     name:'Cultura',            long:'Cultura e società',    c:'#C25400', tx:'#C25400', fam:'Cultura'},
-  {id:'design',      name:'Design',             long:'Design, grafica e UX', c:'#F2B32B', tx:'#996C09', fam:'Cultura'},
+  {id:'design',      name:'Design',             long:'Design e grafica',     c:'#F2B32B', tx:'#996C09', fam:'Cultura'},
+  {id:'ux',          name:'UX/UI',              long:'UX, UI e interazione', c:'#4F46E5', tx:'#4338CA', fam:'Cultura'},
   {id:'arte',        name:'Arte e fotografia',  long:'Arte e fotografia',    c:'#F08A4B', tx:'#C05310', fam:'Cultura'},
   {id:'architettura',name:'Architettura',       long:'Architettura e città', c:'#C4A57A', tx:'#8F6D3F', fam:'Cultura'},
   {id:'spettacoli',  name:'Spettacoli',         long:'Spettacoli e costume', c:'#D25BB4', tx:'#C837A4', fam:'Tempo libero'},
@@ -39,7 +41,9 @@ const TICON = {
   spettacoli:'<rect x="3" y="9" width="18" height="11" rx="2"/><path d="M3.5 9L6 4h12.5L21 9"/><path d="M9 4.2L7.5 9M14.5 4.2L13 9"/>',
   design:'<path d="M12 3l6 7-6 11-6-11z"/><circle cx="12" cy="11.5" r="1.8"/><path d="M12 13.3V21M4 5.5l3 1.5M20 5.5L17 7"/>',
   architettura:'<path d="M3.5 21h17M5.5 21V9.5L12 4l6.5 5.5V21"/><path d="M9 21v-5h6v5M9 11h.01M12 11h.01M15 11h.01"/>',
-  arte:'<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 16l5-5 4 4 3-3 5 5"/><circle cx="15.5" cy="9" r="1.6"/>'
+  arte:'<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 16l5-5 4 4 3-3 5 5"/><circle cx="15.5" cy="9" r="1.6"/>',
+  ux:'<path d="M17 9V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h4.5"/><path d="M12 11l9.2 3.4-3.9 1.8-1.8 3.9z"/>',
+  insolito:'<circle cx="10.5" cy="10.5" r="7.2"/><path d="M15.8 15.8L21 21"/><path d="M8.3 8.7a2.3 2.3 0 1 1 3.5 2c-.8.5-1.3 1-1.3 1.9"/><path d="M10.5 14.6h.01"/>'
 };
 const PALETTE = ['#1F4E79','#8B2E2E','#2E6B4F','#6B3FA0','#9A5B13','#0F6A7A','#A33E6B','#3D4A5C','#5C6B1F','#7A2E5C','#24527A','#8A4B2A'];
 const TABS = ['oggi','perte','sfoglia','salvati','profilo'];
@@ -687,7 +691,15 @@ function tcol(s){ return TMAP[s.topic] || {name:s.topic || '', c:'#9A9DA5', tx:'
 function kickName(s){ const t = tcol(s); return s.topic === 'napoli' ? (ZMAP[s.zona] || 'Napoli') : t.name; }
 function covText(n){ return n + ' ' + (n === 1 ? 'testata' : 'testate'); }
 // "Il Mattino +10 · 4 h fa"
-function whoLine(s){ const ids = outletsOf(s); const tr = srcOf(s).length && srcOf(s).every(x => langOf(x) !== 'it'); return (ids.length ? esc(outlet(ids[0]).name) + (ids.length > 1 ? ' +' + (ids.length - 1) : '') + ' · ' : '') + esc(ago(s.updatedAt)) + (tr ? ' · Tradotto' : ''); }
+// etichetta dello studio (solo nei temi UX/UI e Fuori dagli schemi): "Preprint" se il link porta a un archivio di preprint, "Rivista" se la testata pubblica studi revisionati
+const PREPRINT_RX = /^https?:\/\/(?:[\w-]+\.)*(?:arxiv\.org|biorxiv\.org|medrxiv\.org|ssrn\.com|osf\.io)(?:[\/:?#]|$)/i;
+function studyTag(s){
+  if (!hasTopic(s, 'ux') && !hasTopic(s, 'insolito')) return '';
+  const src = srcOf(s); if (src.some(x => PREPRINT_RX.test(x.u || ''))) return 'Preprint';
+  return src.length && outlet(src[0].o).studio === 'rivista' ? 'Rivista' : '';
+}
+function studyHtml(s){ const t = studyTag(s); return t ? ` <i class="stl">${t}</i>` : ''; }
+function whoLine(s){ const ids = outletsOf(s); const tr = srcOf(s).length && srcOf(s).every(x => langOf(x) !== 'it'); return (ids.length ? esc(outlet(ids[0]).name) + (ids.length > 1 ? ' +' + (ids.length - 1) : '') + studyHtml(s) + ' · ' : '') + esc(ago(s.updatedAt)) + (tr ? ' · Tradotto' : ''); }
 // riga di un elenco: tema (o zona), titolo, testate, miniatura
 function nrow(s, opts){
   opts = opts || {};
@@ -704,7 +716,7 @@ function carouselCard(s, i, opts){
   return `<article class="ccard" data-i="${i}" data-act="open" data-id="${esc(s.id)}" tabindex="0" style="--tg:${t.c};--tgt:${t.tx}" aria-label="${esc(s.headline)}">
     <div class="cpic">${visual(s, 'wide', true, i === 0 ? 'high' : 'lazy')}</div>
     <div class="cin"><span class="tag">${esc(opts.t && opts.t.id !== 'napoli' ? opts.t.name : kickName(s))}</span><h3>${esc(s.headline)}</h3>
-      <div class="meta">${n > 1 || !opts.t ? `<span class="cov">${PAPER_S}${covText(n)}</span><span>${esc(ago(s.updatedAt))}</span>` : `<span>${n ? esc(outlet(ids[0]).name) + ' · ' : ''}${esc(ago(s.updatedAt))}</span>`}</div></div>
+      <div class="meta">${n > 1 || !opts.t ? `<span class="cov">${PAPER_S}${covText(n)}</span><span>${studyTag(s) ? studyHtml(s).trim() + ' · ' : ''}${esc(ago(s.updatedAt))}</span>` : `<span>${n ? esc(outlet(ids[0]).name) + studyHtml(s) + ' · ' : ''}${esc(ago(s.updatedAt))}</span>`}</div></div>
   </article>`;
 }
 function carousel(list, title, label, key, opts){
@@ -1019,7 +1031,7 @@ const PEN = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke=
 // pulsante di un tema da scegliere (primo avvio e Profilo): quadratino o riga del colore pieno, spunta quando è scelto
 // scelta dei temi (primo avvio e Profilo): pillole divise per famiglia; scelte si accendono del colore pieno del tema
 const FAMS = ['Attualità', 'Luoghi', 'Sapere', 'Cultura', 'Tempo libero'];
-const PICK_ORDER = ['italia', 'cronaca', 'salute', 'napoli', 'mondo', 'economia', 'scienza', 'tech', 'clima', 'cultura', 'design', 'architettura', 'arte', 'sport', 'motori', 'spettacoli'];
+const PICK_ORDER = ['italia', 'cronaca', 'salute', 'napoli', 'mondo', 'economia', 'scienza', 'tech', 'insolito', 'clima', 'cultura', 'design', 'ux', 'architettura', 'arte', 'sport', 'motori', 'spettacoli'];
 function lum(hex){ return hexRgb(hex).map(v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }).reduce((a, v, i) => a + v * [.2126, .7152, .0722][i], 0); }
 function contrast(a, b){ const x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); }
 // testo sul colore pieno: bianco o inchiostro, quello che si legge meglio

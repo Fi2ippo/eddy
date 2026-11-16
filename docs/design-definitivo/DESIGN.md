@@ -38,20 +38,24 @@ Ogni tema ha due toni: **pieno** per righe, cartelle, quadratini e barre; **scri
 | Sapere | Scienza (`scienza`) | #17B3B0 | #11817F |
 | Sapere | Clima (`clima`) | #A3C736 | #657B21 |
 | Sapere | Tecnologia (`tech`) | #1E8A96 | #1B7E89 |
+| Sapere | Fuori dagli schemi (`insolito`) · colore provvisorio | #6B2D8C | #6B2D8C |
 | Cultura | Cultura (`cultura`) | #C25400 | #C25400 |
 | Cultura | Design (`design`) | #F2B32B | #996C09 |
+| Cultura | UX/UI (`ux`) · colore provvisorio | #4F46E5 | #4338CA |
 | Cultura | Arte e fotografia (`arte`) | #F08A4B | #C05310 |
 | Cultura | Architettura (`architettura`) | #C4A57A | #8F6D3F |
 | Tempo libero | Spettacoli (`spettacoli`) | #D25BB4 | #C837A4 |
 | Tempo libero | Sport (`sport`) | #8E6CF0 | #7C55EE |
 | Tempo libero | Motori (`motori`) | #5E6272 | #5E6272 |
 
+Nei temi UX/UI e Fuori dagli schemi, accanto al nome della testata può comparire un'etichetta piccola (12px, #6B6E76, bordo #E1E3E7): **Rivista** se la testata pubblica studi revisionati, **Preprint** se il link porta ad arXiv, bioRxiv, medRxiv, SSRN o OSF.
+
 ## Barra di navigazione
 Pillola bianca che fluttua (16px dal fondo, 14px dai lati), alta 68px, raggio 34px, bordo #E4E5E9, ombra leggera. **Solo icone**; la voce attiva si allarga in una pillola #EEEFF2 con icona e nome in #111216. Le voci inattive sono #6B6E76.
 Cinque voci, con le icone disegnate nelle schermate: **Oggi** (giornale) · **Per te** (bussola) · **Sfoglia** (carte) · **Salvati** (segnalibro) · **Profilo** (persona). Non c'è più Esplora.
 
 ## Le schermate (nell'ordine in cui le incontri)
-1. **01–04 · Primo avvio**: Benvenuto (anteprima di card affiancate) → Cosa ti interessa? (i 16 temi divisi per famiglia — Attualità, Luoghi, Sapere, Cultura, Tempo libero — come pillole con icona; scelto, il tema si riempie del suo colore; pulsante "Avanti · N temi" sempre in fondo) → Come ti chiamiamo? (con l'anteprima del saluto) → **04 · Come si sfoglia**: la prima volta in Oggi la fila di Prima pagina scorre di 48px e torna indietro due volte; sotto il titolo compare "Scorri per le altre →", che sparisce al primo scorrimento. Il cenno si interrompe quando interagisci e non si ripete, anche rivedendo l'introduzione; con movimento ridotto rimane solo il testo. "Salta" sempre possibile; l'introduzione si rivede dal Profilo.
+1. **01–04 · Primo avvio**: Benvenuto (anteprima di card affiancate) → Cosa ti interessa? (i 18 temi divisi per famiglia — Attualità, Luoghi, Sapere, Cultura, Tempo libero — come pillole con icona; scelto, il tema si riempie del suo colore; pulsante "Avanti · N temi" sempre in fondo) → Come ti chiamiamo? (con l'anteprima del saluto) → **04 · Come si sfoglia**: la prima volta in Oggi la fila di Prima pagina scorre di 48px e torna indietro due volte; sotto il titolo compare "Scorri per le altre →", che sparisce al primo scorrimento. Il cenno si interrompe quando interagisci e non si ripete, anche rivedendo l'introduzione; con movimento ridotto rimane solo il testo. "Salta" sempre possibile; l'introduzione si rivede dal Profilo.
 2. **05 · Oggi**: testata compatta con logo a sinistra (19px) e pillola #F4F5F7 a destra, senza bordo e alta 40px, con "Aggiornato alle…" e icona; tutta la pillola aggiorna le notizie. Sotto, saluto a sinistra a 27px con il nome nel colore dell'ora, su una riga salvo nomi lunghi; poi solo la data per esteso a 14px. Dopo 30px, **Prima pagina** come fila di card che **scorre di lato** (scorrimento normale del telefono, la card dopo si intravede a destra), contatore "1 di 9" in alto a destra, niente puntini. Card con foto di 180px, etichetta, titolo sempre intero a 22px, testate e tempo in fondo: sommario e indicazione della traduzione si leggono nella storia. A 390×844 la card intera resta sopra la barra di navigazione. Dopo la fila, linea #ECEDF0 con margini di 20px e 22px di spazio prima di **Napoli e provincia**; poi **Ultime notizie** in elenco.
 3. **08 · Per te, i tuoi temi**: "I tuoi temi" (con "Modifica") come mazzi di carte su due colonne, uno per tema scelto: carta davanti con foto e titolo della notizia più importante, riga del colore del tema, bollino "N nuove", sotto icona, nome e numero di notizie. Poi "Altri temi" su due colonne. "Nuove" sono le notizie arrivate nelle ultime 12 ore (contando dall'ultimo articolo, la stessa ora che si legge sotto il titolo); la stessa regola vale per il totale in cima a Per te e per la pagina del tema. Senza temi scelti: un invito con il pulsante per sceglierli.
 4. **09 · Per te, dentro un tema**: "‹ Per te" e la pillola "Nei tuoi temi / Aggiungi ai tuoi temi"; icona e nome del tema affiancati, "N notizie · X nuove". Sezione **Nuove** (ultime 12 ore) come fila di card che scorre di lato, con "1 di N"; sotto **Tutte le notizie** con le altre, dalla più recente.

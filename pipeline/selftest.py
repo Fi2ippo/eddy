@@ -57,6 +57,30 @@ check('tema: arte', top_topic('Caravaggio ritrovato, la mostra al museo di Capod
 check('«désigner» in francese non è design', top_topic('Le congrès du parti devant désigner son successeur') != 'design')
 check('Casa Bianca non è architettura', top_topic('Trump alla Casa Bianca incontra Zelensky') == 'mondo')
 
+# UX/UI e Fuori dagli schemi
+check('tema: ux', top_topic('Usabilità e design system: come si progetta una interfaccia accessibile') == 'ux')
+check('tema: ux in inglese', top_topic('User research: 5 usability testing mistakes in onboarding flows') == 'ux')
+check('IA da sola resta tech', top_topic('OpenAI presenta il nuovo modello di intelligenza artificiale') == 'tech')
+_ux = lambda t: E.classify(E.topic_scores(t, '', [], {}), [], {})[0]  # noqa: E731
+check('IA con una nuova interfaccia resta tech', _ux('ChatGPT cambia interfaccia: le novità di OpenAI per smartphone') == 'tech')
+check('IA e interfacce: ux', _ux('Conversational UI e user experience: come cambia il design delle interfacce con l intelligenza artificiale') == 'ux')
+check('insolito non ha parole chiave', 'insolito' not in L.T and 'insolito' in L.TOPIC_ORDER)
+_m = lambda o, h: {'o': o, 'h': h, 't': 'Why do wombats make cube-shaped poo? A study explains', 'ti': 'Perché i vombati fanno feci a cubo? Uno studio lo spiega', 's': '', 'l': 'en', 'gn': False}  # noqa: E731
+_ol = {'quanta': {'name': 'Quanta', 'lang': 'en', 'sec': 'scienza'}, 'bbc': {'name': 'BBC', 'lang': 'en', 'sec': 'mondo'},
+       'cnn': {'name': 'CNN', 'lang': 'en', 'sec': 'mondo'}, 'nyt': {'name': 'NYT', 'lang': 'en', 'sec': 'mondo'}}
+_v = [{'vombat': 1.0}] * 4
+check('feed scelto a mano: insolito', E.build_story([_m('quanta', 'insolito')], [0], _v, _ol, {})['topic'] == 'insolito')
+_big = E.build_story([_m('quanta', 'insolito'), _m('bbc', 'scienza'), _m('cnn', 'scienza'), _m('nyt', None)], [0, 1, 2, 3], _v, _ol, {})
+check('notizia grande: insolito solo come secondo tema', _big['topic'] != 'insolito' and 'insolito' in _big['alt'])
+check('nessuna voce scelta a mano: mai insolito', 'insolito' not in [E.build_story([_m('bbc', 'scienza')], [0], _v, _ol, {})[k] for k in ('topic',)])
+
+# candidati degli studi
+import candidati as C  # noqa: E402
+check('primo paragrafo entro 600 caratteri', len(C.first_par('Frase uno. ' * 200)) <= 600 and C.first_par('Uno.\n\nDue.') == 'Uno.')
+_st = [{'id': 'a', 't': 'x', 's': '', 'd': C.iso(C.NOW)}, {'id': 'b', 't': 'y', 's': '', 'd': '2020-01-01T00:00:00Z'}]
+check('candidati: solo 21 giorni', [x['id'] for x in C.prune(_st)] == ['a'])
+check('candidati: tetto di peso', len(C.prune([dict(_st[0], id=str(i), s='z' * 500) for i in range(400)], max_bytes=60000)) < 400)
+
 # indirizzi e voci
 outlets = {'ansa': {'name': 'ANSA', 'lang': 'it', 'sec': 'it'}}
 base = {'o': 'ansa', 't': 'Titolo abbastanza lungo per passare i filtri della redazione', 's': '', 'd': '2026-10-18T10:00:00Z', 'l': 'it'}

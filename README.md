@@ -1,6 +1,6 @@
 # Eddy
 
-Eddy è un'app web gratuita che raccoglie le notizie di circa 145 testate (italiane, estere, di Napoli e provincia e
+Eddy è un'app web gratuita che raccoglie le notizie di circa 150 testate (italiane, estere, di Napoli e provincia e
 riviste di design, architettura e arte), riunisce in un'unica storia gli articoli che raccontano lo stesso fatto e la
 mostra con le testate in cima, un sommario fatto di frasi delle testate e i link agli articoli originali.
 Nessun testo è scritto dall'intelligenza artificiale.

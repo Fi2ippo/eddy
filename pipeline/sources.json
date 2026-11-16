@@ -572,7 +572,8 @@
     "u": "https://www.nature.com/nature.rss",
     "h": "scienza"
    }
-  ]
+  ],
+  "studio": "rivista"
  },
  {
   "o": "science",
@@ -588,7 +589,8 @@
     "u": "https://www.science.org/rss/news_current.xml",
     "h": "scienza"
    }
-  ]
+  ],
+  "studio": "rivista"
  },
  {
   "o": "newscientist",
@@ -643,8 +645,13 @@
    {
     "u": "https://www.sciencedaily.com/rss/mind_brain.xml",
     "h": "salute"
+   },
+   {
+    "u": "https://www.sciencedaily.com/rss/strange_offbeat.xml",
+    "h": "insolito"
    }
-  ]
+  ],
+  "studio": "divulgazione"
  },
  {
   "o": "physorg",
@@ -1790,7 +1797,7 @@
   "feeds": [
    {
     "u": "https://www.smashingmagazine.com/feed/",
-    "h": "design"
+    "h": "ux"
    }
   ]
  },
@@ -1806,7 +1813,7 @@
   "feeds": [
    {
     "u": "https://www.nngroup.com/feed/rss/",
-    "h": "design"
+    "h": "ux"
    }
   ]
  },
@@ -1822,7 +1829,7 @@
   "feeds": [
    {
     "u": "https://uxdesign.cc/feed",
-    "h": "design"
+    "h": "ux"
    }
   ]
  },
@@ -2405,5 +2412,146 @@
     "h": "sport"
    }
   ]
+ },
+ {
+  "o": "baymard",
+  "name": "Baymard Institute",
+  "short": "BY",
+  "color": "#1F4E79",
+  "kind": "Ricerca sulla user experience",
+  "lang": "en",
+  "site": "https://baymard.com",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://baymard.com/blog.atom",
+    "h": "ux"
+   }
+  ],
+  "gn": false
+ },
+ {
+  "o": "ixdf",
+  "name": "Interaction Design Foundation",
+  "short": "IxD",
+  "color": "#2E6B4F",
+  "kind": "Formazione e ricerca sulla UX",
+  "lang": "en",
+  "site": "https://ixdf.org",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://www.interaction-design.org/rss/site_news.xml",
+    "h": "ux"
+   }
+  ],
+  "gn": false
+ },
+ {
+  "o": "acminteractions",
+  "name": "ACM Interactions",
+  "short": "ACM",
+  "color": "#24527A",
+  "kind": "Rivista di interazione uomo-macchina",
+  "lang": "en",
+  "site": "https://interactions.acm.org",
+  "sec": "design",
+  "feeds": [
+   {
+    "u": "https://dl.acm.org/action/showFeed?type=etoc&feed=rss&jc=interactions",
+    "h": "ux"
+   }
+  ],
+  "gn": false
+ },
+ {
+  "o": "improbable",
+  "name": "Improbable Research",
+  "short": "IR",
+  "color": "#8A4B2A",
+  "kind": "Il blog dei premi Ig Nobel",
+  "lang": "en",
+  "site": "https://improbable.com",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://improbable.com/feed/",
+    "h": "insolito"
+   }
+  ],
+  "studio": "divulgazione",
+  "gn": false
+ },
+ {
+  "o": "quanta",
+  "name": "Quanta Magazine",
+  "short": "QM",
+  "color": "#9A5B13",
+  "kind": "Divulgazione scientifica",
+  "lang": "en",
+  "site": "https://www.quantamagazine.org",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://www.quantamagazine.org/feed/",
+    "h": "insolito"
+   }
+  ],
+  "studio": "divulgazione",
+  "gn": false
+ },
+ {
+  "o": "nautilus",
+  "name": "Nautilus",
+  "short": "NT",
+  "color": "#0F6A7A",
+  "kind": "Divulgazione scientifica",
+  "lang": "en",
+  "site": "https://nautil.us",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://nautil.us/feed/",
+    "h": "insolito"
+   }
+  ],
+  "studio": "divulgazione",
+  "gn": false
+ },
+ {
+  "o": "aeon",
+  "name": "Aeon",
+  "short": "AE",
+  "color": "#7A2E5C",
+  "kind": "Saggi di scienza e filosofia",
+  "lang": "en",
+  "site": "https://aeon.co",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://aeon.co/feed.rss",
+    "h": "insolito"
+   }
+  ],
+  "studio": "divulgazione",
+  "gn": false
+ },
+ {
+  "o": "knowable",
+  "name": "Knowable Magazine",
+  "short": "KM",
+  "color": "#3D4A5C",
+  "kind": "Divulgazione scientifica",
+  "lang": "en",
+  "site": "https://knowablemagazine.org",
+  "sec": "scienza",
+  "feeds": [
+   {
+    "u": "https://knowablemagazine.org/rss",
+    "h": "insolito"
+   }
+  ],
+  "studio": "divulgazione",
+  "gn": false
  }
 ]

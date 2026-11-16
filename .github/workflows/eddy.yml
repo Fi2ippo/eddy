@@ -168,6 +168,12 @@ jobs:
         timeout-minutes: 12
         run: python pipeline/collect.py pipeline/sources.json state
 
+      # studi nuovi di arXiv e bioRxiv per «Fuori dagli schemi»: restano sul ramo dati, non entrano nel sito
+      - name: Candidati studi
+        continue-on-error: true
+        timeout-minutes: 4
+        run: python pipeline/candidati.py state
+
       - name: Segnalazioni dall'app
         id: segnalazioni
         continue-on-error: true

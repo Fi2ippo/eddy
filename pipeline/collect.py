@@ -378,8 +378,8 @@ def process_outlet(src, seen_first, cache):
         cur = by_k.get(it['k'])
         if cur is None:
             by_k[it['k']] = it
-        elif it.get('h') and not cur.get('h'):
-            cur['h'] = it['h']
+        elif it.get('h') and (not cur.get('h') or it['h'] == 'insolito'):
+            cur['h'] = it['h']  # la sezione scelta a mano («Strange & Offbeat») vince su quella generale
     uniq = sorted(by_k.values(), key=lambda x: x['d'], reverse=True)
     return src, uniq[:PER_OUTLET], diags, newcache
 
@@ -696,7 +696,7 @@ def main():
         if it.get('img') and (count.get((it['o'], it['img']), 0) >= 3 or BAD_IMG.search(it['img'])) and not it.get('ik'):
             it['img'] = None
 
-    outlets = {s['o']: {k: s[k] for k in ('name', 'short', 'color', 'kind', 'lang', 'site', 'sec', 'zona', 'mista', 'rilancia') if k in s} for s in sources}
+    outlets = {s['o']: {k: s[k] for k in ('name', 'short', 'color', 'kind', 'lang', 'site', 'sec', 'zona', 'mista', 'rilancia', 'studio') if k in s} for s in sources}
 
     def save():
         dump_json(os.path.join(state, 'items.json'), items)
