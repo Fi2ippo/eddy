@@ -72,6 +72,9 @@ _v = [{'vombat': 1.0}] * 4
 check('feed scelto a mano: insolito', E.build_story([_m('quanta', 'insolito')], [0], _v, _ol, {})['topic'] == 'insolito')
 _big = E.build_story([_m('quanta', 'insolito'), _m('bbc', 'scienza'), _m('cnn', 'scienza'), _m('nyt', None)], [0, 1, 2, 3], _v, _ol, {})
 check('notizia grande: insolito solo come secondo tema', _big['topic'] != 'insolito' and 'insolito' in _big['alt'])
+_oi = E.prepare([{'o': 'quanta', 'h': 'insolito', 'k': 'q1', 'u': 'https://www.quantamagazine.org/a/', 't': 'Why do wombats make cube-shaped poo? A new study', 's': 'Researchers found the answer.', 'd': '2026-10-18T10:00:00Z', 'l': 'en'}], _ol)
+E.translate_items(_oi, {}, None)
+check('insolito: voce marcata come non tradotta', _oi[0].get('ni') and 'ti' not in _oi[0] and E.source_rec(_oi[0], _ol).get('ni') == 1)
 check('nessuna voce scelta a mano: mai insolito', 'insolito' not in [E.build_story([_m('bbc', 'scienza')], [0], _v, _ol, {})[k] for k in ('topic',)])
 
 # candidati degli studi

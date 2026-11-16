@@ -340,8 +340,10 @@ function hasTopic(s, t){ return s.topic === t || (t !== 'napoli' && Array.isArra
 /* traduzioni dei titoli esteri: dalla redazione (campo ti) o, per le storie più vecchie, tradotte qui e tenute in cache */
 const TR = new Map(Object.entries(LS.get('tr') || {}));
 function trKey(t){ return hash(t).toString(36) + String(t).length; }
+// voce di un tema che resta in lingua originale (campo ni): mai tradotta e mai segnalata come tradotta
+function isTr(x){ return langOf(x) !== 'it' && !x.ni; }
 function titleIt(x){
-  if (langOf(x) === 'it') return null;
+  if (langOf(x) === 'it' || x.ni) return null;
   return x.ti || TR.get(trKey(x.t)) || null;
 }
 function srcOf(s){ const hid = HID[s.id] && HID[s.id].u; return (s.sources || []).filter(x => x && x.o && !(hid && hid.includes(x.u))); }
@@ -699,7 +701,7 @@ function studyTag(s){
   return src.length && outlet(src[0].o).studio === 'rivista' ? 'Rivista' : '';
 }
 function studyHtml(s){ const t = studyTag(s); return t ? ` <i class="stl">${t}</i>` : ''; }
-function whoLine(s){ const ids = outletsOf(s); const tr = srcOf(s).length && srcOf(s).every(x => langOf(x) !== 'it'); return (ids.length ? esc(outlet(ids[0]).name) + (ids.length > 1 ? ' +' + (ids.length - 1) : '') + studyHtml(s) + ' · ' : '') + esc(ago(s.updatedAt)) + (tr ? ' · Tradotto' : ''); }
+function whoLine(s){ const ids = outletsOf(s); const tr = srcOf(s).length && srcOf(s).every(isTr); return (ids.length ? esc(outlet(ids[0]).name) + (ids.length > 1 ? ' +' + (ids.length - 1) : '') + studyHtml(s) + ' · ' : '') + esc(ago(s.updatedAt)) + (tr ? ' · Tradotto' : ''); }
 // riga di un elenco: tema (o zona), titolo, testate, miniatura
 function nrow(s, opts){
   opts = opts || {};
@@ -1197,7 +1199,7 @@ function renderSheet(keepScroll){
   else if (paras.length) brief = paras.map(fmtPara).join('');
   else if (s.dek) brief = `<p class="p">${esc(s.dek)}</p>`;
   else {
-    const seen = new Set(); brief = srcs.slice().reverse().filter(x => !seen.has(x.o) && seen.add(x.o)).slice(0, 2).map(x => `<p class="p">${esc(titleIt(x) || x.t)}<small>${esc(outlet(x.o).name)}${langOf(x) !== 'it' && titleIt(x) ? ' · tradotto' : ''}</small></p>`).join('');
+    const seen = new Set(); brief = srcs.slice().reverse().filter(x => !seen.has(x.o) && seen.add(x.o)).slice(0, 2).map(x => `<p class="p">${esc(titleIt(x) || x.t)}<small>${esc(outlet(x.o).name)}${isTr(x) && titleIt(x) ? ' · tradotto' : ''}</small></p>`).join('');
   }
   const cmp = compareBlock(srcs);
   const pts = !sumOff ? (s.points || []) : [];
@@ -1261,11 +1263,11 @@ function phraseOf(s){
   if (p && !(s.sumOff || SUMOFF[s.id])) {
     const m = p.match(/\s\(([^()]{2,80})\)\s*$/);
     const src = srcOf(s).find(x => norm(outlet(x.o).name) === norm(m[1]));
-    if (src && src.u) return {t:p.slice(0, m.index).trim(), o:m[1], u:src.u, tr:langOf(src) !== 'it'};
+    if (src && src.u) return {t:p.slice(0, m.index).trim(), o:m[1], u:src.u, tr:isTr(src)};
   }
   const hl = norm(s.headline);
   const x = srcOf(s).slice().sort((a, b) => ts(b.d) - ts(a.d)).find(y => norm(titleIt(y) || y.t) !== hl);
-  return x && x.u ? {t:titleIt(x) || x.t, o:outlet(x.o).name, u:x.u, tr:langOf(x) !== 'it' && !!titleIt(x)} : null;
+  return x && x.u ? {t:titleIt(x) || x.t, o:outlet(x.o).name, u:x.u, tr:isTr(x) && !!titleIt(x)} : null;
 }
 const SF_STEP = 25;
 // In Sfoglia sono anticipate solo la notizia attuale e le due successive.

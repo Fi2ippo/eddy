@@ -284,7 +284,7 @@ def prepare(items, outlets):
         if dl and dl != lang:
             lang = dl
         res.append({'k': it['k'], 'o': it['o'], 't': t, 's': s, 'u': u, 'd': d, 'l': lang, 'live': bool(LIVE.search(it.get('t') or '')),
-                    'a': it.get('a'), 'h': hint, 'img': img, 'gn': it.get('via') == 'gn', 'fs': pdate(it.get('fs') or '') or d})
+                    'a': it.get('a'), 'h': hint, 'ni': hint == 'insolito', 'img': img, 'gn': it.get('via') == 'gn', 'fs': pdate(it.get('fs') or '') or d})
     return res
 
 
@@ -294,7 +294,7 @@ def translate_items(items, trc, models):
     used, todo = set(), defaultdict(list)
     fixed = 0
     for it in items:
-        if it['l'] == 'it':
+        if it['l'] == 'it' or it.get('ni'):  # Fuori dagli schemi resta nella lingua originale
             continue
         for fld, src in (('ti', it['t']), ('si', it['s'])):
             if not src:
@@ -738,14 +738,14 @@ def build_story(members, vecs_idx, vecs, outlets, geoc):
     for rank_i, i in enumerate(order):
         it = members[i]
         sn = isnip(it)
-        if not sn or (it['l'] != 'it' and not it.get('si')):
+        if not sn or (it['l'] != 'it' and not it.get('si') and not it.get('ni')):
             continue
         for k, s in enumerate(sentences(sn)[:3]):
             if len(s) < 35 or s.endswith('…') and len(s) < 70:
                 continue
             trunc = s.endswith('…')
             cands.append({'s': s, 'o': it['o'], 'i': i, 'pos': k, 'q': quality(i) - 0.08 * k - 0.01 * rank_i - (0.2 if trunc else 0),
-                          'set': tset(s), 'tr': it['l'] != 'it'})
+                          'set': tset(s), 'tr': it['l'] != 'it' and not it.get('ni')})
     used = []
 
     def novel(c, thr=0.45):
@@ -908,8 +908,10 @@ def source_rec(it, outlets, with_snip=True):
     a = (it.get('a') or '').strip()
     if a and len(a) < 60 and not re.search(r'@|redazione|newsroom|staff', a, re.I) and L.norm(a) != L.norm(outlets.get(it['o'], {}).get('name', '')):
         r['a'] = a
+    if it.get('ni') and it['l'] != 'it':
+        r['ni'] = 1  # titolo e frasi originali, mai tradotti
     sn = isnip(it)
-    if with_snip and sn and (it['l'] == 'it' or it.get('si')):
+    if with_snip and sn and (it['l'] == 'it' or it.get('si') or it.get('ni')):
         r['s'] = short(sn, 240)
     return r
 
@@ -1233,6 +1235,13 @@ def main():
     for k in t_single[n_ts:] + t_multi[n_tm:]:
         stories.pop(k)
 
+    # Fuori dagli schemi: titoli e frasi restano in inglese, anche nelle voci conservate da giri precedenti
+    for v in stories.values():
+        if v.get('topic') == 'insolito':
+            for x in v.get('sources', []):
+                if x.get('l', 'it') != 'it':
+                    x.pop('ti', None)
+                    x['ni'] = 1
     # traduzioni vecchie con caratteri persi («⁇»): si riparano dall'originale
     from translate import fix_unk, repair
     for v in stories.values():
