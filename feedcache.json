@@ -1,0 +1,110 @@
+{
+ "agi": {
+  "u": "https://www.agi.it/rss.xml",
+  "at": "2026-11-06T15:00:24Z"
+ },
+ "ilpost": {
+  "u": "https://www.ilpost.it/feed",
+  "at": "2026-11-06T15:00:24Z"
+ },
+ "quotidianosanita": {
+  "u": "https://www.quotidianosanita.it/rss/",
+  "at": "2026-11-19T19:38:05Z"
+ },
+ "alvolante": {
+  "u": "https://www.alvolante.it/rss.xml",
+  "at": "2026-11-14T21:09:31Z"
+ },
+ "motorbox": {
+  "u": "https://www.motorbox.com/rss.xml",
+  "at": "2026-11-06T15:00:24Z"
+ },
+ "gpone": {
+  "u": "https://www.gpone.com/rss.xml",
+  "at": "2026-11-10T03:00:33Z"
+ },
+ "ilnapolista": {
+  "u": "https://www.ilnapolista.it/rss/",
+  "at": "2026-11-06T15:20:47Z"
+ },
+ "puntoinformatico": {
+  "u": "https://www.punto-informatico.it/rss/",
+  "at": "2026-11-18T16:30:32Z"
+ },
+ "france24": {
+  "u": "https://www.france24.com/rss.xml",
+  "at": "2026-11-17T12:25:11Z"
+ },
+ "fotografiaartistica": {
+  "u": "https://fotografiaartistica.it/feed/",
+  "at": "2026-11-06T19:50:49Z"
+ },
+ "nautica": {
+  "u": "https://nautica.it/feed/",
+  "at": "2026-11-20T02:20:31Z"
+ },
+ "finestresullarte": {
+  "u": "https://www.finestresullarte.info/feed",
+  "at": "2026-11-07T13:26:48Z"
+ },
+ "formulapassion": {
+  "u": "https://www.formulapassion.it/feed/",
+  "at": "2026-11-07T22:41:46Z"
+ },
+ "ilgolfo": {
+  "u": "https://www.ilgolfo24.it/rss/",
+  "at": "2026-11-12T17:33:00Z"
+ },
+ "internapoli": {
+  "u": "https://internapoli.it/feed/",
+  "at": "2026-11-10T21:54:52Z"
+ },
+ "artslife": {
+  "u": "https://artslife.com/rss/",
+  "at": "2026-11-11T17:35:03Z"
+ },
+ "ilfotografo": {
+  "u": "https://ilfotografo.it/feed/",
+  "at": "2026-11-11T19:47:26Z"
+ },
+ "megayachtnews": {
+  "u": "https://megayachtnews.com/rss/",
+  "at": "2026-11-12T16:23:55Z"
+ },
+ "abitare": {
+  "u": "https://www.abitare.it/feed/",
+  "at": "2026-11-13T11:13:21Z"
+ },
+ "ilmediano": {
+  "u": "https://www.ilmediano.com/rss/",
+  "at": "2026-11-14T08:50:14Z"
+ },
+ "scmp": {
+  "u": "https://www.scmp.com/rss/feed",
+  "at": "2026-11-14T13:01:19Z"
+ },
+ "ilfatto": {
+  "u": "https://www.ilfattoquotidiano.it/rss/",
+  "at": "2026-11-15T09:02:03Z"
+ },
+ "fattovesuviano": {
+  "u": "https://www.ilfattovesuviano.it/feed.xml",
+  "at": "2026-11-17T16:12:00Z"
+ },
+ "hyperallergic": {
+  "u": "https://hyperallergic.com/rss/",
+  "at": "2026-11-17T19:31:06Z"
+ },
+ "elledecor": {
+  "u": "https://www.elledecor.com/it/rss/default.xml",
+  "at": "2026-11-17T22:24:50Z"
+ },
+ "designmilk": {
+  "u": "https://design-milk.com/rss/",
+  "at": "2026-11-18T17:42:20Z"
+ },
+ "valigiablu": {
+  "u": "https://www.valigiablu.it/rss/",
+  "at": "2026-11-18T18:10:27Z"
+ }
+}
